@@ -6,7 +6,7 @@ export default function PublicFooter() {
   return (
     <footer className="bg-[#111827] text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
 
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-5">
@@ -17,7 +17,7 @@ export default function PublicFooter() {
               </div>
             </div>
             <p className="text-sm leading-relaxed text-gray-400 mb-5">
-              Expert, nurturing tuition for students in Grays, Thurrock. We help every child build confidence, master their subjects, and reach their full potential.
+              Expert group tuition in Grays, Thurrock — serving families from Tilbury, Chafford Hundred, Stanford-le-Hope, Corringham, South Ockendon, Aveley and across Essex. We help every child build confidence, master their subjects, and reach their full potential.
             </p>
             <a
               href="https://wa.me/447480413679"
@@ -71,6 +71,30 @@ export default function PublicFooter() {
                 <li key={service}>
                   <Link href="/services" className="text-sm text-gray-400 hover:text-[#C9973A] transition-colors">
                     {service}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Areas Served</h4>
+            <ul className="space-y-2">
+              {[
+                "Tuition in Grays",
+                "Tuition in Tilbury",
+                "Tuition in Chafford Hundred",
+                "Tuition in Stanford-le-Hope",
+                "Tuition in Corringham",
+                "Tuition in South Ockendon",
+                "Tuition in Aveley",
+                "Tuition in West Thurrock",
+                "Tuition in Purfleet",
+                "Tuition in Chadwell St Mary",
+              ].map((area) => (
+                <li key={area}>
+                  <Link href="/contact" className="text-sm text-gray-400 hover:text-[#C9973A] transition-colors">
+                    {area}
                   </Link>
                 </li>
               ))}

@@ -72,8 +72,8 @@ const FAQS = [
     a: "Our sessions are group-based (max 8 students). This model keeps costs accessible while maintaining meaningful individual attention. Please contact us to discuss your specific requirements.",
   },
   {
-    q: "Where are you based?",
-    a: "We are based at Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock. There is free parking available on site.",
+    q: "Where are you based, and which areas do you cover?",
+    a: "We are based at Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock — with free parking on site. We welcome students from across the Thurrock borough, including Tilbury, Chafford Hundred, Stanford-le-Hope, Corringham, South Ockendon, Aveley, West Thurrock, Chadwell St Mary, Purfleet, North Stifford, Orsett, East Tilbury and Badgers Dene. Families from Basildon, Brentwood and Dartford also attend.",
   },
 ];
 
@@ -134,10 +134,10 @@ export default function ContactPage() {
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">Get in Touch</p>
           <h1 className="text-5xl md:text-6xl font-bold font-serif text-white mb-6">
-            Book Your Free Assessment
+            Book Your Free Assessment in Grays, Thurrock
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            Fill in the form below and we'll be in touch within 24 hours to confirm your child's free assessment session.
+            Fill in the form below and we'll be in touch within 24 hours to confirm your child's free assessment. We welcome families from across Thurrock — Grays, Tilbury, Chafford Hundred, Stanford-le-Hope, Corringham, South Ockendon and beyond.
           </p>
         </div>
       </section>
@@ -372,6 +372,26 @@ export default function ContactPage() {
                   </div>
                 )}
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Areas We Serve */}
+      <section className="py-14 bg-[#1B2B6B]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Coverage Area</p>
+          <h2 className="text-2xl md:text-3xl font-bold font-serif text-white mb-4">
+            Serving Families Across Thurrock &amp; Essex
+          </h2>
+          <p className="text-white/60 text-sm mb-7 max-w-xl mx-auto">
+            Based in Grays — easily reachable from every part of the borough. Free parking at Queensgate Centre.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {["Grays","Tilbury","Chafford Hundred","Stanford-le-Hope","Corringham","South Ockendon","Aveley","West Thurrock","Chadwell St Mary","Purfleet","North Stifford","Orsett","East Tilbury","Badgers Dene","Basildon","Brentwood","Dartford"].map((town) => (
+              <span key={town} className="bg-white/10 border border-white/20 text-white/85 text-xs font-medium px-3 py-1.5 rounded-full">
+                {town}
+              </span>
             ))}
           </div>
         </div>

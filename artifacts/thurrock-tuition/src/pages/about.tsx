@@ -71,7 +71,7 @@ export default function AboutPage() {
             About Thurrock Tuition Academy
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            Founded by a qualified teacher with a passion for seeing every student succeed — whatever their starting point.
+            A Thurrock-rooted tuition centre founded by a qualified teacher with a passion for seeing every student in Grays, Tilbury, Chafford Hundred and across Essex succeed — whatever their starting point.
           </p>
         </div>
       </section>
@@ -94,10 +94,10 @@ export default function AboutPage() {
                 </div>
                 <h2 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-4">To Unlock Every Child's Potential</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Our mission is to provide expert, personalised tuition that helps every student in Thurrock — regardless of their background or starting point — to achieve grades they're proud of. We believe no child should be left behind for lack of access to great teaching.
+                  Our mission is to provide expert, personalised tuition that helps every student across Thurrock — from Grays and Tilbury to Chafford Hundred, Stanford-le-Hope, Corringham and South Ockendon — regardless of their background or starting point, to achieve grades they're proud of. We believe no child in our community should be left behind for lack of access to great teaching.
                 </p>
                 <p className="text-muted-foreground leading-relaxed mt-3">
-                  We combine rigorous academic support with genuine emotional encouragement. When a student walks into TTA, they feel seen, heard, and supported — not judged. That's what makes the difference.
+                  We combine rigorous academic support with genuine emotional encouragement. When a student walks into TTA, they feel seen, heard, and supported — not judged. That's what makes the difference, and it's why families across the entire Thurrock borough trust us year after year.
                 </p>
               </div>
 

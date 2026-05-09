@@ -38,6 +38,13 @@ function BookingWidget() {
   );
 }
 
+const TOWNS = [
+  "Grays", "Tilbury", "Chafford Hundred", "Stanford-le-Hope",
+  "Corringham", "South Ockendon", "Aveley", "West Thurrock",
+  "Chadwell St Mary", "Purfleet", "North Stifford", "Orsett",
+  "East Tilbury", "Badgers Dene",
+];
+
 const STATS = [
   { value: "200+", label: "Students Tutored" },
   { value: "95%", label: "Grade Improvement" },
@@ -122,17 +129,17 @@ export function LandingPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-[#C9973A]/20 border border-[#C9973A]/40 rounded-full px-4 py-1.5 mb-8 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-[#C9973A] animate-pulse" />
-              <span className="text-[#C9973A] text-sm font-medium">Now enrolling for Summer 2025</span>
+              <span className="text-[#C9973A] text-sm font-medium">Now enrolling for Summer 2026</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-serif text-white leading-[1.1] mb-6 animate-fade-up text-balance">
-              Helping Students
-              <span className="text-[#C9973A]"> Build Confidence</span>{" "}
-              & Achieve Higher Grades
+              Thurrock's Expert Tuition —
+              <span className="text-[#C9973A]"> Building Confidence</span>{" "}
+              &amp; Higher Grades
             </h1>
 
             <p className="text-lg md:text-xl text-white/75 mb-10 leading-relaxed max-w-2xl animate-fade-up delay-100">
-              Professional group tuition in Grays, Thurrock. Specialist support in Maths, English and Science for SATs, 11+, KS3, GCSE and A-Level — with a personal touch that makes every student feel seen.
+              Professional group tuition based in Grays, serving families across Thurrock — Tilbury, Chafford Hundred, Stanford-le-Hope, Corringham, South Ockendon and beyond. Specialist Maths, English and Science for SATs, 11+, KS3, GCSE and A-Level.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-200">
@@ -166,12 +173,12 @@ export function LandingPage() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
-            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Why Parents Choose Us</p>
+            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Why Thurrock Parents Choose Us</p>
             <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#1B2B6B] mb-4">
               Education Done Right
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              We combine qualified teaching expertise with genuine care for every student. Here's what sets Thurrock Tuition Academy apart.
+              We combine qualified teaching expertise with genuine care for every student. Here's what sets Thurrock Tuition Academy apart from every other tuition centre in Grays and Essex.
             </p>
           </div>
 
@@ -354,6 +361,34 @@ export function LandingPage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Areas We Serve */}
+      <section className="py-16 bg-[#1B2B6B]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Serving All of Thurrock</p>
+            <h2 className="text-3xl md:text-4xl font-bold font-serif text-white mb-4">
+              Tuition for Families Across the Borough
+            </h2>
+            <p className="text-white/65 text-base max-w-2xl mx-auto leading-relaxed">
+              Our tuition centre is based at Queensgate Centre, Orsett Road, Grays — easily accessible from every corner of Thurrock and the surrounding Essex area. Free parking on site.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {TOWNS.map((town) => (
+              <span
+                key={town}
+                className="bg-white/10 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#C9973A]/20 hover:border-[#C9973A]/40 transition-colors duration-200"
+              >
+                {town}
+              </span>
+            ))}
+          </div>
+          <p className="text-center text-white/50 text-xs">
+            Also welcoming students from Basildon, Brentwood, Dartford and surrounding areas — <a href="/contact" className="text-[#C9973A] hover:underline">enquire today</a>.
+          </p>
         </div>
       </section>
 

@@ -71,7 +71,7 @@ const SERVICES = [
     emoji: "🔬",
     subject: "Science",
     tagline: "Biology, Chemistry & Physics",
-    image: "https://images.unsplash.com/photo-1532094349884-543559c6f69d?w=800&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&auto=format&fit=crop&q=80",
     levels: [
       {
         name: "KS3",
@@ -113,10 +113,10 @@ export default function ServicesPage() {
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">What We Offer</p>
           <h1 className="text-5xl md:text-6xl font-bold font-serif text-white mb-6 text-balance">
-            Our Tuition Services
+            Tuition Services in Grays &amp; Thurrock
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            Specialist tuition for every stage — from primary SATs through to A-Level. All sessions in Grays, Thurrock with qualified, DBS-checked tutors.
+            Specialist Maths, English and Science tuition for every stage — from primary SATs through to A-Level. Based at Queensgate Centre, Grays, serving families across Thurrock including Tilbury, Chafford Hundred, Stanford-le-Hope, Corringham, South Ockendon and beyond.
           </p>
         </div>
       </section>
