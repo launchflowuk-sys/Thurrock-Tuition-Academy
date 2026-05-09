@@ -5,7 +5,7 @@ import PublicFooter from "@/components/layout/public-footer";
 const STATS = [
   { value: "200+", label: "Students Tutored" },
   { value: "95%", label: "Grade Improvement" },
-  { value: "8", label: "Max Group Size" },
+  { value: "~10", label: "Students Per Group" },
   { value: "5★", label: "Parent Reviews" },
 ];
 
@@ -17,8 +17,8 @@ const WHY_US = [
   },
   {
     icon: "👥",
-    title: "Small Group Sessions",
-    body: "A maximum of 6–8 students per session means every child gets individual attention and targeted support where they need it most.",
+    title: "Group Sessions That Work",
+    body: "Around 10 students per subject group — large enough to be affordable, small enough for every child to get real attention. Our venue holds up to 40 students across all Saturday groups.",
   },
   {
     icon: "📊",
@@ -77,10 +77,10 @@ export function LandingPage() {
       {/* Hero */}
       <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#1B2B6B]">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80')" }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/hero-bg.png')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B]/95 via-[#1B2B6B]/85 to-[#0f1a3e]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B]/88 via-[#1B2B6B]/80 to-[#0f1a3e]/92" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 lg:py-32">
           <div className="max-w-3xl">
@@ -204,8 +204,8 @@ export function LandingPage() {
                 <p className="text-muted-foreground text-sm">Initial assessment for every new student</p>
               </div>
               <div className="absolute -top-4 -right-4 bg-[#C9973A] rounded-2xl shadow-xl p-4 text-center">
-                <p className="text-white font-bold text-3xl font-serif">8</p>
-                <p className="text-white/80 text-xs">max students<br />per session</p>
+                <p className="text-white font-bold text-3xl font-serif">~10</p>
+                <p className="text-white/80 text-xs">students<br />per group</p>
               </div>
             </div>
           </div>
@@ -248,35 +248,75 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Photo + CTA section */}
+      {/* Free Assessment Feature Section */}
       <section className="py-24 bg-[#1B2B6B] relative overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1600&auto=format&fit=crop&q=80')" }}
+          style={{ backgroundImage: "url('/hero-bg.png')" }}
         />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">Ready to Start?</p>
-          <h2 className="text-4xl md:text-5xl font-bold font-serif text-white mb-6">
-            Book Your Free Assessment Today
-          </h2>
-          <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-            Every new student receives a complimentary assessment session. We'll identify exactly where your child is, what they need, and how we can help — with zero commitment.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/contact"
-              className="bg-[#C9973A] hover:bg-[#b8872e] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-0.5"
-            >
-              Book Free Assessment →
-            </Link>
-            <a
-              href="https://wa.me/447480413679"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[#25D366] hover:bg-[#1ab553] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl transition-all duration-200 hover:-translate-y-0.5"
-            >
-              WhatsApp: 07480 413679
-            </a>
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            {/* Left: Text */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-[#C9973A]/20 border border-[#C9973A]/40 rounded-full px-4 py-1.5 mb-6">
+                <span className="w-2 h-2 rounded-full bg-[#C9973A]" />
+                <span className="text-[#C9973A] text-sm font-semibold">Completely Free · No Obligation</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold font-serif text-white mb-5 text-balance">
+                Free Initial Assessment Session
+              </h2>
+              <p className="text-white/70 text-lg mb-8 leading-relaxed">
+                Every new student starts with a complimentary session — before any commitment is made. We get to know your child, understand where they are, and build a clear plan forward.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/contact"
+                  className="bg-[#C9973A] hover:bg-[#b8872e] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-0.5 text-center"
+                >
+                  Claim Your Free Session →
+                </Link>
+                <a
+                  href="https://wa.me/447480413679"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#25D366] hover:bg-[#1ab553] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl transition-all duration-200 hover:-translate-y-0.5 text-center"
+                >
+                  WhatsApp Us
+                </a>
+              </div>
+            </div>
+
+            {/* Right: Inclusion cards */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                {
+                  icon: "📋",
+                  title: "Baseline Test",
+                  body: "A structured assessment identifies exactly where your child is right now — their strengths and the gaps holding them back.",
+                },
+                {
+                  icon: "🤝",
+                  title: "Parent Consultation",
+                  body: "We sit down with you to understand your child's goals, challenges, exam dates, and any concerns you have.",
+                },
+                {
+                  icon: "📚",
+                  title: "Learning Plan",
+                  body: "A personalised study plan tailored to your child's level, exam board, and the weeks available before their assessment or exam.",
+                },
+                {
+                  icon: "🎯",
+                  title: "Targets Report",
+                  body: "A written report outlining your child's current level, target grade, and the milestones we'll work through together.",
+                },
+              ].map(({ icon, title, body }) => (
+                <div key={title} className="bg-white/10 border border-white/15 rounded-2xl p-5 hover:bg-white/15 transition-colors duration-200">
+                  <div className="text-2xl mb-3">{icon}</div>
+                  <h3 className="text-white font-bold font-serif mb-1.5">{title}</h3>
+                  <p className="text-white/60 text-xs leading-relaxed">{body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

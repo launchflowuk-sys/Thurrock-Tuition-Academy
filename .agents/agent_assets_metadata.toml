@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "pZiQB7hSp4m273keBTk_-"
+uri = "file://artifacts/thurrock-tuition/public/hero-bg.png"
+type = "image"
+title = "tuition classroom hero banner"

@@ -6,7 +6,13 @@ import { useToast } from "@/hooks/use-toast";
 
 const SUBJECTS = ["Maths", "English", "Science"];
 const LEVELS = ["SATs (KS2)", "11+ Preparation", "KS3", "GCSE", "A-Level"];
-const SLOTS = ["Morning Session 1 (9am–11am)", "Morning Session 2 (11am–1pm)", "Afternoon Session 1 (1pm–3pm)", "Afternoon Session 2 (3pm–5pm)"];
+const SLOTS = [
+  "Saturday 9am–11am (SATs / 11+)",
+  "Saturday 11am–1pm (GCSE)",
+  "Saturday 1pm–3pm (KS3)",
+  "Saturday 3pm–5pm (A-Level)",
+  "Wednesday Evening (Waiting List)",
+];
 
 const FAQS = [
   {
@@ -15,7 +21,7 @@ const FAQS = [
   },
   {
     q: "How many students are in each session?",
-    a: "We cap every session at 8 students. This ensures every child gets meaningful individual attention and the tutor can address specific questions from each student.",
+    a: "Each subject group has around 10 students. Our venue accommodates up to 40 students across all Saturday groups running simultaneously — but each group is taught separately by a dedicated tutor, keeping the learning focused and personal.",
   },
   {
     q: "What exam boards do you cover?",
@@ -23,7 +29,7 @@ const FAQS = [
   },
   {
     q: "When do sessions take place?",
-    a: "Sessions run Monday to Saturday across four 2-hour slots: 9–11am, 11am–1pm, 1–3pm, and 3–5pm. Specific days vary by subject — please enquire for the current timetable.",
+    a: "Sessions currently run on Saturdays only, across four 2-hour slots: 9–11am (SATs/11+), 11am–1pm (GCSE), 1–3pm (KS3), and 3–5pm (A-Level). Wednesday evening sessions are coming soon — join the waiting list when booking.",
   },
   {
     q: "How are payments made?",
@@ -35,7 +41,7 @@ const FAQS = [
   },
   {
     q: "Do you offer one-to-one tuition?",
-    a: "Our sessions are group-based (max 8 students). This model keeps costs accessible while maintaining meaningful individual attention. Please contact us to discuss your specific requirements.",
+    a: "Our sessions are group-based, with around 10 students per subject group. This keeps fees affordable while still giving every student real individual attention. Please contact us to discuss your specific requirements.",
   },
   {
     q: "Where are you based?",
@@ -277,16 +283,30 @@ export default function ContactPage() {
                   </a>
                 </div>
 
-                <div className="bg-[#C9973A]/10 border border-[#C9973A]/20 rounded-2xl p-6">
-                  <h3 className="font-bold font-serif text-[#1B2B6B] mb-2">Free Assessment Includes</h3>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    {["Initial written assessment", "Strength & weakness analysis", "Personalised feedback report", "Recommended study plan", "No obligation to continue"].map(item => (
-                      <li key={item} className="flex items-start gap-2">
-                        <span className="text-[#C9973A] font-bold mt-0.5">✓</span>
-                        {item}
+                <div className="bg-[#C9973A]/10 border border-[#C9973A]/25 rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xl">🎁</span>
+                    <h3 className="font-bold font-serif text-[#1B2B6B] text-lg">Free Assessment Includes</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    {[
+                      { icon: "📋", title: "Baseline Test", body: "A structured test to pinpoint exactly where your child is now." },
+                      { icon: "🤝", title: "Parent Consultation", body: "We discuss your child's goals, challenges and exam timeline with you." },
+                      { icon: "📚", title: "Learning Plan", body: "A personalised plan mapped to their exam board and target grade." },
+                      { icon: "🎯", title: "Targets Report", body: "A written report with current level, target grade and clear milestones." },
+                    ].map(({ icon, title, body }) => (
+                      <li key={title} className="flex items-start gap-3">
+                        <span className="text-lg shrink-0 mt-0.5">{icon}</span>
+                        <div>
+                          <p className="font-semibold text-[#1B2B6B] text-sm">{title}</p>
+                          <p className="text-muted-foreground text-xs leading-relaxed">{body}</p>
+                        </div>
                       </li>
                     ))}
                   </ul>
+                  <p className="mt-4 pt-4 border-t border-[#C9973A]/20 text-xs text-muted-foreground text-center font-medium">
+                    Completely free · No obligation to continue
+                  </p>
                 </div>
               </div>
             </div>
