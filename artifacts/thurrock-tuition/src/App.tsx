@@ -1,13 +1,15 @@
 import { useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
+import { ClerkProvider, Show, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
-import { shadcn } from "@clerk/themes";
 import { Switch, Route, Redirect, useLocation, Router as WouterRouter } from "wouter";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LandingPage } from "@/pages/landing";
+import ServicesPage from "@/pages/services";
+import AboutPage from "@/pages/about";
+import ContactPage from "@/pages/contact";
 import { SignInPage, SignUpPage } from "@/pages/auth";
 import Dashboard from "@/pages/dashboard";
 import EnquiriesPage from "@/pages/enquiries";
@@ -40,51 +42,36 @@ if (!clerkPubKey) {
 }
 
 const clerkAppearance = {
-  theme: shadcn,
   cssLayerName: "clerk",
-  options: {
-    logoPlacement: "inside" as const,
-    logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
-  },
   variables: {
     colorPrimary: "#1B2B6B",
-    colorForeground: "#1a1a2e",
-    colorMutedForeground: "#6b7280",
-    colorDanger: "#dc2626",
-    colorBackground: "#f8f7f4",
-    colorInput: "#ffffff",
-    colorInputForeground: "#1a1a2e",
-    colorNeutral: "#d1d5db",
-    fontFamily: "'Crimson Pro', Georgia, serif",
-    borderRadius: "4px",
+    colorText: "#1a1a2e",
+    colorTextSecondary: "#6b7280",
+    colorBackground: "#ffffff",
+    colorInputBackground: "#ffffff",
+    colorInputText: "#1a1a2e",
+    fontFamily: "'Inter', sans-serif",
+    borderRadius: "10px",
+    fontSize: "14px",
   },
   elements: {
-    rootBox: "w-full flex justify-center",
-    cardBox: "bg-white rounded shadow-lg w-[440px] max-w-full overflow-hidden border border-gray-200",
-    card: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    headerTitle: "text-[#1B2B6B] font-serif",
+    card: "shadow-xl border border-gray-200 rounded-2xl",
+    headerTitle: "font-serif text-[#1B2B6B]",
     headerSubtitle: "text-gray-500",
+    socialButtonsBlockButton: "border border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 bg-white",
     socialButtonsBlockButtonText: "text-gray-700",
-    formFieldLabel: "text-gray-700 font-medium",
-    footerActionLink: "text-[#1B2B6B] hover:text-[#C9973A]",
+    formFieldLabel: "text-gray-700 font-semibold text-sm",
+    formFieldInput: "border border-gray-300 rounded-xl px-3 py-2 text-gray-900 bg-white focus:border-[#1B2B6B] focus:ring-[#1B2B6B]",
+    formButtonPrimary: "bg-[#1B2B6B] hover:bg-[#243580] text-white font-semibold rounded-xl py-2.5 transition-all",
+    footerActionLink: "text-[#1B2B6B] font-semibold hover:text-[#C9973A]",
     footerActionText: "text-gray-500",
-    dividerText: "text-gray-400",
-    identityPreviewEditButton: "text-[#1B2B6B]",
-    formFieldSuccessText: "text-green-600",
-    alertText: "text-red-600",
-    logoBox: "flex justify-center",
-    logoImage: "h-12 w-auto",
-    socialButtonsBlockButton: "border border-gray-200 hover:border-gray-300",
-    formButtonPrimary: "bg-[#1B2B6B] hover:bg-[#15235a] text-white",
-    formFieldInput: "border border-gray-300 rounded",
-    footerAction: "bg-gray-50",
+    footerAction: "bg-gray-50 border-t border-gray-100",
+    dividerText: "text-gray-400 text-xs",
     dividerLine: "bg-gray-200",
-    alert: "bg-red-50 border-red-200",
-    otpCodeFieldInput: "border-gray-300",
-    formFieldRow: "",
-    main: "",
+    identityPreviewEditButton: "text-[#1B2B6B]",
+    alert: "rounded-xl",
+    alertText: "text-red-700",
+    logoBox: "pt-2",
   },
 };
 
@@ -92,7 +79,7 @@ function HomeRedirect() {
   return (
     <>
       <Show when="signed-in">
-        <Redirect to="/dashboard" />
+        <Redirect to="/parent" />
       </Show>
       <Show when="signed-out">
         <LandingPage />
@@ -108,7 +95,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         <AdminLayout>{children}</AdminLayout>
       </Show>
       <Show when="signed-out">
-        <Redirect to="/" />
+        <Redirect to="/sign-in" />
       </Show>
     </>
   );
@@ -121,7 +108,7 @@ function ParentRoute() {
         <ParentPortalPage />
       </Show>
       <Show when="signed-out">
-        <Redirect to="/" />
+        <Redirect to="/sign-in" />
       </Show>
     </>
   );
@@ -159,14 +146,14 @@ function ClerkProviderWithRoutes() {
       localization={{
         signIn: {
           start: {
-            title: "Welcome back",
-            subtitle: "Sign in to Thurrock Tuition Academy",
+            title: "Parent & Staff Login",
+            subtitle: "Sign in to access your Thurrock Tuition Academy portal",
           },
         },
         signUp: {
           start: {
             title: "Create your account",
-            subtitle: "Join Thurrock Tuition Academy",
+            subtitle: "Join the Thurrock Tuition Academy portal",
           },
         },
       }}
@@ -177,9 +164,22 @@ function ClerkProviderWithRoutes() {
         <TooltipProvider>
           <ClerkQueryClientCacheInvalidator />
           <Switch>
+            {/* Public website pages */}
             <Route path="/" component={HomeRedirect} />
+            <Route path="/services" component={ServicesPage} />
+            <Route path="/about" component={AboutPage} />
+            <Route path="/contact" component={ContactPage} />
+
+            {/* Auth pages */}
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
+
+            {/* Parent portal — sign in goes here by default */}
+            <Route path="/parent">
+              <ParentRoute />
+            </Route>
+
+            {/* Admin-only routes — no links anywhere on public site */}
             <Route path="/dashboard">
               <ProtectedRoute><Dashboard /></ProtectedRoute>
             </Route>
@@ -206,9 +206,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/payments">
               <ProtectedRoute><PaymentsPage /></ProtectedRoute>
             </Route>
-            <Route path="/parent">
-              <ParentRoute />
-            </Route>
+
             <Route component={NotFound} />
           </Switch>
           <Toaster />

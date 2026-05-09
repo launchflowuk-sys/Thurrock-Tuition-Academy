@@ -1,155 +1,287 @@
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
+import PublicNav from "@/components/layout/public-nav";
+import PublicFooter from "@/components/layout/public-footer";
 
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const STATS = [
+  { value: "200+", label: "Students Tutored" },
+  { value: "95%", label: "Grade Improvement" },
+  { value: "8", label: "Max Group Size" },
+  { value: "5★", label: "Parent Reviews" },
+];
+
+const WHY_US = [
+  {
+    icon: "🎓",
+    title: "Qualified & DBS Checked",
+    body: "All our tutors are fully qualified teachers with enhanced DBS clearance. Your child's safety and education are our top priorities.",
+  },
+  {
+    icon: "👥",
+    title: "Small Group Sessions",
+    body: "A maximum of 6–8 students per session means every child gets individual attention and targeted support where they need it most.",
+  },
+  {
+    icon: "📊",
+    title: "Progress Tracking",
+    body: "Parents receive regular updates through our portal. You can see exactly what your child is working on and how they're improving.",
+  },
+  {
+    icon: "📝",
+    title: "Structured Study Plans",
+    body: "After a free assessment, we create a personalised study plan aligned to your child's exam board, goals, and learning style.",
+  },
+  {
+    icon: "✅",
+    title: "Exam Technique Focus",
+    body: "We don't just teach content — we teach students how to answer exam questions, manage time, and approach papers with confidence.",
+  },
+  {
+    icon: "💬",
+    title: "Parent Communication",
+    body: "We keep parents fully informed with session notes, homework tracking, and direct WhatsApp access to Khadija when needed.",
+  },
+];
+
+const SUBJECTS = [
+  { name: "Mathematics", levels: ["SATs", "11+", "KS3", "GCSE", "A-Level"], color: "bg-blue-50 border-blue-100" },
+  { name: "English", levels: ["SATs", "11+", "KS3", "GCSE"], color: "bg-amber-50 border-amber-100" },
+  { name: "Science", levels: ["KS3", "GCSE"], color: "bg-green-50 border-green-100" },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Priya S.",
+    role: "Parent of GCSE student",
+    text: "Khadija has been incredible. My daughter went from a predicted Grade 4 to achieving a Grade 7 in her maths GCSE. The personal attention and structured approach made all the difference.",
+    avatar: "PS",
+  },
+  {
+    name: "James T.",
+    role: "Parent of 11+ student",
+    text: "We were nervous about the 11+ process but TTA made it manageable. My son passed and got into his first choice grammar school. We couldn't be happier.",
+    avatar: "JT",
+  },
+  {
+    name: "Fatima A.",
+    role: "Parent of SATs student",
+    text: "The sessions are focused and productive. My daughter actually looks forward to tuition now — that says everything. Her confidence in maths has completely transformed.",
+    avatar: "FA",
+  },
+];
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground">
-      {/* Navigation */}
-      <nav className="bg-primary text-primary-foreground py-4 px-6 sticky top-0 z-50 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={`${basePath}/logo.svg`} alt="TTA Logo" className="h-12 w-auto" />
-            <span className="font-serif text-xl font-bold hidden sm:inline-block">Thurrock Tuition Academy</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm font-medium hover:text-secondary transition-colors" data-testid="link-signin">
-              Sign In
-            </Link>
-            <Button asChild className="bg-secondary hover:bg-secondary/90 text-primary font-semibold" data-testid="button-book-assessment">
-              <a href="#assessment">Book Free Assessment</a>
-            </Button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-background text-foreground">
+      <PublicNav />
 
-      {/* Hero Section */}
-      <section className="bg-primary py-24 px-6 text-center text-primary-foreground">
-        <div className="max-w-3xl mx-auto space-y-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif leading-tight text-primary-foreground">
-            Helping Students Build Confidence, Achieve Higher Grades & Reach Their Full Potential
-          </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
-            Professional tuition in Grays, Thurrock. Specializing in Maths, English, and Science for SATs, 11+, KS3, GCSE, and A-Level.
-          </p>
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-primary w-full sm:w-auto text-lg px-8">
-              <a href="#assessment">Book Your Free Assessment</a>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10 w-full sm:w-auto text-lg px-8">
-              <a href="#pricing">View Pricing</a>
-            </Button>
+      {/* Hero */}
+      <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#1B2B6B]">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B]/95 via-[#1B2B6B]/85 to-[#0f1a3e]/90" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 lg:py-32">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 bg-[#C9973A]/20 border border-[#C9973A]/40 rounded-full px-4 py-1.5 mb-8 animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-[#C9973A] animate-pulse" />
+              <span className="text-[#C9973A] text-sm font-medium">Now enrolling for Summer 2025</span>
+            </div>
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-serif text-white leading-[1.1] mb-6 animate-fade-up text-balance">
+              Helping Students
+              <span className="text-[#C9973A]"> Build Confidence</span>{" "}
+              & Achieve Higher Grades
+            </h1>
+
+            <p className="text-lg md:text-xl text-white/75 mb-10 leading-relaxed max-w-2xl animate-fade-up delay-100">
+              Professional group tuition in Grays, Thurrock. Specialist support in Maths, English and Science for SATs, 11+, KS3, GCSE and A-Level — with a personal touch that makes every student feel seen.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-200">
+              <Link
+                href="/contact"
+                className="bg-[#C9973A] hover:bg-[#b8872e] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-0.5 text-center"
+              >
+                Book Free Assessment →
+              </Link>
+              <Link
+                href="/services"
+                className="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 text-center"
+              >
+                View Our Services
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-16 pt-8 border-t border-white/15 animate-fade-up delay-300">
+              {STATS.map(({ value, label }) => (
+                <div key={label} className="text-center">
+                  <div className="text-3xl font-bold font-serif text-[#C9973A]">{value}</div>
+                  <div className="text-xs text-white/60 mt-1">{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content Areas */}
-      <div className="max-w-7xl mx-auto px-6 py-16 space-y-24">
-        
-        {/* Why Choose Us */}
-        <section className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl font-bold font-serif text-primary mb-6">Why Choose TTA?</h2>
-            <ul className="space-y-4">
-              {[
-                "Qualified & DBS Checked Teachers",
-                "Small Group Sessions (Max 6 students)",
-                "Structured Learning Plans",
-                "Regular Progress Tracking",
-                "Exam Preparation & Technique"
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <div className="mt-1 bg-secondary text-primary rounded-full p-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </div>
-                  <span className="text-lg text-foreground/80">{item}</span>
-                </li>
-              ))}
-            </ul>
+      {/* Why Choose Us */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Why Parents Choose Us</p>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#1B2B6B] mb-4">
+              Education Done Right
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              We combine qualified teaching expertise with genuine care for every student. Here's what sets Thurrock Tuition Academy apart.
+            </p>
           </div>
-          <div className="bg-muted p-8 rounded-lg border border-border shadow-sm">
-             <h3 className="text-2xl font-bold font-serif text-primary mb-4">Subjects & Levels</h3>
-             <div className="space-y-6">
-               <div>
-                 <h4 className="font-bold text-lg mb-2">Subjects</h4>
-                 <div className="flex gap-2 flex-wrap">
-                   {["Maths", "English", "Science"].map((subject) => (
-                     <span key={subject} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">{subject}</span>
-                   ))}
-                 </div>
-               </div>
-               <div>
-                 <h4 className="font-bold text-lg mb-2">Levels</h4>
-                 <div className="flex gap-2 flex-wrap">
-                   {["SATs", "11+", "KS3", "GCSE", "A-Level"].map((level) => (
-                     <span key={level} className="bg-secondary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">{level}</span>
-                   ))}
-                 </div>
-               </div>
-             </div>
-          </div>
-        </section>
 
-        {/* Pricing */}
-        <section id="pricing" className="text-center">
-          <h2 className="text-3xl font-bold font-serif text-primary mb-12">Session Pricing</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {[
-              { level: "SATs", price: "£35-40" },
-              { level: "11+", price: "£40-45" },
-              { level: "KS3", price: "£45-50" },
-              { level: "GCSE", price: "£50-60" },
-              { level: "A-Level", price: "£70-80" }
-            ].map((tier, i) => (
-              <div key={i} className="bg-card p-6 rounded-lg border border-border shadow-sm flex flex-col items-center justify-center">
-                <h3 className="font-bold text-xl text-primary mb-2">{tier.level}</h3>
-                <p className="text-2xl font-bold text-secondary">{tier.price}</p>
-                <p className="text-xs text-muted-foreground mt-2">per 2hr session</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {WHY_US.map(({ icon, title, body }, i) => (
+              <div
+                key={title}
+                className={`group p-7 rounded-2xl border border-border bg-background hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-up`}
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div className="text-3xl mb-4">{icon}</div>
+                <h3 className="text-xl font-bold font-serif text-[#1B2B6B] mb-2">{title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{body}</p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Call to Action */}
-        <section id="assessment" className="bg-primary text-primary-foreground p-8 md:p-12 rounded-2xl text-center shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-secondary"></div>
-          <h2 className="text-3xl font-bold font-serif mb-4">Book Your Free Assessment</h2>
-          <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-8">
-            Includes an initial test, personal review, strength & weakness analysis, and a structured study plan tailored to your child.
-          </p>
-          <div className="bg-background text-foreground max-w-xl mx-auto p-6 rounded-lg text-left shadow-xl">
-             <p className="text-center text-muted-foreground mb-4">Contact us on WhatsApp to secure your slot</p>
-             <div className="flex justify-center">
-               <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#20bd5a] text-white w-full text-lg">
-                 <a href="https://wa.me/447480413679" target="_blank" rel="noopener noreferrer">
-                   Chat on WhatsApp: 07480413679
-                 </a>
-               </Button>
-             </div>
-          </div>
-        </section>
+      {/* Subjects Split Section */}
+      <section className="py-24 bg-[#f3f4f8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">What We Teach</p>
+              <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#1B2B6B] mb-6">
+                Subjects & Levels
+              </h2>
+              <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+                From primary SATs through to A-Level, our tutors are specialists in their subjects and understand exactly what each exam board requires.
+              </p>
 
-      </div>
-      
-      {/* Footer */}
-      <footer className="bg-primary text-primary-foreground/60 py-12 mt-20 border-t border-primary-foreground/10">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-8">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <img src={`${basePath}/logo.svg`} alt="TTA Logo" className="h-8 w-auto opacity-80" />
-              <span className="font-serif text-lg font-bold text-primary-foreground">Thurrock Tuition Academy</span>
+              <div className="space-y-4">
+                {SUBJECTS.map(({ name, levels, color }) => (
+                  <div key={name} className={`p-5 rounded-2xl border ${color}`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-[#1B2B6B] font-serif text-lg">{name}</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {levels.map((level) => (
+                        <span key={level} className="bg-[#1B2B6B]/10 text-[#1B2B6B] text-xs font-semibold px-3 py-1 rounded-full">
+                          {level}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                href="/services"
+                className="inline-flex items-center gap-2 mt-8 bg-[#1B2B6B] hover:bg-[#243580] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow hover:shadow-lg"
+              >
+                See Full Services →
+              </Link>
             </div>
-            <p className="text-sm max-w-sm">Professional tuition for students aiming higher. Building confidence and achieving results.</p>
-          </div>
-          <div className="md:text-right">
-            <h4 className="text-primary-foreground font-bold mb-4">Location</h4>
-            <p className="text-sm">Suite 1, Queensgate Centre</p>
-            <p className="text-sm">Orsett Road, Grays</p>
-            <p className="text-sm">Thurrock</p>
+
+            <div className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop&q=80"
+                alt="Student studying"
+                className="w-full h-[500px] object-cover rounded-3xl shadow-2xl"
+              />
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-5 max-w-[200px]">
+                <p className="text-[#1B2B6B] font-bold font-serif text-2xl">Free</p>
+                <p className="text-muted-foreground text-sm">Initial assessment for every new student</p>
+              </div>
+              <div className="absolute -top-4 -right-4 bg-[#C9973A] rounded-2xl shadow-xl p-4 text-center">
+                <p className="text-white font-bold text-3xl font-serif">8</p>
+                <p className="text-white/80 text-xs">max students<br />per session</p>
+              </div>
+            </div>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Testimonials</p>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif text-[#1B2B6B]">
+              What Parents Say
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {TESTIMONIALS.map(({ name, role, text, avatar }) => (
+              <div key={name} className="bg-[#f8f9fc] border border-border rounded-2xl p-7 hover:shadow-lg transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-[#C9973A] fill-current" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-6 italic">"{text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#1B2B6B] text-white flex items-center justify-center font-bold text-sm">
+                    {avatar}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">{name}</p>
+                    <p className="text-xs text-muted-foreground">{role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Photo + CTA section */}
+      <section className="py-24 bg-[#1B2B6B] relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1600&auto=format&fit=crop&q=80')" }}
+        />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">Ready to Start?</p>
+          <h2 className="text-4xl md:text-5xl font-bold font-serif text-white mb-6">
+            Book Your Free Assessment Today
+          </h2>
+          <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+            Every new student receives a complimentary assessment session. We'll identify exactly where your child is, what they need, and how we can help — with zero commitment.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/contact"
+              className="bg-[#C9973A] hover:bg-[#b8872e] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-0.5"
+            >
+              Book Free Assessment →
+            </Link>
+            <a
+              href="https://wa.me/447480413679"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#25D366] hover:bg-[#1ab553] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+            >
+              WhatsApp: 07480 413679
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <PublicFooter />
     </div>
   );
 }
