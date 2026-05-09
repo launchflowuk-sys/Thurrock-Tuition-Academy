@@ -1,10 +1,10 @@
-# [Project name]
+# Thurrock Tuition Academy
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A complete web platform for Khadija's tutoring business in Grays, Thurrock — including a public-facing landing page, a full admin dashboard, and a parent portal.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080, proxied at `/api`)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
@@ -14,7 +14,8 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- Frontend: React + Vite, Tailwind v4, shadcn/ui, Wouter routing, Clerk auth, TanStack Query
+- API: Express 5 + Clerk middleware
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
@@ -22,23 +23,51 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — Source of truth for all API contracts
+- `lib/db/src/schema/` — Drizzle schema files (enquiries, students, sessions, progress, tasks, payments)
+- `lib/api-client-react/src/generated/api.ts` — Generated React Query hooks
+- `lib/api-zod/src/generated/` — Generated Zod schemas
+- `artifacts/api-server/src/routes/` — Express route handlers (one file per resource)
+- `artifacts/thurrock-tuition/src/pages/` — All frontend pages
+- `artifacts/thurrock-tuition/src/components/layout/admin-layout.tsx` — Sidebar layout for admin pages
+- `artifacts/thurrock-tuition/src/index.css` — Navy/gold theme variables
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **Contract-first API**: OpenAPI spec defined in `lib/api-spec`, codegen produces hooks + Zod schemas for both client and server
+- **Clerk auth with proxy**: Clerk is proxied through the Express server at `/clerk` to avoid CORS issues in Replit's proxied iframe environment
+- **Wouter routing**: Lightweight client-side router; all routes nested under `BASE_URL` for correct iframe proxy routing
+- **Role differentiation by route**: Admin dashboard at `/dashboard`, parent portal at `/parent` — both gated by Clerk sign-in
+- **No mocked data**: All data served from live PostgreSQL via Drizzle ORM
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Public landing page** (`/`): Hero, Why Choose TTA, Subjects & Levels, Pricing, WhatsApp booking CTA
+- **Admin dashboard** (`/dashboard`): Key stats (students, enquiries, sessions, payments)
+- **Enquiries** (`/enquiries`): View and manage all inbound enquiries; update status + notes
+- **Students** (`/students`): Full student list; add new students; search by name/parent/subject
+- **Student detail** (`/students/:id`): Per-student progress notes, tasks, and payment records; all fully interactive
+- **Sessions** (`/sessions`): Schedule sessions; view slot availability overview
+- **Progress** (`/progress`): All progress notes across all students
+- **Tasks** (`/tasks`): All homework/tasks across all students; filter pending/done; toggle completion
+- **Payments** (`/payments`): Outstanding and paid payment records; mark as paid
+- **Parent portal** (`/parent`): Read-only view of a child's progress notes, tasks, and payments
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Business name: Thurrock Tuition Academy (TTA)
+- Owner: Khadija
+- Location: Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock
+- WhatsApp: 07480413679
+- Colors: Navy (#1B2B6B) primary, Gold (#C9973A) secondary
+- Font: Crimson Pro (serif headings), Inter (body)
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run `pnpm --filter @workspace/api-spec run codegen` after editing `openapi.yaml`
+- Always run `pnpm --filter @workspace/db run push` after editing DB schema files
+- API server must be restarted after code changes (it bundles with esbuild)
+- The Clerk proxy path is `/clerk` — do not change it without updating both `app.ts` and `VITE_CLERK_PROXY_URL`
 
 ## Pointers
 

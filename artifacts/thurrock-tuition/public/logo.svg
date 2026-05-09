@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <!-- Shield Background -->
+  <path d="M100 10 L30 40 L30 110 C30 150 60 180 100 190 C140 180 170 150 170 110 L170 40 Z" fill="#1B2B6B" />
+  
+  <!-- Shield Border -->
+  <path d="M100 15 L35 43 L35 109 C35 146 62 174 100 184 C138 174 165 146 165 109 L165 43 Z" fill="none" stroke="#C9973A" stroke-width="4" />
+  
+  <!-- Book Icon -->
+  <path d="M100 140 L60 120 L60 80 L100 100 L140 80 L140 120 Z" fill="#C9973A" />
+  <path d="M100 140 L100 100" stroke="#1B2B6B" stroke-width="4" />
+  <path d="M60 120 L100 100 L140 120" stroke="#1B2B6B" stroke-width="2" fill="none" />
+  <path d="M60 80 L100 60 L140 80 L100 100 Z" fill="#E8C37C" />
+  
+  <!-- Stars -->
+  <circle cx="65" cy="65" r="5" fill="#C9973A" />
+  <circle cx="135" cy="65" r="5" fill="#C9973A" />
+  <circle cx="100" cy="40" r="6" fill="#C9973A" />
+  
+  <!-- Text -->
+  <text x="100" y="165" font-family="Georgia, serif" font-weight="bold" font-size="24" fill="#C9973A" text-anchor="middle">TTA</text>
+</svg>
