@@ -5,7 +5,7 @@ import PublicFooter from "@/components/layout/public-footer";
 const STATS = [
   { value: "200+", label: "Students Tutored" },
   { value: "95%", label: "Grade Improvement" },
-  { value: "~10", label: "Students Per Group" },
+  { value: "8", label: "Max Group Size" },
   { value: "5★", label: "Parent Reviews" },
 ];
 
@@ -17,8 +17,8 @@ const WHY_US = [
   },
   {
     icon: "👥",
-    title: "Group Sessions That Work",
-    body: "Around 10 students per subject group — large enough to be affordable, small enough for every child to get real attention. Our venue holds up to 40 students across all Saturday groups.",
+    title: "Small Group Sessions",
+    body: "A maximum of 6–8 students per session means every child gets individual attention and targeted support where they need it most.",
   },
   {
     icon: "📊",
@@ -77,10 +77,10 @@ export function LandingPage() {
       {/* Hero */}
       <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#1B2B6B]">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/hero-bg.png')" }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B]/88 via-[#1B2B6B]/80 to-[#0f1a3e]/92" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B]/95 via-[#1B2B6B]/85 to-[#0f1a3e]/90" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 lg:py-32">
           <div className="max-w-3xl">
@@ -204,8 +204,8 @@ export function LandingPage() {
                 <p className="text-muted-foreground text-sm">Initial assessment for every new student</p>
               </div>
               <div className="absolute -top-4 -right-4 bg-[#C9973A] rounded-2xl shadow-xl p-4 text-center">
-                <p className="text-white font-bold text-3xl font-serif">~10</p>
-                <p className="text-white/80 text-xs">students<br />per group</p>
+                <p className="text-white font-bold text-3xl font-serif">8</p>
+                <p className="text-white/80 text-xs">max students<br />per session</p>
               </div>
             </div>
           </div>
@@ -252,7 +252,7 @@ export function LandingPage() {
       <section className="py-24 bg-[#1B2B6B] relative overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('/hero-bg.png')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1600&auto=format&fit=crop&q=80')" }}
         />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-14 items-center">

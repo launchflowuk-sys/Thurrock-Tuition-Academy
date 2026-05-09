@@ -6,3 +6,9 @@ id = "pZiQB7hSp4m273keBTk_-"
 uri = "file://artifacts/thurrock-tuition/public/hero-bg.png"
 type = "image"
 title = "tuition classroom hero banner"
+
+[[generated]]
+id = "AQPX8hQ7GxYUBz2KWuI_n"
+uri = "file://artifacts/tta-marketing-deck/public/hero.png"
+type = "image"
+title = "generated_image"

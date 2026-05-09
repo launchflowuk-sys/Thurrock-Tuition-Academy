@@ -1,0 +1,31 @@
+kind = "slides"
+previewPath = "/tta-marketing-deck/"
+title = "TTA Market Research & 8-Week Launch Plan"
+version = "1.0.0"
+id = "artifacts/tta-marketing-deck"
+router = "path"
+
+[[integratedSkills]]
+name = "slides"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/tta-marketing-deck/" ]
+localPort = 3001
+
+[services.development]
+run = "pnpm --filter @workspace/tta-marketing-deck run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tta-marketing-deck", "run", "build" ]
+publicDir = "artifacts/tta-marketing-deck/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "3001"
+BASE_PATH = "/tta-marketing-deck/"
