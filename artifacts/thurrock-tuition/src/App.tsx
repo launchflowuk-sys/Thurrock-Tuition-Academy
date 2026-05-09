@@ -22,6 +22,7 @@ import PaymentsPage from "@/pages/payments";
 import ParentPortalPage from "@/pages/parent-portal";
 import NotFound from "@/pages/not-found";
 import AdminLayout from "@/components/layout/admin-layout";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
@@ -163,6 +164,7 @@ function ClerkProviderWithRoutes() {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <ClerkQueryClientCacheInvalidator />
+          <ScrollToTop />
           <Switch>
             {/* Public website pages */}
             <Route path="/" component={HomeRedirect} />
