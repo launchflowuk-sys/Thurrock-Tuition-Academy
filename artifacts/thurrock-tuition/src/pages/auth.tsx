@@ -38,7 +38,7 @@ export function SignInPage() {
         routing="path"
         path={`${basePath}/sign-in`}
         signUpUrl={`${basePath}/sign-up`}
-        forceRedirectUrl={`${basePath}/parent`}
+        forceRedirectUrl={`${basePath}/auth-redirect`}
       />
     </AuthShell>
   );
@@ -51,7 +51,7 @@ export function SignUpPage() {
         routing="path"
         path={`${basePath}/sign-up`}
         signInUrl={`${basePath}/sign-in`}
-        forceRedirectUrl={`${basePath}/parent`}
+        forceRedirectUrl={`${basePath}/auth-redirect`}
       />
     </AuthShell>
   );

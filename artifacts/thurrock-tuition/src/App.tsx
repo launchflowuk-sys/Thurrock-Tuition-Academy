@@ -124,6 +124,20 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <AdminLayout>{children}</AdminLayout>;
 }
 
+function AuthRedirect() {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) return null;
+
+  if (!user) return <Redirect to="/sign-in" />;
+
+  const email = user.primaryEmailAddress?.emailAddress ?? "";
+  if (email.toLowerCase() === ADMIN_EMAIL?.toLowerCase()) {
+    return <Redirect to="/dashboard" />;
+  }
+  return <Redirect to="/parent" />;
+}
+
 function ParentRoute() {
   return (
     <>
@@ -197,6 +211,11 @@ function ClerkProviderWithRoutes() {
             {/* Auth pages */}
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
+
+            {/* Smart post-login redirect — sends admin to /dashboard, parents to /parent */}
+            <Route path="/auth-redirect">
+              <AuthRedirect />
+            </Route>
 
             {/* Parent portal — sign in goes here by default */}
             <Route path="/parent">
