@@ -19,5 +19,7 @@ export interface Student {
   clerkUserId: string | null;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  photoUrl?: string | null;
   joinedAt: string;
 }

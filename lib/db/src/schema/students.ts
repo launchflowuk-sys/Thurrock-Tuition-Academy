@@ -13,6 +13,7 @@ export const studentsTable = pgTable("students", {
   sessionSlot: text("session_slot").notNull(),
   clerkUserId: text("clerk_user_id"),
   notes: text("notes"),
+  photoUrl: text("photo_url"),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

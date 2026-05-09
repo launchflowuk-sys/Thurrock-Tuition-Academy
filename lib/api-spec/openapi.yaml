@@ -26,6 +26,10 @@ tags:
     description: Dashboard summary data
   - name: settings
     description: Site settings management
+  - name: staff
+    description: Staff member management
+  - name: Storage
+    description: Object storage upload and serving endpoints
 
 paths:
   /healthz:
@@ -559,6 +563,147 @@ paths:
                 items:
                   $ref: "#/components/schemas/SlotAvailability"
 
+  # ─── STAFF ───────────────────────────────────────────────────────────────────
+  /staff:
+    get:
+      operationId: listStaff
+      tags: [staff]
+      summary: List all staff members
+      responses:
+        "200":
+          description: List of staff
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+    post:
+      operationId: createStaff
+      tags: [staff]
+      summary: Add a new staff member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+
+  /staff/{id}:
+    get:
+      operationId: getStaff
+      tags: [staff]
+      summary: Get a staff member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Staff member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStaff
+      tags: [staff]
+      summary: Update a staff member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteStaff
+      tags: [staff]
+      summary: Remove a staff member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ─── STORAGE ──────────────────────────────────────────────────────────────────
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrlResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve a stored object
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Object content
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+
   # ─── SETTINGS ────────────────────────────────────────────────────────────────
   /settings:
     get:
@@ -663,6 +808,7 @@ components:
         sessionSlot:   { type: string }
         clerkUserId:   { type: ["string", "null"] }
         notes:         { type: ["string", "null"] }
+        photoUrl:      { type: ["string", "null"] }
         joinedAt:      { type: string }
 
     StudentInput:
@@ -678,6 +824,7 @@ components:
         sessionSlot:   { type: string }
         clerkUserId:   { type: string }
         notes:         { type: string }
+        photoUrl:      { type: string }
 
     StudentUpdate:
       type: object
@@ -691,6 +838,7 @@ components:
         sessionSlot:   { type: string }
         clerkUserId:   { type: string }
         notes:         { type: string }
+        photoUrl:      { type: string }
 
     # ─── SESSION ───────────────────────────────────────────────────────────────
     Session:
@@ -899,3 +1047,63 @@ components:
         bookingWidgetCode:      { type: ["string", "null"] }
         bookingWidgetEnabled:   { type: boolean }
         bookingWidgetPlacement: { type: ["string", "null"] }
+
+    # ─── STAFF ──────────────────────────────────────────────────────────────────
+    StaffMember:
+      type: object
+      required: [id, name, email, role, joinedAt]
+      properties:
+        id:           { type: integer }
+        name:         { type: string }
+        email:        { type: string }
+        phone:        { type: ["string", "null"] }
+        role:         { type: string }
+        hourlyRate:   { type: ["number", "null"] }
+        hoursPerWeek: { type: ["integer", "null"] }
+        notes:        { type: ["string", "null"] }
+        joinedAt:     { type: string }
+
+    StaffInput:
+      type: object
+      required: [name, email, role]
+      properties:
+        name:         { type: string, minLength: 1 }
+        email:        { type: string, minLength: 1 }
+        phone:        { type: string }
+        role:         { type: string }
+        hourlyRate:   { type: number }
+        hoursPerWeek: { type: integer }
+        notes:        { type: string }
+
+    StaffUpdate:
+      type: object
+      properties:
+        name:         { type: string }
+        email:        { type: string }
+        phone:        { type: string }
+        role:         { type: string }
+        hourlyRate:   { type: number }
+        hoursPerWeek: { type: integer }
+        notes:        { type: string }
+
+    # ─── STORAGE ─────────────────────────────────────────────────────────────────
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:        { type: string, minLength: 1 }
+        size:        { type: integer, minimum: 1 }
+        contentType: { type: string, minLength: 1 }
+
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:  { type: string, format: uri }
+        objectPath: { type: string }
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }

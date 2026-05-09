@@ -8,6 +8,8 @@ import tasksRouter from "./tasks";
 import paymentsRouter from "./payments";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
+import staffRouter from "./staff";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -20,5 +22,7 @@ router.use(tasksRouter);
 router.use(paymentsRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
+router.use(staffRouter);
+router.use(storageRouter);
 
 export default router;

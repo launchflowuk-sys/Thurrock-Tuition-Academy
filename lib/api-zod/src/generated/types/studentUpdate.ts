@@ -16,4 +16,5 @@ export interface StudentUpdate {
   sessionSlot?: string;
   clerkUserId?: string;
   notes?: string;
+  photoUrl?: string;
 }

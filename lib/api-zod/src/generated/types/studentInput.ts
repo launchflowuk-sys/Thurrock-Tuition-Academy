@@ -19,4 +19,5 @@ export interface StudentInput {
   sessionSlot: string;
   clerkUserId?: string;
   notes?: string;
+  photoUrl?: string;
 }

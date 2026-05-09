@@ -108,6 +108,7 @@ export const ListStudentsResponseItem = zod.object({
   sessionSlot: zod.string(),
   clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
+  photoUrl: zod.string().nullish(),
   joinedAt: zod.string(),
 });
 export const ListStudentsResponse = zod.array(ListStudentsResponseItem);
@@ -126,6 +127,7 @@ export const CreateStudentBody = zod.object({
   sessionSlot: zod.string(),
   clerkUserId: zod.string().optional(),
   notes: zod.string().optional(),
+  photoUrl: zod.string().optional(),
 });
 
 /**
@@ -146,6 +148,7 @@ export const GetStudentResponse = zod.object({
   sessionSlot: zod.string(),
   clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
+  photoUrl: zod.string().nullish(),
   joinedAt: zod.string(),
 });
 
@@ -166,6 +169,7 @@ export const UpdateStudentBody = zod.object({
   sessionSlot: zod.string().optional(),
   clerkUserId: zod.string().optional(),
   notes: zod.string().optional(),
+  photoUrl: zod.string().optional(),
 });
 
 export const UpdateStudentResponse = zod.object({
@@ -179,6 +183,7 @@ export const UpdateStudentResponse = zod.object({
   sessionSlot: zod.string(),
   clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
+  photoUrl: zod.string().nullish(),
   joinedAt: zod.string(),
 });
 
@@ -492,6 +497,113 @@ export const GetSessionAvailabilityResponseItem = zod.object({
 export const GetSessionAvailabilityResponse = zod.array(
   GetSessionAvailabilityResponseItem,
 );
+
+/**
+ * @summary List all staff members
+ */
+export const ListStaffResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  role: zod.string(),
+  hourlyRate: zod.number().nullish(),
+  hoursPerWeek: zod.number().nullish(),
+  notes: zod.string().nullish(),
+  joinedAt: zod.string(),
+});
+export const ListStaffResponse = zod.array(ListStaffResponseItem);
+
+/**
+ * @summary Add a new staff member
+ */
+
+export const CreateStaffBody = zod.object({
+  name: zod.string().min(1),
+  email: zod.string().min(1),
+  phone: zod.string().optional(),
+  role: zod.string(),
+  hourlyRate: zod.number().optional(),
+  hoursPerWeek: zod.number().optional(),
+  notes: zod.string().optional(),
+});
+
+/**
+ * @summary Get a staff member
+ */
+export const GetStaffParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetStaffResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  role: zod.string(),
+  hourlyRate: zod.number().nullish(),
+  hoursPerWeek: zod.number().nullish(),
+  notes: zod.string().nullish(),
+  joinedAt: zod.string(),
+});
+
+/**
+ * @summary Update a staff member
+ */
+export const UpdateStaffParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateStaffBody = zod.object({
+  name: zod.string().optional(),
+  email: zod.string().optional(),
+  phone: zod.string().optional(),
+  role: zod.string().optional(),
+  hourlyRate: zod.number().optional(),
+  hoursPerWeek: zod.number().optional(),
+  notes: zod.string().optional(),
+});
+
+export const UpdateStaffResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  role: zod.string(),
+  hourlyRate: zod.number().nullish(),
+  hoursPerWeek: zod.number().nullish(),
+  notes: zod.string().nullish(),
+  joinedAt: zod.string(),
+});
+
+/**
+ * @summary Remove a staff member
+ */
+export const DeleteStaffParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+
+export const RequestUploadUrlBody = zod.object({
+  name: zod.string().min(1),
+  size: zod.number().min(1),
+  contentType: zod.string().min(1),
+});
+
+export const RequestUploadUrlResponse = zod.object({
+  uploadURL: zod.string().url(),
+  objectPath: zod.string(),
+});
+
+/**
+ * @summary Serve a stored object
+ */
+export const GetStorageObjectParams = zod.object({
+  objectPath: zod.coerce.string(),
+});
 
 /**
  * @summary Get all site settings (admin)

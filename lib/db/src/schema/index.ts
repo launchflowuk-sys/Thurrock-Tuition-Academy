@@ -5,3 +5,4 @@ export * from "./progress";
 export * from "./tasks";
 export * from "./payments";
 export * from "./settings";
+export * from "./staff";

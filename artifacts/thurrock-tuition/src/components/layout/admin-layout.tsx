@@ -12,6 +12,7 @@ import {
   Menu,
   GraduationCap,
   Settings,
+  UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { href: "/progress", label: "Progress", icon: GraduationCap },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/payments", label: "Payments", icon: CreditCard },
+  { href: "/staff", label: "Staff", icon: UserCog },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

@@ -56,6 +56,8 @@ export interface Student {
   clerkUserId: string | null;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  photoUrl?: string | null;
   joinedAt: string;
 }
 
@@ -72,6 +74,7 @@ export interface StudentInput {
   sessionSlot: string;
   clerkUserId?: string;
   notes?: string;
+  photoUrl?: string;
 }
 
 export interface StudentUpdate {
@@ -84,6 +87,7 @@ export interface StudentUpdate {
   sessionSlot?: string;
   clerkUserId?: string;
   notes?: string;
+  photoUrl?: string;
 }
 
 export interface Session {
@@ -269,6 +273,62 @@ export interface WidgetSettings {
   bookingWidgetEnabled: boolean;
   /** @nullable */
   bookingWidgetPlacement?: string | null;
+}
+
+export interface StaffMember {
+  id: number;
+  name: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  role: string;
+  /** @nullable */
+  hourlyRate?: number | null;
+  /** @nullable */
+  hoursPerWeek?: number | null;
+  /** @nullable */
+  notes?: string | null;
+  joinedAt: string;
+}
+
+export interface StaffInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  email: string;
+  phone?: string;
+  role: string;
+  hourlyRate?: number;
+  hoursPerWeek?: number;
+  notes?: string;
+}
+
+export interface StaffUpdate {
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  hourlyRate?: number;
+  hoursPerWeek?: number;
+  notes?: string;
+}
+
+export interface UploadUrlRequest {
+  /** @minLength 1 */
+  name: string;
+  /** @minimum 1 */
+  size: number;
+  /** @minLength 1 */
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
+}
+
+export interface ErrorEnvelope {
+  error: string;
 }
 
 export type ListProgressNotesParams = {
