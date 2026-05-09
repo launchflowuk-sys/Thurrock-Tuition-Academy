@@ -11,7 +11,7 @@ export interface Payment {
   studentId: number;
   sessionDate: string;
   amount: number;
-  paid: boolean;
+  status: string;
   /** @nullable */
   notes?: string | null;
   createdAt: string;

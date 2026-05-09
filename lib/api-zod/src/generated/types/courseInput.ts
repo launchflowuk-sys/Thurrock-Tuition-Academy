@@ -6,17 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface EnquiryInput {
+export interface CourseInput {
   /** @minLength 1 */
-  parentName: string;
+  title: string;
   /** @minLength 1 */
-  childName: string;
-  childAge: number;
+  description: string;
   subject: string;
   level: string;
-  preferredSlot: string;
-  /** @minLength 1 */
-  contactNumber: string;
-  email?: string;
-  notes?: string;
+  type?: string;
+  price: number;
+  duration: string;
+  imageUrl?: string;
+  available?: boolean;
+  displayOrder?: number;
 }

@@ -200,8 +200,13 @@ export default function ParentPortalPage() {
                         <p className="text-xs text-muted-foreground">Session: {new Date(payment.sessionDate).toLocaleDateString("en-GB")}</p>
                         {payment.notes && <p className="text-xs text-muted-foreground">{payment.notes}</p>}
                       </div>
-                      <Badge className={payment.paid ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}>
-                        {payment.paid ? "Paid" : "Outstanding"}
+                      <Badge className={
+                        payment.status === "paid" ? "bg-green-100 text-green-800" :
+                        payment.status === "overdue" ? "bg-red-100 text-red-800" :
+                        payment.status === "cancelled" ? "bg-gray-100 text-gray-600" :
+                        "bg-amber-100 text-amber-800"
+                      }>
+                        {payment.status === "paid" ? "Paid" : payment.status === "overdue" ? "Overdue" : payment.status === "cancelled" ? "Cancelled" : "Pending"}
                       </Badge>
                     </div>
                   ))}
@@ -216,7 +221,7 @@ export default function ParentPortalPage() {
                   <CardTitle className="flex items-center gap-2 font-serif text-primary">
                     <MessageSquare size={18} /> Messages from TTA
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">Send a message to Khadija — she'll reply here shortly.</p>
+                  <p className="text-xs text-muted-foreground">Send a message to TTA Team — we'll reply here shortly.</p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 min-h-[200px] max-h-[400px] overflow-y-auto pr-1 mb-4">
@@ -230,7 +235,7 @@ export default function ParentPortalPage() {
                           <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${isParent ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-muted text-foreground rounded-bl-sm"}`}>
                             <p className="text-sm">{msg.content}</p>
                             <p className={`text-[10px] mt-1 ${isParent ? "text-primary-foreground/60 text-right" : "text-muted-foreground"}`}>
-                              {isParent ? "You" : "Khadija · TTA"} · {new Date(msg.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} {new Date(msg.createdAt).toLocaleDateString("en-GB")}
+                              {isParent ? "You" : "TTA Team"} · {new Date(msg.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} {new Date(msg.createdAt).toLocaleDateString("en-GB")}
                             </p>
                           </div>
                         </div>
@@ -240,7 +245,7 @@ export default function ParentPortalPage() {
                   </div>
                   <div className="flex gap-2 border-t pt-3">
                     <Textarea
-                      placeholder="Type a message to Khadija..."
+                      placeholder="Type a message to TTA Team..."
                       value={newMessage}
                       onChange={e => setNewMessage(e.target.value)}
                       rows={2}

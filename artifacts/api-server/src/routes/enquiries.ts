@@ -10,6 +10,7 @@ import {
   UpdateEnquiryParams,
   UpdateEnquiryResponse,
 } from "@workspace/api-zod";
+import { sendEnquiryEmails } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -26,6 +27,19 @@ router.post("/enquiries", async (req, res): Promise<void> => {
   }
   const [enquiry] = await db.insert(enquiriesTable).values(parsed.data).returning();
   res.status(201).json(GetEnquiryResponse.parse({ ...enquiry, createdAt: enquiry.createdAt.toISOString() }));
+
+  // Send emails asynchronously (don't block response)
+  sendEnquiryEmails({
+    parentName: parsed.data.parentName,
+    childName: parsed.data.childName,
+    childAge: parsed.data.childAge,
+    subject: parsed.data.subject,
+    level: parsed.data.level,
+    preferredSlot: parsed.data.preferredSlot,
+    contactNumber: parsed.data.contactNumber,
+    email: parsed.data.email,
+    notes: parsed.data.notes,
+  }).catch(() => {});
 });
 
 router.get("/enquiries/:id", async (req, res): Promise<void> => {

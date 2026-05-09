@@ -7,12 +7,18 @@
  */
 
 export * from "./activityItem";
+export * from "./course";
+export * from "./courseInput";
+export * from "./courseUpdate";
 export * from "./dashboardSummary";
 export * from "./enquiry";
 export * from "./enquiryInput";
 export * from "./enquiryUpdate";
 export * from "./errorEnvelope";
 export * from "./healthStatus";
+export * from "./intakeSubmission";
+export * from "./intakeSubmissionInput";
+export * from "./intakeSubmissionUpdate";
 export * from "./listMessagesParams";
 export * from "./listPaymentsParams";
 export * from "./listProgressNotesParams";
@@ -21,6 +27,7 @@ export * from "./message";
 export * from "./messageInput";
 export * from "./payment";
 export * from "./paymentInput";
+export * from "./paymentPublicSettings";
 export * from "./paymentUpdate";
 export * from "./progressNote";
 export * from "./progressNoteInput";

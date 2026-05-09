@@ -26,6 +26,7 @@ export const ListEnquiriesResponseItem = zod.object({
   level: zod.string(),
   preferredSlot: zod.string(),
   contactNumber: zod.string(),
+  email: zod.string().nullish(),
   notes: zod.string().nullish(),
   status: zod.string(),
   createdAt: zod.string(),
@@ -44,6 +45,7 @@ export const CreateEnquiryBody = zod.object({
   level: zod.string(),
   preferredSlot: zod.string(),
   contactNumber: zod.string().min(1),
+  email: zod.string().optional(),
   notes: zod.string().optional(),
 });
 
@@ -63,6 +65,7 @@ export const GetEnquiryResponse = zod.object({
   level: zod.string(),
   preferredSlot: zod.string(),
   contactNumber: zod.string(),
+  email: zod.string().nullish(),
   notes: zod.string().nullish(),
   status: zod.string(),
   createdAt: zod.string(),
@@ -89,6 +92,7 @@ export const UpdateEnquiryResponse = zod.object({
   level: zod.string(),
   preferredSlot: zod.string(),
   contactNumber: zod.string(),
+  email: zod.string().nullish(),
   notes: zod.string().nullish(),
   status: zod.string(),
   createdAt: zod.string(),
@@ -411,7 +415,7 @@ export const ListPaymentsResponseItem = zod.object({
   studentId: zod.number(),
   sessionDate: zod.string(),
   amount: zod.number(),
-  paid: zod.boolean(),
+  status: zod.string(),
   notes: zod.string().nullish(),
   createdAt: zod.string(),
 });
@@ -424,7 +428,7 @@ export const CreatePaymentBody = zod.object({
   studentId: zod.number(),
   sessionDate: zod.string(),
   amount: zod.number(),
-  paid: zod.boolean().optional(),
+  status: zod.string().optional(),
   notes: zod.string().optional(),
 });
 
@@ -436,7 +440,7 @@ export const UpdatePaymentParams = zod.object({
 });
 
 export const UpdatePaymentBody = zod.object({
-  paid: zod.boolean().optional(),
+  status: zod.string().optional(),
   notes: zod.string().optional(),
 });
 
@@ -445,9 +449,16 @@ export const UpdatePaymentResponse = zod.object({
   studentId: zod.number(),
   sessionDate: zod.string(),
   amount: zod.number(),
-  paid: zod.boolean(),
+  status: zod.string(),
   notes: zod.string().nullish(),
   createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete a payment record
+ */
+export const DeletePaymentParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 /**
@@ -458,6 +469,7 @@ export const GetDashboardSummaryResponse = zod.object({
   pendingEnquiries: zod.number(),
   sessionsThisWeek: zod.number(),
   outstandingPayments: zod.number(),
+  newIntakeSubmissions: zod.number(),
   recentEnquiries: zod.array(
     zod.object({
       id: zod.number(),
@@ -468,6 +480,7 @@ export const GetDashboardSummaryResponse = zod.object({
       level: zod.string(),
       preferredSlot: zod.string(),
       contactNumber: zod.string(),
+      email: zod.string().nullish(),
       notes: zod.string().nullish(),
       status: zod.string(),
       createdAt: zod.string(),
@@ -664,9 +677,15 @@ export const GetSettingsResponse = zod.object({
   smtpEnabled: zod.boolean(),
   paymentProcessor: zod.string().nullish(),
   paymentApiKey: zod.string().nullish(),
+  paymentAppId: zod.string().nullish(),
+  paymentAccessToken: zod.string().nullish(),
   paymentLocationId: zod.string().nullish(),
   paymentMode: zod.string().nullish(),
   paymentEnabled: zod.boolean(),
+  paypalClientId: zod.string().nullish(),
+  paypalSecret: zod.string().nullish(),
+  stripePublishableKey: zod.string().nullish(),
+  stripeSecretKey: zod.string().nullish(),
   bookingWidgetCode: zod.string().nullish(),
   bookingWidgetEnabled: zod.boolean(),
   bookingWidgetPlacement: zod.string().nullish(),
@@ -685,9 +704,15 @@ export const UpdateSettingsBody = zod.object({
   smtpEnabled: zod.boolean().optional(),
   paymentProcessor: zod.string().optional(),
   paymentApiKey: zod.string().optional(),
+  paymentAppId: zod.string().optional(),
+  paymentAccessToken: zod.string().optional(),
   paymentLocationId: zod.string().optional(),
   paymentMode: zod.string().optional(),
   paymentEnabled: zod.boolean().optional(),
+  paypalClientId: zod.string().optional(),
+  paypalSecret: zod.string().optional(),
+  stripePublishableKey: zod.string().optional(),
+  stripeSecretKey: zod.string().optional(),
   bookingWidgetCode: zod.string().optional(),
   bookingWidgetEnabled: zod.boolean().optional(),
   bookingWidgetPlacement: zod.string().optional(),
@@ -701,9 +726,15 @@ export const UpdateSettingsResponse = zod.object({
   smtpEnabled: zod.boolean(),
   paymentProcessor: zod.string().nullish(),
   paymentApiKey: zod.string().nullish(),
+  paymentAppId: zod.string().nullish(),
+  paymentAccessToken: zod.string().nullish(),
   paymentLocationId: zod.string().nullish(),
   paymentMode: zod.string().nullish(),
   paymentEnabled: zod.boolean(),
+  paypalClientId: zod.string().nullish(),
+  paypalSecret: zod.string().nullish(),
+  stripePublishableKey: zod.string().nullish(),
+  stripeSecretKey: zod.string().nullish(),
   bookingWidgetCode: zod.string().nullish(),
   bookingWidgetEnabled: zod.boolean(),
   bookingWidgetPlacement: zod.string().nullish(),
@@ -717,4 +748,165 @@ export const GetWidgetSettingsResponse = zod.object({
   bookingWidgetCode: zod.string().nullish(),
   bookingWidgetEnabled: zod.boolean(),
   bookingWidgetPlacement: zod.string().nullish(),
+});
+
+/**
+ * @summary Get public payment processor settings (processor, mode, publishable keys)
+ */
+export const GetPaymentPublicSettingsResponse = zod.object({
+  paymentEnabled: zod.boolean(),
+  paymentProcessor: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
+  paymentAppId: zod.string().nullish(),
+  paymentLocationId: zod.string().nullish(),
+  paypalClientId: zod.string().nullish(),
+  stripePublishableKey: zod.string().nullish(),
+});
+
+/**
+ * @summary List all intake submissions (admin)
+ */
+export const ListIntakeSubmissionsResponseItem = zod.object({
+  id: zod.number(),
+  parentName: zod.string(),
+  childName: zod.string(),
+  childAge: zod.number(),
+  email: zod.string(),
+  contactNumber: zod.string(),
+  subject: zod.string(),
+  level: zod.string(),
+  currentSchool: zod.string().nullish(),
+  additionalInfo: zod.string().nullish(),
+  status: zod.string(),
+  createdAt: zod.string(),
+});
+export const ListIntakeSubmissionsResponse = zod.array(
+  ListIntakeSubmissionsResponseItem,
+);
+
+/**
+ * @summary Submit an intake / onboarding form (public)
+ */
+
+export const CreateIntakeSubmissionBody = zod.object({
+  parentName: zod.string().min(1),
+  childName: zod.string().min(1),
+  childAge: zod.number(),
+  email: zod.string().min(1),
+  contactNumber: zod.string().min(1),
+  subject: zod.string(),
+  level: zod.string(),
+  currentSchool: zod.string().optional(),
+  additionalInfo: zod.string().optional(),
+});
+
+/**
+ * @summary Update intake submission status (admin)
+ */
+export const UpdateIntakeSubmissionParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateIntakeSubmissionBody = zod.object({
+  status: zod.string().optional(),
+});
+
+export const UpdateIntakeSubmissionResponse = zod.object({
+  id: zod.number(),
+  parentName: zod.string(),
+  childName: zod.string(),
+  childAge: zod.number(),
+  email: zod.string(),
+  contactNumber: zod.string(),
+  subject: zod.string(),
+  level: zod.string(),
+  currentSchool: zod.string().nullish(),
+  additionalInfo: zod.string().nullish(),
+  status: zod.string(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete an intake submission
+ */
+export const DeleteIntakeSubmissionParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List all courses
+ */
+export const ListCoursesResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  description: zod.string(),
+  subject: zod.string(),
+  level: zod.string(),
+  type: zod.string(),
+  price: zod.number(),
+  duration: zod.string(),
+  imageUrl: zod.string().nullish(),
+  available: zod.boolean(),
+  displayOrder: zod.number(),
+  createdAt: zod.string(),
+});
+export const ListCoursesResponse = zod.array(ListCoursesResponseItem);
+
+/**
+ * @summary Create a course (admin)
+ */
+
+export const CreateCourseBody = zod.object({
+  title: zod.string().min(1),
+  description: zod.string().min(1),
+  subject: zod.string(),
+  level: zod.string(),
+  type: zod.string().optional(),
+  price: zod.number(),
+  duration: zod.string(),
+  imageUrl: zod.string().optional(),
+  available: zod.boolean().optional(),
+  displayOrder: zod.number().optional(),
+});
+
+/**
+ * @summary Update a course (admin)
+ */
+export const UpdateCourseParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateCourseBody = zod.object({
+  title: zod.string().optional(),
+  description: zod.string().optional(),
+  subject: zod.string().optional(),
+  level: zod.string().optional(),
+  type: zod.string().optional(),
+  price: zod.number().optional(),
+  duration: zod.string().optional(),
+  imageUrl: zod.string().optional(),
+  available: zod.boolean().optional(),
+  displayOrder: zod.number().optional(),
+});
+
+export const UpdateCourseResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  description: zod.string(),
+  subject: zod.string(),
+  level: zod.string(),
+  type: zod.string(),
+  price: zod.number(),
+  duration: zod.string(),
+  imageUrl: zod.string().nullish(),
+  available: zod.boolean(),
+  displayOrder: zod.number(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete a course (admin)
+ */
+export const DeleteCourseParams = zod.object({
+  id: zod.coerce.number(),
 });

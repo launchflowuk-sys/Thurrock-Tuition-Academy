@@ -11,6 +11,8 @@ import settingsRouter from "./settings";
 import staffRouter from "./staff";
 import storageRouter from "./storage";
 import messagesRouter from "./messages";
+import intakeRouter from "./intake-submissions";
+import coursesRouter from "./courses";
 
 const router: IRouter = Router();
 
@@ -26,5 +28,7 @@ router.use(settingsRouter);
 router.use(staffRouter);
 router.use(storageRouter);
 router.use(messagesRouter);
+router.use(intakeRouter);
+router.use(coursesRouter);
 
 export default router;

@@ -1,7 +1,8 @@
 import { useGetDashboardSummary, getGetDashboardSummaryQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Calendar, CreditCard, ExternalLink } from "lucide-react";
+import { Users, MessageSquare, Calendar, CreditCard, ExternalLink, ClipboardList } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "wouter";
 
 const QUICK_LINKS = [
   {
@@ -63,8 +64,8 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold font-serif text-primary">Dashboard</h1>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {[1, 2, 3, 4, 5].map((i) => (
             <Card key={i} className="shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <Skeleton className="h-4 w-[100px]" />
@@ -81,10 +82,11 @@ export default function Dashboard() {
   }
 
   const stats = [
-    { title: "Total Students", value: summary?.totalStudents || 0, icon: Users },
-    { title: "Pending Enquiries", value: summary?.pendingEnquiries || 0, icon: MessageSquare },
-    { title: "Sessions This Week", value: summary?.sessionsThisWeek || 0, icon: Calendar },
-    { title: "Outstanding Payments", value: summary?.outstandingPayments || 0, icon: CreditCard },
+    { title: "Total Students", value: summary?.totalStudents || 0, icon: Users, href: "/students", color: "text-blue-600" },
+    { title: "Pending Enquiries", value: summary?.pendingEnquiries || 0, icon: MessageSquare, href: "/enquiries", color: "text-amber-600" },
+    { title: "Sessions This Week", value: summary?.sessionsThisWeek || 0, icon: Calendar, href: "/sessions", color: "text-green-600" },
+    { title: "Outstanding Payments", value: summary?.outstandingPayments || 0, icon: CreditCard, href: "/payments", color: "text-red-600" },
+    { title: "New Intake Forms", value: summary?.newIntakeSubmissions || 0, icon: ClipboardList, href: "/intake", color: "text-purple-600" },
   ];
 
   return (
@@ -92,19 +94,21 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold font-serif text-primary">Dashboard Overview</h1>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="shadow-sm border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-primary">{stat.value}</div>
-              </CardContent>
-            </Card>
+            <Link key={stat.title} href={stat.href}>
+              <Card className="shadow-sm border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                  <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">{stat.title}</CardTitle>
+                  <Icon className={`h-4 w-4 ${stat.color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-primary">{stat.value}</div>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </div>

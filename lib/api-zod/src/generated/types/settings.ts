@@ -21,10 +21,22 @@ export interface Settings {
   /** @nullable */
   paymentApiKey?: string | null;
   /** @nullable */
+  paymentAppId?: string | null;
+  /** @nullable */
+  paymentAccessToken?: string | null;
+  /** @nullable */
   paymentLocationId?: string | null;
   /** @nullable */
   paymentMode?: string | null;
   paymentEnabled: boolean;
+  /** @nullable */
+  paypalClientId?: string | null;
+  /** @nullable */
+  paypalSecret?: string | null;
+  /** @nullable */
+  stripePublishableKey?: string | null;
+  /** @nullable */
+  stripeSecretKey?: string | null;
   /** @nullable */
   bookingWidgetCode?: string | null;
   bookingWidgetEnabled: boolean;

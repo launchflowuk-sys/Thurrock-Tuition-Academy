@@ -39,7 +39,11 @@ router.post("/payments", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [payment] = await db.insert(paymentsTable).values({ ...parsed.data, amount: String(parsed.data.amount) }).returning();
+  const [payment] = await db.insert(paymentsTable).values({
+    ...parsed.data,
+    amount: String(parsed.data.amount),
+    status: parsed.data.status ?? "pending",
+  }).returning();
   res.status(201).json(toPayment(payment));
 });
 
@@ -60,6 +64,13 @@ router.patch("/payments/:id", async (req, res): Promise<void> => {
     return;
   }
   res.json(UpdatePaymentResponse.parse(toPayment(payment)));
+});
+
+router.delete("/payments/:id", async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  await db.delete(paymentsTable).where(eq(paymentsTable.id, id));
+  res.status(204).send();
 });
 
 export default router;

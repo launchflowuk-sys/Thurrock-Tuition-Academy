@@ -7,3 +7,5 @@ export * from "./payments";
 export * from "./settings";
 export * from "./staff";
 export * from "./messages";
+export * from "./intake_submissions";
+export * from "./courses";

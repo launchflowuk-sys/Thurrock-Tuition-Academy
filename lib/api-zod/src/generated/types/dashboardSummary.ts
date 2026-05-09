@@ -12,5 +12,6 @@ export interface DashboardSummary {
   pendingEnquiries: number;
   sessionsThisWeek: number;
   outstandingPayments: number;
+  newIntakeSubmissions: number;
   recentEnquiries: Enquiry[];
 }

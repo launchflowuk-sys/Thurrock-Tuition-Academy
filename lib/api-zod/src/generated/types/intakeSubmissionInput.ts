@@ -6,19 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface Enquiry {
-  id: number;
+export interface IntakeSubmissionInput {
+  /** @minLength 1 */
   parentName: string;
+  /** @minLength 1 */
   childName: string;
   childAge: number;
+  /** @minLength 1 */
+  email: string;
+  /** @minLength 1 */
+  contactNumber: string;
   subject: string;
   level: string;
-  preferredSlot: string;
-  contactNumber: string;
-  /** @nullable */
-  email?: string | null;
-  /** @nullable */
-  notes?: string | null;
-  status: string;
-  createdAt: string;
+  currentSchool?: string;
+  additionalInfo?: string;
 }

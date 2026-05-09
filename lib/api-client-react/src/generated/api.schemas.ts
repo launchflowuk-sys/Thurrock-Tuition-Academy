@@ -19,6 +19,8 @@ export interface Enquiry {
   preferredSlot: string;
   contactNumber: string;
   /** @nullable */
+  email?: string | null;
+  /** @nullable */
   notes?: string | null;
   status: string;
   createdAt: string;
@@ -35,6 +37,7 @@ export interface EnquiryInput {
   preferredSlot: string;
   /** @minLength 1 */
   contactNumber: string;
+  email?: string;
   notes?: string;
 }
 
@@ -184,7 +187,7 @@ export interface Payment {
   studentId: number;
   sessionDate: string;
   amount: number;
-  paid: boolean;
+  status: string;
   /** @nullable */
   notes?: string | null;
   createdAt: string;
@@ -194,12 +197,12 @@ export interface PaymentInput {
   studentId: number;
   sessionDate: string;
   amount: number;
-  paid?: boolean;
+  status?: string;
   notes?: string;
 }
 
 export interface PaymentUpdate {
-  paid?: boolean;
+  status?: string;
   notes?: string;
 }
 
@@ -208,6 +211,7 @@ export interface DashboardSummary {
   pendingEnquiries: number;
   sessionsThisWeek: number;
   outstandingPayments: number;
+  newIntakeSubmissions: number;
   recentEnquiries: Enquiry[];
 }
 
@@ -242,10 +246,22 @@ export interface Settings {
   /** @nullable */
   paymentApiKey?: string | null;
   /** @nullable */
+  paymentAppId?: string | null;
+  /** @nullable */
+  paymentAccessToken?: string | null;
+  /** @nullable */
   paymentLocationId?: string | null;
   /** @nullable */
   paymentMode?: string | null;
   paymentEnabled: boolean;
+  /** @nullable */
+  paypalClientId?: string | null;
+  /** @nullable */
+  paypalSecret?: string | null;
+  /** @nullable */
+  stripePublishableKey?: string | null;
+  /** @nullable */
+  stripeSecretKey?: string | null;
   /** @nullable */
   bookingWidgetCode?: string | null;
   bookingWidgetEnabled: boolean;
@@ -263,9 +279,15 @@ export interface SettingsInput {
   smtpEnabled?: boolean;
   paymentProcessor?: string;
   paymentApiKey?: string;
+  paymentAppId?: string;
+  paymentAccessToken?: string;
   paymentLocationId?: string;
   paymentMode?: string;
   paymentEnabled?: boolean;
+  paypalClientId?: string;
+  paypalSecret?: string;
+  stripePublishableKey?: string;
+  stripeSecretKey?: string;
   bookingWidgetCode?: string;
   bookingWidgetEnabled?: boolean;
   bookingWidgetPlacement?: string;
@@ -277,6 +299,22 @@ export interface WidgetSettings {
   bookingWidgetEnabled: boolean;
   /** @nullable */
   bookingWidgetPlacement?: string | null;
+}
+
+export interface PaymentPublicSettings {
+  paymentEnabled: boolean;
+  /** @nullable */
+  paymentProcessor?: string | null;
+  /** @nullable */
+  paymentMode?: string | null;
+  /** @nullable */
+  paymentAppId?: string | null;
+  /** @nullable */
+  paymentLocationId?: string | null;
+  /** @nullable */
+  paypalClientId?: string | null;
+  /** @nullable */
+  stripePublishableKey?: string | null;
 }
 
 export interface StaffMember {
@@ -346,6 +384,87 @@ export interface UploadUrlRequest {
 export interface UploadUrlResponse {
   uploadURL: string;
   objectPath: string;
+}
+
+export interface IntakeSubmission {
+  id: number;
+  parentName: string;
+  childName: string;
+  childAge: number;
+  email: string;
+  contactNumber: string;
+  subject: string;
+  level: string;
+  /** @nullable */
+  currentSchool?: string | null;
+  /** @nullable */
+  additionalInfo?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface IntakeSubmissionInput {
+  /** @minLength 1 */
+  parentName: string;
+  /** @minLength 1 */
+  childName: string;
+  childAge: number;
+  /** @minLength 1 */
+  email: string;
+  /** @minLength 1 */
+  contactNumber: string;
+  subject: string;
+  level: string;
+  currentSchool?: string;
+  additionalInfo?: string;
+}
+
+export interface IntakeSubmissionUpdate {
+  status?: string;
+}
+
+export interface Course {
+  id: number;
+  title: string;
+  description: string;
+  subject: string;
+  level: string;
+  type: string;
+  price: number;
+  duration: string;
+  /** @nullable */
+  imageUrl?: string | null;
+  available: boolean;
+  displayOrder: number;
+  createdAt: string;
+}
+
+export interface CourseInput {
+  /** @minLength 1 */
+  title: string;
+  /** @minLength 1 */
+  description: string;
+  subject: string;
+  level: string;
+  type?: string;
+  price: number;
+  duration: string;
+  imageUrl?: string;
+  available?: boolean;
+  displayOrder?: number;
+}
+
+export interface CourseUpdate {
+  title?: string;
+  description?: string;
+  subject?: string;
+  level?: string;
+  type?: string;
+  price?: number;
+  duration?: string;
+  imageUrl?: string;
+  available?: boolean;
+  displayOrder?: number;
 }
 
 export interface ErrorEnvelope {

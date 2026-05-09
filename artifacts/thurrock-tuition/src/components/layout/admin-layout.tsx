@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
 import {
@@ -13,6 +13,8 @@ import {
   GraduationCap,
   Settings,
   UserCog,
+  BookOpen,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -24,11 +26,13 @@ interface AdminLayoutProps {
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/enquiries", label: "Enquiries", icon: MessageSquare },
+  { href: "/intake", label: "Intake Forms", icon: ClipboardList },
   { href: "/students", label: "Students", icon: Users },
   { href: "/sessions", label: "Sessions", icon: Calendar },
   { href: "/progress", label: "Progress", icon: GraduationCap },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/payments", label: "Payments", icon: CreditCard },
+  { href: "/courses", label: "Courses", icon: BookOpen },
   { href: "/staff", label: "Staff", icon: UserCog },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -37,10 +41,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [location] = useLocation();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-  const NavLinks = () => (
+  const NavLinks = ({ onClose }: { onClose?: () => void }) => (
     <>
       {NAV_ITEMS.map((item) => {
         const isActive = location.startsWith(item.href);
@@ -49,12 +54,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Link
             key={item.href}
             href={item.href}
+            onClick={onClose}
             className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
               isActive
                 ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
             }`}
-            data-testid={`nav-${item.label.toLowerCase()}`}
+            data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
           >
             <Icon size={20} />
             <span>{item.label}</span>
@@ -110,7 +116,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
         <header className="md:hidden sticky top-0 z-20 bg-sidebar border-b border-sidebar-border px-4 py-3 flex items-center justify-between">
           <img src={`${basePath}/logo.svg`} alt="TTA Logo" className="h-8 w-auto" />
-          <Sheet>
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-sidebar-foreground">
                 <Menu size={24} />
@@ -129,13 +135,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </div>
               </div>
               <nav className="p-4 space-y-1">
-                <NavLinks />
+                <NavLinks onClose={() => setMobileOpen(false)} />
               </nav>
               <div className="absolute bottom-0 w-full p-4 border-t border-sidebar-border space-y-3">
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
-                  onClick={() => signOut({ redirectUrl: basePath || "/" })}
+                  onClick={() => { signOut({ redirectUrl: basePath || "/" }); setMobileOpen(false); }}
                 >
                   <LogOut size={20} className="mr-3" />
                   Sign Out

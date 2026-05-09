@@ -7,6 +7,6 @@
  */
 
 export interface PaymentUpdate {
-  paid?: boolean;
+  status?: string;
   notes?: string;
 }

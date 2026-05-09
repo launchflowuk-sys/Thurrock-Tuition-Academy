@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { desc, eq, count, and } from "drizzle-orm";
-import { db, enquiriesTable, studentsTable, sessionsTable, progressNotesTable, tasksTable, paymentsTable } from "@workspace/db";
+import { desc, eq, count } from "drizzle-orm";
+import { db, enquiriesTable, studentsTable, sessionsTable, progressNotesTable, tasksTable, paymentsTable, intakeSubmissionsTable } from "@workspace/db";
 import {
   GetDashboardSummaryResponse,
   GetRecentActivityResponse,
@@ -25,7 +25,8 @@ router.get("/dashboard/summary", async (_req, res): Promise<void> => {
     return d >= startOfWeek && d < endOfWeek;
   }).length;
 
-  const [outstandingResult] = await db.select({ count: count() }).from(paymentsTable).where(eq(paymentsTable.paid, false));
+  const [outstandingResult] = await db.select({ count: count() }).from(paymentsTable).where(eq(paymentsTable.status, "pending"));
+  const [intakeResult] = await db.select({ count: count() }).from(intakeSubmissionsTable).where(eq(intakeSubmissionsTable.status, "new"));
 
   const recentEnquiries = await db.select().from(enquiriesTable).orderBy(desc(enquiriesTable.createdAt)).limit(5);
 
@@ -34,6 +35,7 @@ router.get("/dashboard/summary", async (_req, res): Promise<void> => {
     pendingEnquiries: Number(pendingEnquiriesResult?.count ?? 0),
     sessionsThisWeek,
     outstandingPayments: Number(outstandingResult?.count ?? 0),
+    newIntakeSubmissions: Number(intakeResult?.count ?? 0),
     recentEnquiries: recentEnquiries.map(e => ({ ...e, createdAt: e.createdAt.toISOString() })),
   };
 

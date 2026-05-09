@@ -22,6 +22,8 @@ import PaymentsPage from "@/pages/payments";
 import ParentPortalPage from "@/pages/parent-portal";
 import SettingsPage from "@/pages/settings";
 import StaffPage from "@/pages/staff";
+import IntakePage from "@/pages/intake";
+import CoursesPage from "@/pages/courses";
 import NotFound from "@/pages/not-found";
 import AdminLayout from "@/components/layout/admin-layout";
 import { ScrollToTop } from "@/components/scroll-to-top";
@@ -255,6 +257,12 @@ function ClerkProviderWithRoutes() {
             </Route>
             <Route path="/staff">
               <AdminRoute><StaffPage /></AdminRoute>
+            </Route>
+            <Route path="/intake">
+              <AdminRoute><IntakePage /></AdminRoute>
+            </Route>
+            <Route path="/courses">
+              <AdminRoute><CoursesPage /></AdminRoute>
             </Route>
 
             <Route component={NotFound} />

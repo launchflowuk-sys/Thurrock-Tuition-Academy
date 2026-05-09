@@ -6,10 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface PaymentInput {
-  studentId: number;
-  sessionDate: string;
-  amount: number;
+export interface IntakeSubmissionUpdate {
   status?: string;
-  notes?: string;
 }

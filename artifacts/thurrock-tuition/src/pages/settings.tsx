@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useGetSettings, useUpdateSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -42,17 +42,48 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
     : <Badge variant="outline" className="text-muted-foreground gap-1"><AlertCircle size={12} />Inactive</Badge>;
 }
 
+function MaskedInput({ value, onChange, placeholder, ...props }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> & { value: string; onChange: (v: string) => void }) {
+  const [show, setShow] = useState(false);
+  const isMasked = value === "••••••••";
+  return (
+    <div className="relative max-w-sm">
+      <Input
+        type={show || isMasked ? "text" : "password"}
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="pr-10"
+        {...props}
+      />
+      {!isMasked && (
+        <button type="button" onClick={() => setShow(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const { data: settings, isLoading } = useGetSettings();
   const updateSettings = useUpdateSettings();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const [showSmtpPass, setShowSmtpPass] = useState(false);
-  const [showApiKey, setShowApiKey] = useState(false);
-
   const [smtp, setSmtp] = useState({ host: "", port: "587", user: "", pass: "", from: "", enabled: false });
-  const [payment, setPayment] = useState({ processor: "none", apiKey: "", locationId: "", mode: "sandbox", enabled: false });
+  const [payment, setPayment] = useState({
+    processor: "none",
+    apiKey: "",
+    appId: "",
+    accessToken: "",
+    locationId: "",
+    mode: "sandbox",
+    enabled: false,
+    paypalClientId: "",
+    paypalSecret: "",
+    stripePublishableKey: "",
+    stripeSecretKey: "",
+  });
   const [widget, setWidget] = useState({ code: "", enabled: false, placement: "contact" });
 
   useEffect(() => {
@@ -68,9 +99,15 @@ export default function SettingsPage() {
     setPayment({
       processor: settings.paymentProcessor ?? "none",
       apiKey: settings.paymentApiKey ?? "",
+      appId: settings.paymentAppId ?? "",
+      accessToken: settings.paymentAccessToken ?? "",
       locationId: settings.paymentLocationId ?? "",
       mode: settings.paymentMode ?? "sandbox",
       enabled: settings.paymentEnabled,
+      paypalClientId: settings.paypalClientId ?? "",
+      paypalSecret: settings.paypalSecret ?? "",
+      stripePublishableKey: settings.stripePublishableKey ?? "",
+      stripeSecretKey: settings.stripeSecretKey ?? "",
     });
     setWidget({
       code: settings.bookingWidgetCode ?? "",
@@ -80,12 +117,26 @@ export default function SettingsPage() {
   }, [settings]);
 
   const save = async (section: "smtp" | "payment" | "widget") => {
-    const body =
-      section === "smtp"
-        ? { smtpHost: smtp.host, smtpPort: Number(smtp.port), smtpUser: smtp.user, smtpPass: smtp.pass, smtpFrom: smtp.from, smtpEnabled: smtp.enabled }
-        : section === "payment"
-        ? { paymentProcessor: payment.processor, paymentApiKey: payment.apiKey, paymentLocationId: payment.locationId, paymentMode: payment.mode, paymentEnabled: payment.enabled }
-        : { bookingWidgetCode: widget.code, bookingWidgetEnabled: widget.enabled, bookingWidgetPlacement: widget.placement };
+    let body: Record<string, unknown>;
+    if (section === "smtp") {
+      body = { smtpHost: smtp.host, smtpPort: Number(smtp.port), smtpUser: smtp.user, smtpPass: smtp.pass, smtpFrom: smtp.from, smtpEnabled: smtp.enabled };
+    } else if (section === "payment") {
+      body = {
+        paymentProcessor: payment.processor,
+        paymentApiKey: payment.apiKey,
+        paymentAppId: payment.appId,
+        paymentAccessToken: payment.accessToken,
+        paymentLocationId: payment.locationId,
+        paymentMode: payment.mode,
+        paymentEnabled: payment.enabled,
+        paypalClientId: payment.paypalClientId,
+        paypalSecret: payment.paypalSecret,
+        stripePublishableKey: payment.stripePublishableKey,
+        stripeSecretKey: payment.stripeSecretKey,
+      };
+    } else {
+      body = { bookingWidgetCode: widget.code, bookingWidgetEnabled: widget.enabled, bookingWidgetPlacement: widget.placement };
+    }
 
     await updateSettings.mutateAsync({ data: body }, {
       onSuccess: () => {
@@ -120,7 +171,7 @@ export default function SettingsPage() {
           <TabsTrigger value="widget" className="gap-2"><Video size={15} />Booking Widget</TabsTrigger>
         </TabsList>
 
-        {/* ── SMTP ────────────────────────────────────────────────────────── */}
+        {/* ── SMTP ── */}
         <TabsContent value="smtp">
           <Card>
             <CardHeader className="pb-2">
@@ -152,12 +203,7 @@ export default function SettingsPage() {
                 <Input placeholder="bookings@thurrocktuitionacademy.co.uk" value={smtp.user} onChange={e => setSmtp(s => ({ ...s, user: e.target.value }))} />
               </FieldRow>
               <FieldRow label="Password" hint="Your email account or app-specific password.">
-                <div className="relative max-w-sm">
-                  <Input type={showSmtpPass ? "text" : "password"} placeholder="••••••••" value={smtp.pass} onChange={e => setSmtp(s => ({ ...s, pass: e.target.value }))} className="pr-10" />
-                  <button type="button" onClick={() => setShowSmtpPass(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    {showSmtpPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
+                <MaskedInput placeholder="••••••••" value={smtp.pass} onChange={v => setSmtp(s => ({ ...s, pass: v }))} />
               </FieldRow>
               <div className="flex justify-end pt-4">
                 <Button onClick={() => save("smtp")} disabled={updateSettings.isPending} className="bg-[#1B2B6B] hover:bg-[#243580] gap-2">
@@ -169,14 +215,14 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* ── PAYMENTS ────────────────────────────────────────────────────── */}
+        {/* ── PAYMENTS ── */}
         <TabsContent value="payment">
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="font-serif text-lg">Payment Processor</CardTitle>
-                  <CardDescription className="mt-1">Accept online payments for sessions, consultations, and assessments. Square and Stripe supported.</CardDescription>
+                  <CardDescription className="mt-1">Accept online payments via Square, PayPal, or Stripe.</CardDescription>
                 </div>
                 <StatusBadge enabled={payment.enabled} />
               </div>
@@ -196,8 +242,8 @@ export default function SettingsPage() {
                 >
                   <option value="none">Not configured</option>
                   <option value="square">Square</option>
+                  <option value="paypal">PayPal</option>
                   <option value="stripe">Stripe</option>
-                  <option value="other">Other</option>
                 </select>
               </FieldRow>
               <FieldRow label="Mode" hint="Use sandbox for testing. Switch to live when ready to accept real payments.">
@@ -214,22 +260,51 @@ export default function SettingsPage() {
                   ))}
                 </div>
               </FieldRow>
-              <FieldRow label="API key" hint={payment.processor === "square" ? "Found in your Square Developer dashboard." : "Your Stripe secret or publishable key."}>
-                <div className="relative max-w-sm">
-                  <Input type={showApiKey ? "text" : "password"} placeholder="Paste your API key here" value={payment.apiKey} onChange={e => setPayment(s => ({ ...s, apiKey: e.target.value }))} className="pr-10" />
-                  <button type="button" onClick={() => setShowApiKey(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </FieldRow>
+
+              {/* Square fields */}
               {payment.processor === "square" && (
-                <FieldRow label="Location ID" hint="Your Square Location ID (found in Square Dashboard → Locations).">
-                  <Input placeholder="LXXXXXXXXXXXXXXXXX" value={payment.locationId} onChange={e => setPayment(s => ({ ...s, locationId: e.target.value }))} className="max-w-sm" />
-                </FieldRow>
+                <>
+                  <FieldRow label="Application ID" hint="Production Application ID from your Square Developer dashboard.">
+                    <Input placeholder="sq0idp-xxxxxxxxxxxxxxxxxxxx" value={payment.appId} onChange={e => setPayment(s => ({ ...s, appId: e.target.value }))} className="max-w-sm font-mono text-xs" />
+                  </FieldRow>
+                  <FieldRow label="Access Token" hint="Production Access Token from Square Developer → OAuth → Production.">
+                    <MaskedInput placeholder="EAAAl…" value={payment.accessToken} onChange={v => setPayment(s => ({ ...s, accessToken: v }))} />
+                  </FieldRow>
+                  <FieldRow label="Location ID" hint="Your Square Location ID (Square Dashboard → Locations).">
+                    <Input placeholder="LXXXXXXXXXXXXXXXXX" value={payment.locationId} onChange={e => setPayment(s => ({ ...s, locationId: e.target.value }))} className="max-w-sm font-mono text-xs" />
+                  </FieldRow>
+                </>
               )}
-              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 leading-relaxed">
-                <strong>Ready to take payments?</strong> Once you have your Square or Stripe account set up, paste your credentials here and we'll wire up the checkout flow. The payment button will automatically appear on your booking and contact pages.
-              </div>
+
+              {/* PayPal fields */}
+              {payment.processor === "paypal" && (
+                <>
+                  <FieldRow label="Client ID" hint="From PayPal Developer Dashboard → My Apps & Credentials → Live.">
+                    <Input placeholder="AXxxxxxxxxxxxxxxxxxxxxxxxxx" value={payment.paypalClientId} onChange={e => setPayment(s => ({ ...s, paypalClientId: e.target.value }))} className="max-w-sm font-mono text-xs" />
+                  </FieldRow>
+                  <FieldRow label="Client Secret" hint="Your PayPal app client secret (live credentials).">
+                    <MaskedInput placeholder="EKxxxxxxxxxxxxxxxxxxxxxxxxx" value={payment.paypalSecret} onChange={v => setPayment(s => ({ ...s, paypalSecret: v }))} />
+                  </FieldRow>
+                </>
+              )}
+
+              {/* Stripe fields */}
+              {payment.processor === "stripe" && (
+                <>
+                  <FieldRow label="Publishable Key" hint="Starts with pk_live_… — safe to use in the browser.">
+                    <Input placeholder="pk_live_…" value={payment.stripePublishableKey} onChange={e => setPayment(s => ({ ...s, stripePublishableKey: e.target.value }))} className="max-w-sm font-mono text-xs" />
+                  </FieldRow>
+                  <FieldRow label="Secret Key" hint="Starts with sk_live_… — keep this private, never share it.">
+                    <MaskedInput placeholder="sk_live_…" value={payment.stripeSecretKey} onChange={v => setPayment(s => ({ ...s, stripeSecretKey: v }))} />
+                  </FieldRow>
+                </>
+              )}
+
+              {payment.processor !== "none" && (
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 leading-relaxed">
+                  <strong>Important:</strong> Only enter <strong>production/live</strong> credentials. Test credentials are for development only and will not process real payments.
+                </div>
+              )}
               <div className="flex justify-end pt-4">
                 <Button onClick={() => save("payment")} disabled={updateSettings.isPending} className="bg-[#1B2B6B] hover:bg-[#243580] gap-2">
                   <Save size={16} />
@@ -240,7 +315,7 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* ── BOOKING WIDGET ───────────────────────────────────────────────── */}
+        {/* ── BOOKING WIDGET ── */}
         <TabsContent value="widget">
           <Card>
             <CardHeader className="pb-2">

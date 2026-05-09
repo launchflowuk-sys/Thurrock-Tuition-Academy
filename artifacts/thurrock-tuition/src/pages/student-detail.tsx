@@ -168,12 +168,12 @@ export default function StudentDetailPage({ id }: Props) {
   // Payments
   const handleAddPayment = async () => {
     await createPayment.mutateAsync(
-      { data: { studentId: id, sessionDate: paymentForm.sessionDate, amount: Number(paymentForm.amount), paid: false, notes: paymentForm.notes || undefined } },
+      { data: { studentId: id, sessionDate: paymentForm.sessionDate, amount: Number(paymentForm.amount), status: "pending", notes: paymentForm.notes || undefined } },
       { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListPaymentsQueryKey({ studentId: id }) }); toast({ title: "Payment record added" }); setShowPaymentDialog(false); setPaymentForm({ sessionDate: new Date().toISOString().split("T")[0], amount: "", notes: "" }); } }
     );
   };
   const handleMarkPaid = async (paymentId: number) => {
-    await updatePayment.mutateAsync({ id: paymentId, data: { paid: true } }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListPaymentsQueryKey({ studentId: id }) }) });
+    await updatePayment.mutateAsync({ id: paymentId, data: { status: "paid" } }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListPaymentsQueryKey({ studentId: id }) }) });
   };
 
   // Messages
@@ -356,14 +356,19 @@ export default function StudentDetailPage({ id }: Props) {
                   <div className="flex items-center gap-2">
                     <CreditCard size={14} className="text-muted-foreground" />
                     <span className="font-medium">£{Number(payment.amount).toFixed(2)}</span>
-                    <Badge className={payment.paid ? "bg-green-100 text-green-800 border-green-200" : "bg-amber-100 text-amber-800 border-amber-200"}>
-                      {payment.paid ? "Paid" : "Outstanding"}
+                    <Badge className={
+                      payment.status === "paid" ? "bg-green-100 text-green-800 border-green-200" :
+                      payment.status === "overdue" ? "bg-red-100 text-red-800 border-red-200" :
+                      payment.status === "cancelled" ? "bg-gray-100 text-gray-600 border-gray-200" :
+                      "bg-amber-100 text-amber-800 border-amber-200"
+                    }>
+                      {payment.status === "paid" ? "Paid" : payment.status === "overdue" ? "Overdue" : payment.status === "cancelled" ? "Cancelled" : "Pending"}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">Session: {new Date(payment.sessionDate).toLocaleDateString("en-GB")}</p>
                   {payment.notes && <p className="text-xs text-muted-foreground">{payment.notes}</p>}
                 </div>
-                {!payment.paid && (
+                {payment.status !== "paid" && payment.status !== "cancelled" && (
                   <Button size="sm" variant="outline" onClick={() => handleMarkPaid(payment.id)} data-testid={`button-mark-paid-${payment.id}`}>
                     Mark Paid
                   </Button>
@@ -398,7 +403,7 @@ export default function StudentDetailPage({ id }: Props) {
                       <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${isAdmin ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-muted text-foreground rounded-bl-sm"}`}>
                         <p className="text-sm">{msg.content}</p>
                         <p className={`text-[10px] mt-1 ${isAdmin ? "text-primary-foreground/60 text-right" : "text-muted-foreground"}`}>
-                          {isAdmin ? "Khadija" : student.parentName} · {new Date(msg.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} {new Date(msg.createdAt).toLocaleDateString("en-GB")}
+                          {isAdmin ? "TTA Team" : student.parentName} · {new Date(msg.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} {new Date(msg.createdAt).toLocaleDateString("en-GB")}
                         </p>
                       </div>
                     </div>

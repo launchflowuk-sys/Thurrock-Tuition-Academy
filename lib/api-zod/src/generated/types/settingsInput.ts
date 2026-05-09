@@ -15,9 +15,15 @@ export interface SettingsInput {
   smtpEnabled?: boolean;
   paymentProcessor?: string;
   paymentApiKey?: string;
+  paymentAppId?: string;
+  paymentAccessToken?: string;
   paymentLocationId?: string;
   paymentMode?: string;
   paymentEnabled?: boolean;
+  paypalClientId?: string;
+  paypalSecret?: string;
+  stripePublishableKey?: string;
+  stripeSecretKey?: string;
   bookingWidgetCode?: string;
   bookingWidgetEnabled?: boolean;
   bookingWidgetPlacement?: string;

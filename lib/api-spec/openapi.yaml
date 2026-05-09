@@ -32,6 +32,10 @@ tags:
     description: Two-way messaging between admin and parents
   - name: Storage
     description: Object storage upload and serving endpoints
+  - name: intake
+    description: Intake / onboarding form submissions
+  - name: courses
+    description: Course management
 
 paths:
   /healthz:
@@ -520,6 +524,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+    delete:
+      operationId: deletePayment
+      tags: [payments]
+      summary: Delete a payment record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
 
   # ─── DASHBOARD ───────────────────────────────────────────────────────────────
   /dashboard/summary:
@@ -810,6 +827,165 @@ paths:
               schema:
                 $ref: "#/components/schemas/WidgetSettings"
 
+  /settings/payment-public:
+    get:
+      operationId: getPaymentPublicSettings
+      tags: [settings]
+      summary: Get public payment processor settings (processor, mode, publishable keys)
+      responses:
+        "200":
+          description: Public payment settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentPublicSettings"
+
+  # ─── INTAKE SUBMISSIONS ──────────────────────────────────────────────────────
+  /intake:
+    get:
+      operationId: listIntakeSubmissions
+      tags: [intake]
+      summary: List all intake submissions (admin)
+      responses:
+        "200":
+          description: List of intake submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IntakeSubmission"
+    post:
+      operationId: createIntakeSubmission
+      tags: [intake]
+      summary: Submit an intake / onboarding form (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntakeSubmissionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeSubmission"
+
+  /intake/{id}:
+    patch:
+      operationId: updateIntakeSubmission
+      tags: [intake]
+      summary: Update intake submission status (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntakeSubmissionUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeSubmission"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteIntakeSubmission
+      tags: [intake]
+      summary: Delete an intake submission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── COURSES ─────────────────────────────────────────────────────────────────
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List all courses
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+    post:
+      operationId: createCourse
+      tags: [courses]
+      summary: Create a course (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+
+  /courses/{id}:
+    patch:
+      operationId: updateCourse
+      tags: [courses]
+      summary: Update a course (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCourse
+      tags: [courses]
+      summary: Delete a course (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -832,6 +1008,7 @@ components:
         level:         { type: string }
         preferredSlot: { type: string }
         contactNumber: { type: string }
+        email:         { type: ["string", "null"] }
         notes:         { type: ["string", "null"] }
         status:        { type: string }
         createdAt:     { type: string }
@@ -847,6 +1024,7 @@ components:
         level:         { type: string }
         preferredSlot: { type: string }
         contactNumber: { type: string, minLength: 1 }
+        email:         { type: string }
         notes:         { type: string }
 
     EnquiryUpdate:
@@ -1007,13 +1185,13 @@ components:
     # ─── PAYMENT ───────────────────────────────────────────────────────────────
     Payment:
       type: object
-      required: [id, studentId, sessionDate, amount, paid, createdAt]
+      required: [id, studentId, sessionDate, amount, status, createdAt]
       properties:
         id:          { type: integer }
         studentId:   { type: integer }
         sessionDate: { type: string }
         amount:      { type: number }
-        paid:        { type: boolean }
+        status:      { type: string }
         notes:       { type: ["string", "null"] }
         createdAt:   { type: string }
 
@@ -1024,24 +1202,25 @@ components:
         studentId:   { type: integer }
         sessionDate: { type: string }
         amount:      { type: number }
-        paid:        { type: boolean }
+        status:      { type: string }
         notes:       { type: string }
 
     PaymentUpdate:
       type: object
       properties:
-        paid:  { type: boolean }
-        notes: { type: string }
+        status: { type: string }
+        notes:  { type: string }
 
     # ─── DASHBOARD ─────────────────────────────────────────────────────────────
     DashboardSummary:
       type: object
-      required: [totalStudents, pendingEnquiries, sessionsThisWeek, outstandingPayments, recentEnquiries]
+      required: [totalStudents, pendingEnquiries, sessionsThisWeek, outstandingPayments, recentEnquiries, newIntakeSubmissions]
       properties:
-        totalStudents:        { type: integer }
-        pendingEnquiries:     { type: integer }
-        sessionsThisWeek:     { type: integer }
-        outstandingPayments:  { type: integer }
+        totalStudents:          { type: integer }
+        pendingEnquiries:       { type: integer }
+        sessionsThisWeek:       { type: integer }
+        outstandingPayments:    { type: integer }
+        newIntakeSubmissions:   { type: integer }
         recentEnquiries:
           type: array
           items:
@@ -1079,9 +1258,15 @@ components:
         smtpEnabled:            { type: boolean }
         paymentProcessor:       { type: ["string", "null"] }
         paymentApiKey:          { type: ["string", "null"] }
+        paymentAppId:           { type: ["string", "null"] }
+        paymentAccessToken:     { type: ["string", "null"] }
         paymentLocationId:      { type: ["string", "null"] }
         paymentMode:            { type: ["string", "null"] }
         paymentEnabled:         { type: boolean }
+        paypalClientId:         { type: ["string", "null"] }
+        paypalSecret:           { type: ["string", "null"] }
+        stripePublishableKey:   { type: ["string", "null"] }
+        stripeSecretKey:        { type: ["string", "null"] }
         bookingWidgetCode:      { type: ["string", "null"] }
         bookingWidgetEnabled:   { type: boolean }
         bookingWidgetPlacement: { type: ["string", "null"] }
@@ -1098,9 +1283,15 @@ components:
         smtpEnabled:            { type: boolean }
         paymentProcessor:       { type: string }
         paymentApiKey:          { type: string }
+        paymentAppId:           { type: string }
+        paymentAccessToken:     { type: string }
         paymentLocationId:      { type: string }
         paymentMode:            { type: string }
         paymentEnabled:         { type: boolean }
+        paypalClientId:         { type: string }
+        paypalSecret:           { type: string }
+        stripePublishableKey:   { type: string }
+        stripeSecretKey:        { type: string }
         bookingWidgetCode:      { type: string }
         bookingWidgetEnabled:   { type: boolean }
         bookingWidgetPlacement: { type: string }
@@ -1112,6 +1303,18 @@ components:
         bookingWidgetCode:      { type: ["string", "null"] }
         bookingWidgetEnabled:   { type: boolean }
         bookingWidgetPlacement: { type: ["string", "null"] }
+
+    PaymentPublicSettings:
+      type: object
+      required: [paymentEnabled]
+      properties:
+        paymentEnabled:       { type: boolean }
+        paymentProcessor:     { type: ["string", "null"] }
+        paymentMode:          { type: ["string", "null"] }
+        paymentAppId:         { type: ["string", "null"] }
+        paymentLocationId:    { type: ["string", "null"] }
+        paypalClientId:       { type: ["string", "null"] }
+        stripePublishableKey: { type: ["string", "null"] }
 
     # ─── STAFF ──────────────────────────────────────────────────────────────────
     StaffMember:
@@ -1186,6 +1389,90 @@ components:
       properties:
         uploadURL:  { type: string, format: uri }
         objectPath: { type: string }
+
+    # ─── INTAKE SUBMISSION ────────────────────────────────────────────────────────
+    IntakeSubmission:
+      type: object
+      required: [id, parentName, childName, childAge, email, contactNumber, subject, level, status, createdAt]
+      properties:
+        id:             { type: integer }
+        parentName:     { type: string }
+        childName:      { type: string }
+        childAge:       { type: integer }
+        email:          { type: string }
+        contactNumber:  { type: string }
+        subject:        { type: string }
+        level:          { type: string }
+        currentSchool:  { type: ["string", "null"] }
+        additionalInfo: { type: ["string", "null"] }
+        status:         { type: string }
+        createdAt:      { type: string }
+
+    IntakeSubmissionInput:
+      type: object
+      required: [parentName, childName, childAge, email, contactNumber, subject, level]
+      properties:
+        parentName:     { type: string, minLength: 1 }
+        childName:      { type: string, minLength: 1 }
+        childAge:       { type: integer }
+        email:          { type: string, minLength: 1 }
+        contactNumber:  { type: string, minLength: 1 }
+        subject:        { type: string }
+        level:          { type: string }
+        currentSchool:  { type: string }
+        additionalInfo: { type: string }
+
+    IntakeSubmissionUpdate:
+      type: object
+      properties:
+        status: { type: string }
+
+    # ─── COURSE ──────────────────────────────────────────────────────────────────
+    Course:
+      type: object
+      required: [id, title, description, subject, level, type, price, duration, available, displayOrder, createdAt]
+      properties:
+        id:           { type: integer }
+        title:        { type: string }
+        description:  { type: string }
+        subject:      { type: string }
+        level:        { type: string }
+        type:         { type: string }
+        price:        { type: number }
+        duration:     { type: string }
+        imageUrl:     { type: ["string", "null"] }
+        available:    { type: boolean }
+        displayOrder: { type: integer }
+        createdAt:    { type: string }
+
+    CourseInput:
+      type: object
+      required: [title, description, subject, level, price, duration]
+      properties:
+        title:        { type: string, minLength: 1 }
+        description:  { type: string, minLength: 1 }
+        subject:      { type: string }
+        level:        { type: string }
+        type:         { type: string }
+        price:        { type: number }
+        duration:     { type: string }
+        imageUrl:     { type: string }
+        available:    { type: boolean }
+        displayOrder: { type: integer }
+
+    CourseUpdate:
+      type: object
+      properties:
+        title:        { type: string }
+        description:  { type: string }
+        subject:      { type: string }
+        level:        { type: string }
+        type:         { type: string }
+        price:        { type: number }
+        duration:     { type: string }
+        imageUrl:     { type: string }
+        available:    { type: boolean }
+        displayOrder: { type: integer }
 
     ErrorEnvelope:
       type: object

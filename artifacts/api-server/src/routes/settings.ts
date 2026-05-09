@@ -6,6 +6,7 @@ import {
   GetWidgetSettingsResponse,
   UpdateSettingsBody,
   UpdateSettingsResponse,
+  GetPaymentPublicSettingsResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -17,6 +18,8 @@ async function getOrCreateSettings() {
   return created;
 }
 
+const MASK = "••••••••";
+
 const toSettings = (s: typeof settingsTable.$inferSelect) => ({
   smtpHost: s.smtpHost,
   smtpPort: s.smtpPort,
@@ -24,10 +27,16 @@ const toSettings = (s: typeof settingsTable.$inferSelect) => ({
   smtpFrom: s.smtpFrom,
   smtpEnabled: s.smtpEnabled,
   paymentProcessor: s.paymentProcessor,
-  paymentApiKey: s.paymentApiKey ? "••••••••" : null,
+  paymentApiKey: s.paymentApiKey ? MASK : null,
+  paymentAppId: s.paymentAppId ? MASK : null,
+  paymentAccessToken: s.paymentAccessToken ? MASK : null,
   paymentLocationId: s.paymentLocationId,
   paymentMode: s.paymentMode,
   paymentEnabled: s.paymentEnabled,
+  paypalClientId: s.paypalClientId ? MASK : null,
+  paypalSecret: s.paypalSecret ? MASK : null,
+  stripePublishableKey: s.stripePublishableKey,
+  stripeSecretKey: s.stripeSecretKey ? MASK : null,
   bookingWidgetCode: s.bookingWidgetCode,
   bookingWidgetEnabled: s.bookingWidgetEnabled,
   bookingWidgetPlacement: s.bookingWidgetPlacement,
@@ -46,27 +55,31 @@ router.put("/settings", async (req, res): Promise<void> => {
     return;
   }
   const settings = await getOrCreateSettings();
+  const d = parsed.data;
   const updateData: Partial<typeof settingsTable.$inferInsert> = {
-    smtpHost: parsed.data.smtpHost ?? settings.smtpHost ?? undefined,
-    smtpPort: parsed.data.smtpPort ?? settings.smtpPort ?? undefined,
-    smtpUser: parsed.data.smtpUser ?? settings.smtpUser ?? undefined,
-    smtpFrom: parsed.data.smtpFrom ?? settings.smtpFrom ?? undefined,
-    smtpEnabled: parsed.data.smtpEnabled ?? settings.smtpEnabled,
-    paymentProcessor: parsed.data.paymentProcessor ?? settings.paymentProcessor ?? undefined,
-    paymentLocationId: parsed.data.paymentLocationId ?? settings.paymentLocationId ?? undefined,
-    paymentMode: parsed.data.paymentMode ?? settings.paymentMode ?? undefined,
-    paymentEnabled: parsed.data.paymentEnabled ?? settings.paymentEnabled,
-    bookingWidgetCode: parsed.data.bookingWidgetCode ?? settings.bookingWidgetCode ?? undefined,
-    bookingWidgetEnabled: parsed.data.bookingWidgetEnabled ?? settings.bookingWidgetEnabled,
-    bookingWidgetPlacement: parsed.data.bookingWidgetPlacement ?? settings.bookingWidgetPlacement ?? undefined,
+    smtpHost: d.smtpHost ?? settings.smtpHost ?? undefined,
+    smtpPort: d.smtpPort ?? settings.smtpPort ?? undefined,
+    smtpUser: d.smtpUser ?? settings.smtpUser ?? undefined,
+    smtpFrom: d.smtpFrom ?? settings.smtpFrom ?? undefined,
+    smtpEnabled: d.smtpEnabled ?? settings.smtpEnabled,
+    paymentProcessor: d.paymentProcessor ?? settings.paymentProcessor ?? undefined,
+    paymentLocationId: d.paymentLocationId ?? settings.paymentLocationId ?? undefined,
+    paymentMode: d.paymentMode ?? settings.paymentMode ?? undefined,
+    paymentEnabled: d.paymentEnabled ?? settings.paymentEnabled,
+    bookingWidgetCode: d.bookingWidgetCode ?? settings.bookingWidgetCode ?? undefined,
+    bookingWidgetEnabled: d.bookingWidgetEnabled ?? settings.bookingWidgetEnabled,
+    bookingWidgetPlacement: d.bookingWidgetPlacement ?? settings.bookingWidgetPlacement ?? undefined,
     updatedAt: new Date(),
   };
-  if (parsed.data.smtpPass && parsed.data.smtpPass !== "••••••••") {
-    updateData.smtpPass = parsed.data.smtpPass;
-  }
-  if (parsed.data.paymentApiKey && parsed.data.paymentApiKey !== "••••••••") {
-    updateData.paymentApiKey = parsed.data.paymentApiKey;
-  }
+  if (d.smtpPass && d.smtpPass !== MASK) updateData.smtpPass = d.smtpPass;
+  if (d.paymentApiKey && d.paymentApiKey !== MASK) updateData.paymentApiKey = d.paymentApiKey;
+  if (d.paymentAppId && d.paymentAppId !== MASK) updateData.paymentAppId = d.paymentAppId;
+  if (d.paymentAccessToken && d.paymentAccessToken !== MASK) updateData.paymentAccessToken = d.paymentAccessToken;
+  if (d.paypalClientId && d.paypalClientId !== MASK) updateData.paypalClientId = d.paypalClientId;
+  if (d.paypalSecret && d.paypalSecret !== MASK) updateData.paypalSecret = d.paypalSecret;
+  if (d.stripePublishableKey !== undefined) updateData.stripePublishableKey = d.stripePublishableKey;
+  if (d.stripeSecretKey && d.stripeSecretKey !== MASK) updateData.stripeSecretKey = d.stripeSecretKey;
+
   const [updated] = await db.update(settingsTable).set(updateData).where(eq(settingsTable.id, settings.id)).returning();
   res.json(UpdateSettingsResponse.parse(toSettings(updated)));
 });
@@ -77,6 +90,19 @@ router.get("/settings/widget", async (req, res): Promise<void> => {
     bookingWidgetCode: settings.bookingWidgetCode,
     bookingWidgetEnabled: settings.bookingWidgetEnabled,
     bookingWidgetPlacement: settings.bookingWidgetPlacement,
+  }));
+});
+
+router.get("/settings/payment-public", async (req, res): Promise<void> => {
+  const settings = await getOrCreateSettings();
+  res.json(GetPaymentPublicSettingsResponse.parse({
+    paymentEnabled: settings.paymentEnabled,
+    paymentProcessor: settings.paymentProcessor,
+    paymentMode: settings.paymentMode,
+    paymentAppId: settings.paymentAppId,
+    paymentLocationId: settings.paymentLocationId,
+    paypalClientId: settings.paypalClientId,
+    stripePublishableKey: settings.stripePublishableKey,
   }));
 });
 

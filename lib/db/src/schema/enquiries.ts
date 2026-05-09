@@ -11,6 +11,7 @@ export const enquiriesTable = pgTable("enquiries", {
   level: text("level").notNull(),
   preferredSlot: text("preferred_slot").notNull(),
   contactNumber: text("contact_number").notNull(),
+  email: text("email"),
   notes: text("notes"),
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
