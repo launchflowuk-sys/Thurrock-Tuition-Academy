@@ -219,6 +219,58 @@ export interface SlotAvailability {
   available: boolean;
 }
 
+export interface Settings {
+  /** @nullable */
+  smtpHost?: string | null;
+  /** @nullable */
+  smtpPort?: number | null;
+  /** @nullable */
+  smtpUser?: string | null;
+  /** @nullable */
+  smtpFrom?: string | null;
+  smtpEnabled: boolean;
+  /** @nullable */
+  paymentProcessor?: string | null;
+  /** @nullable */
+  paymentApiKey?: string | null;
+  /** @nullable */
+  paymentLocationId?: string | null;
+  /** @nullable */
+  paymentMode?: string | null;
+  paymentEnabled: boolean;
+  /** @nullable */
+  bookingWidgetCode?: string | null;
+  bookingWidgetEnabled: boolean;
+  /** @nullable */
+  bookingWidgetPlacement?: string | null;
+  updatedAt?: string;
+}
+
+export interface SettingsInput {
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPass?: string;
+  smtpFrom?: string;
+  smtpEnabled?: boolean;
+  paymentProcessor?: string;
+  paymentApiKey?: string;
+  paymentLocationId?: string;
+  paymentMode?: string;
+  paymentEnabled?: boolean;
+  bookingWidgetCode?: string;
+  bookingWidgetEnabled?: boolean;
+  bookingWidgetPlacement?: string;
+}
+
+export interface WidgetSettings {
+  /** @nullable */
+  bookingWidgetCode?: string | null;
+  bookingWidgetEnabled: boolean;
+  /** @nullable */
+  bookingWidgetPlacement?: string | null;
+}
+
 export type ListProgressNotesParams = {
   studentId?: number;
 };

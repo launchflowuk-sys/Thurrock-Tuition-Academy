@@ -20,6 +20,7 @@ import ProgressPage from "@/pages/progress";
 import TasksPage from "@/pages/tasks";
 import PaymentsPage from "@/pages/payments";
 import ParentPortalPage from "@/pages/parent-portal";
+import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import AdminLayout from "@/components/layout/admin-layout";
 import { ScrollToTop } from "@/components/scroll-to-top";
@@ -207,6 +208,9 @@ function ClerkProviderWithRoutes() {
             </Route>
             <Route path="/payments">
               <ProtectedRoute><PaymentsPage /></ProtectedRoute>
+            </Route>
+            <Route path="/settings">
+              <ProtectedRoute><SettingsPage /></ProtectedRoute>
             </Route>
 
             <Route component={NotFound} />

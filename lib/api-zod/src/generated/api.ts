@@ -492,3 +492,69 @@ export const GetSessionAvailabilityResponseItem = zod.object({
 export const GetSessionAvailabilityResponse = zod.array(
   GetSessionAvailabilityResponseItem,
 );
+
+/**
+ * @summary Get all site settings (admin)
+ */
+export const GetSettingsResponse = zod.object({
+  smtpHost: zod.string().nullish(),
+  smtpPort: zod.number().nullish(),
+  smtpUser: zod.string().nullish(),
+  smtpFrom: zod.string().nullish(),
+  smtpEnabled: zod.boolean(),
+  paymentProcessor: zod.string().nullish(),
+  paymentApiKey: zod.string().nullish(),
+  paymentLocationId: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
+  paymentEnabled: zod.boolean(),
+  bookingWidgetCode: zod.string().nullish(),
+  bookingWidgetEnabled: zod.boolean(),
+  bookingWidgetPlacement: zod.string().nullish(),
+  updatedAt: zod.string().optional(),
+});
+
+/**
+ * @summary Update site settings (admin)
+ */
+export const UpdateSettingsBody = zod.object({
+  smtpHost: zod.string().optional(),
+  smtpPort: zod.number().optional(),
+  smtpUser: zod.string().optional(),
+  smtpPass: zod.string().optional(),
+  smtpFrom: zod.string().optional(),
+  smtpEnabled: zod.boolean().optional(),
+  paymentProcessor: zod.string().optional(),
+  paymentApiKey: zod.string().optional(),
+  paymentLocationId: zod.string().optional(),
+  paymentMode: zod.string().optional(),
+  paymentEnabled: zod.boolean().optional(),
+  bookingWidgetCode: zod.string().optional(),
+  bookingWidgetEnabled: zod.boolean().optional(),
+  bookingWidgetPlacement: zod.string().optional(),
+});
+
+export const UpdateSettingsResponse = zod.object({
+  smtpHost: zod.string().nullish(),
+  smtpPort: zod.number().nullish(),
+  smtpUser: zod.string().nullish(),
+  smtpFrom: zod.string().nullish(),
+  smtpEnabled: zod.boolean(),
+  paymentProcessor: zod.string().nullish(),
+  paymentApiKey: zod.string().nullish(),
+  paymentLocationId: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
+  paymentEnabled: zod.boolean(),
+  bookingWidgetCode: zod.string().nullish(),
+  bookingWidgetEnabled: zod.boolean(),
+  bookingWidgetPlacement: zod.string().nullish(),
+  updatedAt: zod.string().optional(),
+});
+
+/**
+ * @summary Get booking widget settings (public)
+ */
+export const GetWidgetSettingsResponse = zod.object({
+  bookingWidgetCode: zod.string().nullish(),
+  bookingWidgetEnabled: zod.boolean(),
+  bookingWidgetPlacement: zod.string().nullish(),
+});

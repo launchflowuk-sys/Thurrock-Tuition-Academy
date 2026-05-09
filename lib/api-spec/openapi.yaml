@@ -24,6 +24,8 @@ tags:
     description: Payment tracking
   - name: dashboard
     description: Dashboard summary data
+  - name: settings
+    description: Site settings management
 
 paths:
   /healthz:
@@ -557,6 +559,50 @@ paths:
                 items:
                   $ref: "#/components/schemas/SlotAvailability"
 
+  # ─── SETTINGS ────────────────────────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get all site settings (admin)
+      responses:
+        "200":
+          description: Current settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update site settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsInput"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+  /settings/widget:
+    get:
+      operationId: getWidgetSettings
+      tags: [settings]
+      summary: Get booking widget settings (public)
+      responses:
+        "200":
+          description: Widget settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WidgetSettings"
+
 components:
   schemas:
     HealthStatus:
@@ -807,3 +853,49 @@ components:
         capacity:   { type: integer }
         enrolled:   { type: integer }
         available:  { type: boolean }
+
+    # ─── SETTINGS ───────────────────────────────────────────────────────────────
+    Settings:
+      type: object
+      required: [smtpEnabled, paymentEnabled, bookingWidgetEnabled]
+      properties:
+        smtpHost:               { type: ["string", "null"] }
+        smtpPort:               { type: ["integer", "null"] }
+        smtpUser:               { type: ["string", "null"] }
+        smtpFrom:               { type: ["string", "null"] }
+        smtpEnabled:            { type: boolean }
+        paymentProcessor:       { type: ["string", "null"] }
+        paymentApiKey:          { type: ["string", "null"] }
+        paymentLocationId:      { type: ["string", "null"] }
+        paymentMode:            { type: ["string", "null"] }
+        paymentEnabled:         { type: boolean }
+        bookingWidgetCode:      { type: ["string", "null"] }
+        bookingWidgetEnabled:   { type: boolean }
+        bookingWidgetPlacement: { type: ["string", "null"] }
+        updatedAt:              { type: string }
+
+    SettingsInput:
+      type: object
+      properties:
+        smtpHost:               { type: string }
+        smtpPort:               { type: integer }
+        smtpUser:               { type: string }
+        smtpPass:               { type: string }
+        smtpFrom:               { type: string }
+        smtpEnabled:            { type: boolean }
+        paymentProcessor:       { type: string }
+        paymentApiKey:          { type: string }
+        paymentLocationId:      { type: string }
+        paymentMode:            { type: string }
+        paymentEnabled:         { type: boolean }
+        bookingWidgetCode:      { type: string }
+        bookingWidgetEnabled:   { type: boolean }
+        bookingWidgetPlacement: { type: string }
+
+    WidgetSettings:
+      type: object
+      required: [bookingWidgetEnabled]
+      properties:
+        bookingWidgetCode:      { type: ["string", "null"] }
+        bookingWidgetEnabled:   { type: boolean }
+        bookingWidgetPlacement: { type: ["string", "null"] }

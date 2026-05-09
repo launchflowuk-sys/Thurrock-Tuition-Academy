@@ -10,7 +10,8 @@ import {
   CreditCard,
   LogOut,
   Menu,
-  GraduationCap
+  GraduationCap,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/progress", label: "Progress", icon: GraduationCap },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/payments", label: "Payments", icon: CreditCard },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {

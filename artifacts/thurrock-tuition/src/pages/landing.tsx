@@ -1,6 +1,42 @@
+import { useEffect, useRef } from "react";
 import { Link } from "wouter";
+import { useGetWidgetSettings } from "@workspace/api-client-react";
 import PublicNav from "@/components/layout/public-nav";
 import PublicFooter from "@/components/layout/public-footer";
+
+function BookingWidget() {
+  const { data: w } = useGetWidgetSettings();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!w?.bookingWidgetEnabled || !w.bookingWidgetCode) return;
+    const placement = w.bookingWidgetPlacement ?? "contact";
+    if (placement !== "homepage" && placement !== "both") return;
+    const el = containerRef.current;
+    if (!el) return;
+    el.innerHTML = w.bookingWidgetCode;
+    el.querySelectorAll("script").forEach(old => {
+      const s = document.createElement("script");
+      Array.from(old.attributes).forEach(a => s.setAttribute(a.name, a.value));
+      s.textContent = old.textContent;
+      old.replaceWith(s);
+    });
+  }, [w]);
+
+  if (!w?.bookingWidgetEnabled || !w.bookingWidgetCode) return null;
+  const placement = w.bookingWidgetPlacement ?? "contact";
+  if (placement !== "homepage" && placement !== "both") return null;
+
+  return (
+    <section className="py-16 bg-[#f3f4f8]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3 text-center">Book a Meeting</p>
+        <h2 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-8 text-center">Schedule Directly</h2>
+        <div ref={containerRef} className="rounded-2xl overflow-hidden shadow-lg bg-white min-h-[400px]" />
+      </div>
+    </section>
+  );
+}
 
 const STATS = [
   { value: "200+", label: "Students Tutored" },
@@ -320,6 +356,8 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      <BookingWidget />
 
       <PublicFooter />
     </div>
