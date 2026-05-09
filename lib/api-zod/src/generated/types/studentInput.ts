@@ -17,6 +17,7 @@ export interface StudentInput {
   subject: string;
   level: string;
   sessionSlot: string;
+  parentEmail?: string;
   clerkUserId?: string;
   notes?: string;
   photoUrl?: string;

@@ -11,6 +11,7 @@ export const studentsTable = pgTable("students", {
   subject: text("subject").notNull(),
   level: text("level").notNull(),
   sessionSlot: text("session_slot").notNull(),
+  parentEmail: text("parent_email"),
   clerkUserId: text("clerk_user_id"),
   notes: text("notes"),
   photoUrl: text("photo_url"),

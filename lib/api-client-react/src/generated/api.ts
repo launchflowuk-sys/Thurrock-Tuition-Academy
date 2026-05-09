@@ -24,9 +24,12 @@ import type {
   EnquiryUpdate,
   ErrorEnvelope,
   HealthStatus,
+  ListMessagesParams,
   ListPaymentsParams,
   ListProgressNotesParams,
   ListTasksParams,
+  Message,
+  MessageInput,
   Payment,
   PaymentInput,
   PaymentUpdate,
@@ -2831,6 +2834,270 @@ export const useDeleteStaff = <
   TContext
 > => {
   return useMutation(getDeleteStaffMutationOptions(options));
+};
+
+/**
+ * @summary List messages for a student
+ */
+export const getListMessagesUrl = (params: ListMessagesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/messages?${stringifiedParams}`
+    : `/api/messages`;
+};
+
+export const listMessages = async (
+  params: ListMessagesParams,
+  options?: RequestInit,
+): Promise<Message[]> => {
+  return customFetch<Message[]>(getListMessagesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMessagesQueryKey = (params?: ListMessagesParams) => {
+  return [`/api/messages`, ...(params ? [params] : [])] as const;
+};
+
+export const getListMessagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMessages>>,
+  TError = ErrorType<unknown>,
+>(
+  params: ListMessagesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMessagesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMessages>>> = ({
+    signal,
+  }) => listMessages(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMessages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMessagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMessages>>
+>;
+export type ListMessagesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List messages for a student
+ */
+
+export function useListMessages<
+  TData = Awaited<ReturnType<typeof listMessages>>,
+  TError = ErrorType<unknown>,
+>(
+  params: ListMessagesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMessagesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Send a message
+ */
+export const getSendMessageUrl = () => {
+  return `/api/messages`;
+};
+
+export const sendMessage = async (
+  messageInput: MessageInput,
+  options?: RequestInit,
+): Promise<Message> => {
+  return customFetch<Message>(getSendMessageUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(messageInput),
+  });
+};
+
+export const getSendMessageMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { data: BodyType<MessageInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { data: BodyType<MessageInput> },
+  TContext
+> => {
+  const mutationKey = ["sendMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendMessage>>,
+    { data: BodyType<MessageInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return sendMessage(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendMessage>>
+>;
+export type SendMessageMutationBody = BodyType<MessageInput>;
+export type SendMessageMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Send a message
+ */
+export const useSendMessage = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { data: BodyType<MessageInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { data: BodyType<MessageInput> },
+  TContext
+> => {
+  return useMutation(getSendMessageMutationOptions(options));
+};
+
+/**
+ * @summary Mark a message as read
+ */
+export const getMarkMessageReadUrl = (id: number) => {
+  return `/api/messages/${id}/read`;
+};
+
+export const markMessageRead = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Message> => {
+  return customFetch<Message>(getMarkMessageReadUrl(id), {
+    ...options,
+    method: "PATCH",
+  });
+};
+
+export const getMarkMessageReadMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markMessageRead>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markMessageRead>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["markMessageRead"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markMessageRead>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return markMessageRead(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkMessageReadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markMessageRead>>
+>;
+
+export type MarkMessageReadMutationError = ErrorType<void>;
+
+/**
+ * @summary Mark a message as read
+ */
+export const useMarkMessageRead = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markMessageRead>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof markMessageRead>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getMarkMessageReadMutationOptions(options));
 };
 
 /**

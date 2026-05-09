@@ -53,6 +53,8 @@ export interface Student {
   level: string;
   sessionSlot: string;
   /** @nullable */
+  parentEmail?: string | null;
+  /** @nullable */
   clerkUserId: string | null;
   /** @nullable */
   notes?: string | null;
@@ -72,6 +74,7 @@ export interface StudentInput {
   subject: string;
   level: string;
   sessionSlot: string;
+  parentEmail?: string;
   clerkUserId?: string;
   notes?: string;
   photoUrl?: string;
@@ -85,6 +88,7 @@ export interface StudentUpdate {
   subject?: string;
   level?: string;
   sessionSlot?: string;
+  parentEmail?: string;
   clerkUserId?: string;
   notes?: string;
   photoUrl?: string;
@@ -313,6 +317,23 @@ export interface StaffUpdate {
   notes?: string;
 }
 
+export interface Message {
+  id: number;
+  studentId: number;
+  senderRole: string;
+  content: string;
+  createdAt: string;
+  /** @nullable */
+  readAt?: string | null;
+}
+
+export interface MessageInput {
+  studentId: number;
+  senderRole: string;
+  /** @minLength 1 */
+  content: string;
+}
+
 export interface UploadUrlRequest {
   /** @minLength 1 */
   name: string;
@@ -341,4 +362,8 @@ export type ListTasksParams = {
 
 export type ListPaymentsParams = {
   studentId?: number;
+};
+
+export type ListMessagesParams = {
+  studentId: number;
 };

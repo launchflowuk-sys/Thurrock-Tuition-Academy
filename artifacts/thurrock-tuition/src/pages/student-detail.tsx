@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import {
   useGetStudent, getGetStudentQueryKey, getListStudentsQueryKey,
@@ -6,6 +6,7 @@ import {
   useListProgressNotes, getListProgressNotesQueryKey, useCreateProgressNote, useUpdateProgressNote, useDeleteProgressNote,
   useListTasks, getListTasksQueryKey, useCreateTask, useUpdateTask, useDeleteTask,
   useListPayments, getListPaymentsQueryKey, useCreatePayment, useUpdatePayment,
+  useListMessages, getListMessagesQueryKey, useSendMessage, useMarkMessageRead,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,10 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, CheckCircle2, Circle, CreditCard, Pencil, Camera, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, CheckCircle2, Circle, CreditCard, Pencil, Camera, Trash2, MessageSquare, Send, ShieldCheck, ShieldOff } from "lucide-react";
 
 const SUBJECTS = ["Maths", "English", "Science"];
 const LEVELS = ["KS2", "KS3", "GCSE", "A-Level", "11+", "Other"];
+const SLOTS = ["Morning Session 1", "Morning Session 2", "Afternoon Session 1", "Afternoon Session 2"];
 
 interface Props { id: number; }
 
@@ -30,6 +32,7 @@ export default function StudentDetailPage({ id }: Props) {
   const { data: notes } = useListProgressNotes({ studentId: id }, { query: { queryKey: getListProgressNotesQueryKey({ studentId: id }) } });
   const { data: tasks } = useListTasks({ studentId: id }, { query: { queryKey: getListTasksQueryKey({ studentId: id }) } });
   const { data: payments } = useListPayments({ studentId: id }, { query: { queryKey: getListPaymentsQueryKey({ studentId: id }) } });
+  const { data: messages, refetch: refetchMessages } = useListMessages({ studentId: id }, { query: { queryKey: getListMessagesQueryKey({ studentId: id }) } });
 
   const updateStudent = useUpdateStudent();
   const createNote = useCreateProgressNote();
@@ -40,15 +43,20 @@ export default function StudentDetailPage({ id }: Props) {
   const deleteTask = useDeleteTask();
   const createPayment = useCreatePayment();
   const updatePayment = useUpdatePayment();
+  const sendMessage = useSendMessage();
+  const markRead = useMarkMessageRead();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [activeTab, setActiveTab] = useState("progress");
+  const [newMessage, setNewMessage] = useState("");
 
   // Edit profile dialog
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editForm, setEditForm] = useState({ name: "", age: "", parentName: "", contactNumber: "", subject: "Maths", level: "GCSE", sessionSlot: "", notes: "" });
+  const [editForm, setEditForm] = useState({ name: "", age: "", parentName: "", parentEmail: "", contactNumber: "", subject: "Maths", level: "GCSE", sessionSlot: "", notes: "" });
 
   // Note dialogs
   const [showNoteDialog, setShowNoteDialog] = useState(false);
@@ -64,12 +72,22 @@ export default function StudentDetailPage({ id }: Props) {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ sessionDate: new Date().toISOString().split("T")[0], amount: "", notes: "" });
 
+  // Auto-scroll messages and mark parent messages as read when messages tab is active
+  useEffect(() => {
+    if (activeTab !== "messages" || !messages) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messages
+      .filter(m => m.senderRole === "parent" && !m.readAt)
+      .forEach(m => markRead.mutate({ id: m.id }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey({ studentId: id }) }) }));
+  }, [activeTab, messages]);
+
   const openEditProfile = () => {
     if (!student) return;
     setEditForm({
       name: student.name,
       age: String(student.age),
       parentName: student.parentName,
+      parentEmail: student.parentEmail ?? "",
       contactNumber: student.contactNumber,
       subject: student.subject,
       level: student.level,
@@ -81,7 +99,7 @@ export default function StudentDetailPage({ id }: Props) {
 
   const handleSaveProfile = async () => {
     await updateStudent.mutateAsync(
-      { id, data: { name: editForm.name, age: Number(editForm.age), parentName: editForm.parentName, contactNumber: editForm.contactNumber, subject: editForm.subject, level: editForm.level, sessionSlot: editForm.sessionSlot, notes: editForm.notes || undefined } },
+      { id, data: { name: editForm.name, age: Number(editForm.age), parentName: editForm.parentName, parentEmail: editForm.parentEmail || undefined, contactNumber: editForm.contactNumber, subject: editForm.subject, level: editForm.level, sessionSlot: editForm.sessionSlot, notes: editForm.notes || undefined } },
       { onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetStudentQueryKey(id) });
         queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
@@ -158,6 +176,19 @@ export default function StudentDetailPage({ id }: Props) {
     await updatePayment.mutateAsync({ id: paymentId, data: { paid: true } }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListPaymentsQueryKey({ studentId: id }) }) });
   };
 
+  // Messages
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+    await sendMessage.mutateAsync(
+      { data: { studentId: id, senderRole: "admin", content: newMessage.trim() } },
+      { onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey({ studentId: id }) });
+        setNewMessage("");
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+      } }
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -173,6 +204,8 @@ export default function StudentDetailPage({ id }: Props) {
   }
 
   const photoSrc = student.photoUrl ? `/api/storage${student.photoUrl}` : null;
+  const portalActive = !!student.parentEmail;
+  const unreadParentMessages = messages?.filter(m => m.senderRole === "parent" && !m.readAt).length ?? 0;
 
   return (
     <div className="space-y-6">
@@ -210,6 +243,17 @@ export default function StudentDetailPage({ id }: Props) {
               <div>
                 <CardTitle className="text-2xl font-serif">{student.name}</CardTitle>
                 <p className="text-muted-foreground mt-1">Age {student.age} · {student.subject} · {student.level}</p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  {portalActive ? (
+                    <Badge className="bg-green-100 text-green-800 border-green-200 gap-1 text-xs">
+                      <ShieldCheck size={11} /> Portal Active · {student.parentEmail}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-amber-600 border-amber-300 gap-1 text-xs">
+                      <ShieldOff size={11} /> Portal Not Activated — add parent email to activate
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -230,11 +274,17 @@ export default function StudentDetailPage({ id }: Props) {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="progress">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList data-testid="tabs-student-detail">
           <TabsTrigger value="progress">Progress Notes</TabsTrigger>
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="messages" className="relative">
+            Messages
+            {unreadParentMessages > 0 && (
+              <span className="ml-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{unreadParentMessages}</span>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         {/* Progress Notes */}
@@ -322,6 +372,57 @@ export default function StudentDetailPage({ id }: Props) {
             </Card>
           ))}
         </TabsContent>
+
+        {/* Messages */}
+        <TabsContent value="messages" className="mt-4">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 font-serif text-primary text-base">
+                <MessageSquare size={16} /> Conversation with {student.parentName}
+              </CardTitle>
+              {!portalActive && (
+                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-1">
+                  Parent portal not yet activated. Add the parent's email in Edit to let them send messages.
+                </p>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 min-h-[200px] max-h-[400px] overflow-y-auto pr-1 mb-4">
+                {messages?.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground text-sm">No messages yet. Send one to start the conversation.</div>
+                )}
+                {messages?.map((msg) => {
+                  const isAdmin = msg.senderRole === "admin";
+                  return (
+                    <div key={msg.id} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${isAdmin ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-muted text-foreground rounded-bl-sm"}`}>
+                        <p className="text-sm">{msg.content}</p>
+                        <p className={`text-[10px] mt-1 ${isAdmin ? "text-primary-foreground/60 text-right" : "text-muted-foreground"}`}>
+                          {isAdmin ? "Khadija" : student.parentName} · {new Date(msg.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} {new Date(msg.createdAt).toLocaleDateString("en-GB")}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="flex gap-2 border-t pt-3">
+                <Textarea
+                  placeholder="Type a message to the parent..."
+                  value={newMessage}
+                  onChange={e => setNewMessage(e.target.value)}
+                  rows={2}
+                  className="resize-none"
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                  data-testid="textarea-new-message"
+                />
+                <Button onClick={handleSendMessage} disabled={sendMessage.isPending || !newMessage.trim()} size="icon" className="self-end h-10 w-10 shrink-0" data-testid="button-send-message">
+                  <Send size={16} />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Edit Profile Dialog */}
@@ -332,6 +433,7 @@ export default function StudentDetailPage({ id }: Props) {
             <Input placeholder="Full name *" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} data-testid="input-edit-name" />
             <Input placeholder="Age" type="number" value={editForm.age} onChange={e => setEditForm(f => ({ ...f, age: e.target.value }))} data-testid="input-edit-age" />
             <Input placeholder="Parent / guardian name *" value={editForm.parentName} onChange={e => setEditForm(f => ({ ...f, parentName: e.target.value }))} data-testid="input-edit-parent" />
+            <Input placeholder="Parent email (activates parent portal)" type="email" value={editForm.parentEmail} onChange={e => setEditForm(f => ({ ...f, parentEmail: e.target.value }))} data-testid="input-edit-parent-email" />
             <Input placeholder="Contact number *" value={editForm.contactNumber} onChange={e => setEditForm(f => ({ ...f, contactNumber: e.target.value }))} data-testid="input-edit-contact" />
             <div className="grid grid-cols-2 gap-3">
               <Select value={editForm.subject} onValueChange={v => setEditForm(f => ({ ...f, subject: v }))}>
@@ -343,7 +445,10 @@ export default function StudentDetailPage({ id }: Props) {
                 <SelectContent>{LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <Input placeholder="Session slot (e.g. Sat 10:00–11:00)" value={editForm.sessionSlot} onChange={e => setEditForm(f => ({ ...f, sessionSlot: e.target.value }))} data-testid="input-edit-slot" />
+            <Select value={editForm.sessionSlot} onValueChange={v => setEditForm(f => ({ ...f, sessionSlot: v }))}>
+              <SelectTrigger><SelectValue placeholder="Session slot" /></SelectTrigger>
+              <SelectContent>{SLOTS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+            </Select>
             <Textarea placeholder="Internal notes (optional)" value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} rows={3} data-testid="textarea-edit-notes" />
           </div>
           <DialogFooter>
@@ -404,7 +509,7 @@ export default function StudentDetailPage({ id }: Props) {
           <DialogHeader><DialogTitle className="font-serif">Add Payment Record</DialogTitle></DialogHeader>
           <div className="space-y-3 py-2">
             <Input type="date" value={paymentForm.sessionDate} onChange={e => setPaymentForm(f => ({ ...f, sessionDate: e.target.value }))} data-testid="input-payment-date" />
-            <Input type="number" placeholder="Amount (£)" value={paymentForm.amount} onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))} data-testid="input-payment-amount" />
+            <Input placeholder="Amount (£) *" type="number" step="0.01" value={paymentForm.amount} onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))} data-testid="input-payment-amount" />
             <Input placeholder="Notes (optional)" value={paymentForm.notes} onChange={e => setPaymentForm(f => ({ ...f, notes: e.target.value }))} data-testid="input-payment-notes" />
           </div>
           <DialogFooter>

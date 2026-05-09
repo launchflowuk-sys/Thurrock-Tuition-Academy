@@ -45,9 +45,15 @@ export default function PublicFooter() {
                 { href: "/contact#faq", label: "FAQs" },
               ].map(({ href, label }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-gray-400 hover:text-[#C9973A] transition-colors">
-                    {label}
-                  </Link>
+                  {href.includes("#") ? (
+                    <a href={`${basePath}${href}`} className="text-sm text-gray-400 hover:text-[#C9973A] transition-colors">
+                      {label}
+                    </a>
+                  ) : (
+                    <Link href={href} className="text-sm text-gray-400 hover:text-[#C9973A] transition-colors">
+                      {label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -106,6 +106,7 @@ export const ListStudentsResponseItem = zod.object({
   subject: zod.string(),
   level: zod.string(),
   sessionSlot: zod.string(),
+  parentEmail: zod.string().nullish(),
   clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
   photoUrl: zod.string().nullish(),
@@ -125,6 +126,7 @@ export const CreateStudentBody = zod.object({
   subject: zod.string(),
   level: zod.string(),
   sessionSlot: zod.string(),
+  parentEmail: zod.string().optional(),
   clerkUserId: zod.string().optional(),
   notes: zod.string().optional(),
   photoUrl: zod.string().optional(),
@@ -146,6 +148,7 @@ export const GetStudentResponse = zod.object({
   subject: zod.string(),
   level: zod.string(),
   sessionSlot: zod.string(),
+  parentEmail: zod.string().nullish(),
   clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
   photoUrl: zod.string().nullish(),
@@ -167,6 +170,7 @@ export const UpdateStudentBody = zod.object({
   subject: zod.string().optional(),
   level: zod.string().optional(),
   sessionSlot: zod.string().optional(),
+  parentEmail: zod.string().optional(),
   clerkUserId: zod.string().optional(),
   notes: zod.string().optional(),
   photoUrl: zod.string().optional(),
@@ -181,6 +185,7 @@ export const UpdateStudentResponse = zod.object({
   subject: zod.string(),
   level: zod.string(),
   sessionSlot: zod.string(),
+  parentEmail: zod.string().nullish(),
   clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
   photoUrl: zod.string().nullish(),
@@ -581,6 +586,49 @@ export const UpdateStaffResponse = zod.object({
  */
 export const DeleteStaffParams = zod.object({
   id: zod.coerce.number(),
+});
+
+/**
+ * @summary List messages for a student
+ */
+export const ListMessagesQueryParams = zod.object({
+  studentId: zod.coerce.number(),
+});
+
+export const ListMessagesResponseItem = zod.object({
+  id: zod.number(),
+  studentId: zod.number(),
+  senderRole: zod.string(),
+  content: zod.string(),
+  createdAt: zod.string(),
+  readAt: zod.string().nullish(),
+});
+export const ListMessagesResponse = zod.array(ListMessagesResponseItem);
+
+/**
+ * @summary Send a message
+ */
+
+export const SendMessageBody = zod.object({
+  studentId: zod.number(),
+  senderRole: zod.string(),
+  content: zod.string().min(1),
+});
+
+/**
+ * @summary Mark a message as read
+ */
+export const MarkMessageReadParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const MarkMessageReadResponse = zod.object({
+  id: zod.number(),
+  studentId: zod.number(),
+  senderRole: zod.string(),
+  content: zod.string(),
+  createdAt: zod.string(),
+  readAt: zod.string().nullish(),
 });
 
 /**

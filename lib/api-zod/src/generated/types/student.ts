@@ -16,6 +16,8 @@ export interface Student {
   level: string;
   sessionSlot: string;
   /** @nullable */
+  parentEmail?: string | null;
+  /** @nullable */
   clerkUserId: string | null;
   /** @nullable */
   notes?: string | null;

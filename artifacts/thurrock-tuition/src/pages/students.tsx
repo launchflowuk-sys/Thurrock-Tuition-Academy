@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, UserPlus, ChevronRight } from "lucide-react";
+import { Search, UserPlus, ChevronRight, ShieldCheck, ShieldOff } from "lucide-react";
 
 const SUBJECTS = ["Maths", "English", "Science"];
 const LEVELS = ["SATs", "11+", "KS3", "GCSE", "A-Level"];
@@ -23,7 +23,7 @@ export default function StudentsPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", age: "", parentName: "", contactNumber: "", subject: "Maths", level: "GCSE", sessionSlot: "Morning Session 1" });
+  const [form, setForm] = useState({ name: "", age: "", parentName: "", parentEmail: "", contactNumber: "", subject: "Maths", level: "GCSE", sessionSlot: "Morning Session 1" });
 
   const filtered = students?.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,13 +37,13 @@ export default function StudentsPage() {
       return;
     }
     await createStudent.mutateAsync(
-      { data: { ...form, age: Number(form.age) } },
+      { data: { ...form, age: Number(form.age), parentEmail: form.parentEmail || undefined } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
           toast({ title: "Student added successfully" });
           setShowAdd(false);
-          setForm({ name: "", age: "", parentName: "", contactNumber: "", subject: "Maths", level: "GCSE", sessionSlot: "Morning Session 1" });
+          setForm({ name: "", age: "", parentName: "", parentEmail: "", contactNumber: "", subject: "Maths", level: "GCSE", sessionSlot: "Morning Session 1" });
         },
       }
     );
@@ -88,6 +88,15 @@ export default function StudentsPage() {
                     <span className="font-semibold">{student.name}</span>
                     <span className="text-muted-foreground text-sm">age {student.age}</span>
                     <Badge variant="outline" className="text-xs">{student.level}</Badge>
+                    {student.parentEmail ? (
+                      <Badge className="bg-green-100 text-green-700 border-green-200 gap-1 text-xs py-0">
+                        <ShieldCheck size={10} /> Portal Active
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-amber-600 border-amber-300 gap-1 text-xs py-0">
+                        <ShieldOff size={10} /> No Portal
+                      </Badge>
+                    )}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {student.subject} · {student.sessionSlot} · Parent: {student.parentName}
@@ -112,6 +121,7 @@ export default function StudentsPage() {
             <Input placeholder="Student name *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} data-testid="input-student-name" />
             <Input placeholder="Age *" type="number" value={form.age} onChange={e => setForm(f => ({ ...f, age: e.target.value }))} data-testid="input-student-age" />
             <Input placeholder="Parent/Guardian name *" value={form.parentName} onChange={e => setForm(f => ({ ...f, parentName: e.target.value }))} data-testid="input-parent-name" />
+            <Input placeholder="Parent email (activates portal access)" type="email" value={form.parentEmail} onChange={e => setForm(f => ({ ...f, parentEmail: e.target.value }))} data-testid="input-parent-email" />
             <Input placeholder="Contact number *" value={form.contactNumber} onChange={e => setForm(f => ({ ...f, contactNumber: e.target.value }))} data-testid="input-contact-number" />
             <Select value={form.subject} onValueChange={v => setForm(f => ({ ...f, subject: v }))}>
               <SelectTrigger data-testid="select-subject"><SelectValue placeholder="Subject" /></SelectTrigger>

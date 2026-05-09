@@ -6,3 +6,4 @@ export * from "./tasks";
 export * from "./payments";
 export * from "./settings";
 export * from "./staff";
+export * from "./messages";

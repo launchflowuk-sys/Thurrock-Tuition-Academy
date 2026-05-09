@@ -28,6 +28,8 @@ tags:
     description: Site settings management
   - name: staff
     description: Staff member management
+  - name: messages
+    description: Two-way messaging between admin and parents
   - name: Storage
     description: Object storage upload and serving endpoints
 
@@ -657,6 +659,66 @@ paths:
         "404":
           description: Not found
 
+  # ─── MESSAGES ────────────────────────────────────────────────────────────────
+  /messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages for a student
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  /messages/{id}/read:
+    patch:
+      operationId: markMessageRead
+      tags: [messages]
+      summary: Mark a message as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "404":
+          description: Not found
+
   # ─── STORAGE ──────────────────────────────────────────────────────────────────
   /storage/uploads/request-url:
     post:
@@ -806,6 +868,7 @@ components:
         subject:       { type: string }
         level:         { type: string }
         sessionSlot:   { type: string }
+        parentEmail:   { type: ["string", "null"] }
         clerkUserId:   { type: ["string", "null"] }
         notes:         { type: ["string", "null"] }
         photoUrl:      { type: ["string", "null"] }
@@ -822,6 +885,7 @@ components:
         subject:       { type: string }
         level:         { type: string }
         sessionSlot:   { type: string }
+        parentEmail:   { type: string }
         clerkUserId:   { type: string }
         notes:         { type: string }
         photoUrl:      { type: string }
@@ -836,6 +900,7 @@ components:
         subject:       { type: string }
         level:         { type: string }
         sessionSlot:   { type: string }
+        parentEmail:   { type: string }
         clerkUserId:   { type: string }
         notes:         { type: string }
         photoUrl:      { type: string }
@@ -1085,6 +1150,26 @@ components:
         hourlyRate:   { type: number }
         hoursPerWeek: { type: integer }
         notes:        { type: string }
+
+    # ─── MESSAGE ─────────────────────────────────────────────────────────────────
+    Message:
+      type: object
+      required: [id, studentId, senderRole, content, createdAt]
+      properties:
+        id:         { type: integer }
+        studentId:  { type: integer }
+        senderRole: { type: string }
+        content:    { type: string }
+        createdAt:  { type: string }
+        readAt:     { type: ["string", "null"] }
+
+    MessageInput:
+      type: object
+      required: [studentId, senderRole, content]
+      properties:
+        studentId:  { type: integer }
+        senderRole: { type: string }
+        content:    { type: string, minLength: 1 }
 
     # ─── STORAGE ─────────────────────────────────────────────────────────────────
     UploadUrlRequest:
