@@ -913,6 +913,38 @@ paths:
         "204":
           description: Deleted
 
+  /intake/{id}/reply:
+    post:
+      operationId: replyToIntakeSubmission
+      tags: [intake]
+      summary: Send an email reply to an applicant (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntakeReplyInput"
+      responses:
+        "200":
+          description: Email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+        "400":
+          description: SMTP not configured or other error
+        "404":
+          description: Submission not found
+
   # ─── COURSES ─────────────────────────────────────────────────────────────────
   /courses:
     get:
@@ -1395,37 +1427,54 @@ components:
       type: object
       required: [id, parentName, childName, childAge, email, contactNumber, subject, level, status, createdAt]
       properties:
-        id:             { type: integer }
-        parentName:     { type: string }
-        childName:      { type: string }
-        childAge:       { type: integer }
-        email:          { type: string }
-        contactNumber:  { type: string }
-        subject:        { type: string }
-        level:          { type: string }
-        currentSchool:  { type: ["string", "null"] }
-        additionalInfo: { type: ["string", "null"] }
-        status:         { type: string }
-        createdAt:      { type: string }
+        id:                 { type: integer }
+        parentName:         { type: string }
+        childName:          { type: string }
+        childAge:           { type: integer }
+        email:              { type: string }
+        contactNumber:      { type: string }
+        subject:            { type: string }
+        level:              { type: string }
+        currentSchool:      { type: ["string", "null"] }
+        currentAttainment:  { type: ["string", "null"] }
+        goals:              { type: ["string", "null"] }
+        previousTutoring:   { type: ["string", "null"] }
+        howDidYouHear:      { type: ["string", "null"] }
+        preferredSlot:      { type: ["string", "null"] }
+        additionalInfo:     { type: ["string", "null"] }
+        status:             { type: string }
+        createdAt:          { type: string }
 
     IntakeSubmissionInput:
       type: object
       required: [parentName, childName, childAge, email, contactNumber, subject, level]
       properties:
-        parentName:     { type: string, minLength: 1 }
-        childName:      { type: string, minLength: 1 }
-        childAge:       { type: integer }
-        email:          { type: string, minLength: 1 }
-        contactNumber:  { type: string, minLength: 1 }
-        subject:        { type: string }
-        level:          { type: string }
-        currentSchool:  { type: string }
-        additionalInfo: { type: string }
+        parentName:         { type: string, minLength: 1 }
+        childName:          { type: string, minLength: 1 }
+        childAge:           { type: integer }
+        email:              { type: string, minLength: 1 }
+        contactNumber:      { type: string, minLength: 1 }
+        subject:            { type: string }
+        level:              { type: string }
+        currentSchool:      { type: string }
+        currentAttainment:  { type: string }
+        goals:              { type: string }
+        previousTutoring:   { type: string }
+        howDidYouHear:      { type: string }
+        preferredSlot:      { type: string }
+        additionalInfo:     { type: string }
 
     IntakeSubmissionUpdate:
       type: object
       properties:
         status: { type: string }
+
+    IntakeReplyInput:
+      type: object
+      required: [subject, body]
+      properties:
+        subject: { type: string, minLength: 1 }
+        body:    { type: string, minLength: 1 }
 
     # ─── COURSE ──────────────────────────────────────────────────────────────────
     Course:

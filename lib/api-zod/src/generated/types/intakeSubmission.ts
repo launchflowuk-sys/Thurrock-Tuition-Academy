@@ -18,6 +18,16 @@ export interface IntakeSubmission {
   /** @nullable */
   currentSchool?: string | null;
   /** @nullable */
+  currentAttainment?: string | null;
+  /** @nullable */
+  goals?: string | null;
+  /** @nullable */
+  previousTutoring?: string | null;
+  /** @nullable */
+  howDidYouHear?: string | null;
+  /** @nullable */
+  preferredSlot?: string | null;
+  /** @nullable */
   additionalInfo?: string | null;
   status: string;
   createdAt: string;

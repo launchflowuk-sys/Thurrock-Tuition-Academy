@@ -27,6 +27,7 @@ import type {
   EnquiryUpdate,
   ErrorEnvelope,
   HealthStatus,
+  IntakeReplyInput,
   IntakeSubmission,
   IntakeSubmissionInput,
   IntakeSubmissionUpdate,
@@ -43,6 +44,7 @@ import type {
   ProgressNote,
   ProgressNoteInput,
   ProgressNoteUpdate,
+  ReplyToIntakeSubmission200,
   Session,
   SessionInput,
   SessionUpdate,
@@ -4008,6 +4010,96 @@ export const useDeleteIntakeSubmission = <
   TContext
 > => {
   return useMutation(getDeleteIntakeSubmissionMutationOptions(options));
+};
+
+/**
+ * @summary Send an email reply to an applicant (admin)
+ */
+export const getReplyToIntakeSubmissionUrl = (id: number) => {
+  return `/api/intake/${id}/reply`;
+};
+
+export const replyToIntakeSubmission = async (
+  id: number,
+  intakeReplyInput: IntakeReplyInput,
+  options?: RequestInit,
+): Promise<ReplyToIntakeSubmission200> => {
+  return customFetch<ReplyToIntakeSubmission200>(
+    getReplyToIntakeSubmissionUrl(id),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(intakeReplyInput),
+    },
+  );
+};
+
+export const getReplyToIntakeSubmissionMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof replyToIntakeSubmission>>,
+    TError,
+    { id: number; data: BodyType<IntakeReplyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof replyToIntakeSubmission>>,
+  TError,
+  { id: number; data: BodyType<IntakeReplyInput> },
+  TContext
+> => {
+  const mutationKey = ["replyToIntakeSubmission"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof replyToIntakeSubmission>>,
+    { id: number; data: BodyType<IntakeReplyInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return replyToIntakeSubmission(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ReplyToIntakeSubmissionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof replyToIntakeSubmission>>
+>;
+export type ReplyToIntakeSubmissionMutationBody = BodyType<IntakeReplyInput>;
+export type ReplyToIntakeSubmissionMutationError = ErrorType<void>;
+
+/**
+ * @summary Send an email reply to an applicant (admin)
+ */
+export const useReplyToIntakeSubmission = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof replyToIntakeSubmission>>,
+    TError,
+    { id: number; data: BodyType<IntakeReplyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof replyToIntakeSubmission>>,
+  TError,
+  { id: number; data: BodyType<IntakeReplyInput> },
+  TContext
+> => {
+  return useMutation(getReplyToIntakeSubmissionMutationOptions(options));
 };
 
 /**

@@ -776,6 +776,11 @@ export const ListIntakeSubmissionsResponseItem = zod.object({
   subject: zod.string(),
   level: zod.string(),
   currentSchool: zod.string().nullish(),
+  currentAttainment: zod.string().nullish(),
+  goals: zod.string().nullish(),
+  previousTutoring: zod.string().nullish(),
+  howDidYouHear: zod.string().nullish(),
+  preferredSlot: zod.string().nullish(),
   additionalInfo: zod.string().nullish(),
   status: zod.string(),
   createdAt: zod.string(),
@@ -797,6 +802,11 @@ export const CreateIntakeSubmissionBody = zod.object({
   subject: zod.string(),
   level: zod.string(),
   currentSchool: zod.string().optional(),
+  currentAttainment: zod.string().optional(),
+  goals: zod.string().optional(),
+  previousTutoring: zod.string().optional(),
+  howDidYouHear: zod.string().optional(),
+  preferredSlot: zod.string().optional(),
   additionalInfo: zod.string().optional(),
 });
 
@@ -821,6 +831,11 @@ export const UpdateIntakeSubmissionResponse = zod.object({
   subject: zod.string(),
   level: zod.string(),
   currentSchool: zod.string().nullish(),
+  currentAttainment: zod.string().nullish(),
+  goals: zod.string().nullish(),
+  previousTutoring: zod.string().nullish(),
+  howDidYouHear: zod.string().nullish(),
+  preferredSlot: zod.string().nullish(),
   additionalInfo: zod.string().nullish(),
   status: zod.string(),
   createdAt: zod.string(),
@@ -831,6 +846,22 @@ export const UpdateIntakeSubmissionResponse = zod.object({
  */
 export const DeleteIntakeSubmissionParams = zod.object({
   id: zod.coerce.number(),
+});
+
+/**
+ * @summary Send an email reply to an applicant (admin)
+ */
+export const ReplyToIntakeSubmissionParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ReplyToIntakeSubmissionBody = zod.object({
+  subject: zod.string().min(1),
+  body: zod.string().min(1),
+});
+
+export const ReplyToIntakeSubmissionResponse = zod.object({
+  ok: zod.boolean(),
 });
 
 /**

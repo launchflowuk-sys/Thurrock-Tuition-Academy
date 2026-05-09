@@ -19,5 +19,10 @@ export interface IntakeSubmissionInput {
   subject: string;
   level: string;
   currentSchool?: string;
+  currentAttainment?: string;
+  goals?: string;
+  previousTutoring?: string;
+  howDidYouHear?: string;
+  preferredSlot?: string;
   additionalInfo?: string;
 }

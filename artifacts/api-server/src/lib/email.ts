@@ -220,6 +220,11 @@ export async function sendIntakeEmails(data: {
   email: string;
   contactNumber: string;
   currentSchool?: string | null;
+  goals?: string | null;
+  currentAttainment?: string | null;
+  previousTutoring?: string | null;
+  howDidYouHear?: string | null;
+  preferredSlot?: string | null;
 }) {
   const settings = await getSmtpSettings();
   if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
@@ -270,4 +275,62 @@ export async function sendIntakeEmails(data: {
   }
 
   await Promise.allSettled(sendPromises);
+}
+
+export async function sendIntakeReplyEmail(opts: {
+  toEmail: string;
+  toName: string;
+  childName: string;
+  replySubject: string;
+  replyBody: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPass: string;
+  smtpFrom: string;
+}): Promise<void> {
+  const { createTransport } = await import("nodemailer");
+  const transporter = createTransport({
+    host: opts.smtpHost,
+    port: opts.smtpPort,
+    secure: opts.smtpPort === 465,
+    auth: { user: opts.smtpUser, pass: opts.smtpPass },
+  });
+
+  const safeBody = opts.replyBody
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br/>");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:28px 40px;">
+    <p style="margin:0;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
+    <h1 style="margin:8px 0 0;color:#ffffff;font-size:22px;font-weight:700;">${opts.replySubject}</h1>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:36px 40px;border-radius:0 0 16px 16px;">
+    <p style="margin:0 0 16px;color:#1a1a2e;font-size:15px;">Dear ${opts.toName},</p>
+    <div style="color:#374151;font-size:15px;line-height:1.75;">${safeBody}</div>
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e5e7eb;text-align:center;">
+      <p style="color:#6b7280;font-size:13px;margin:0 0 8px;">Thurrock Tuition Academy</p>
+      <p style="color:#6b7280;font-size:12px;margin:0;">Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock</p>
+      <p style="color:#6b7280;font-size:12px;margin:4px 0 0;">07480 413679 · bookings@thurrocktuitionacademy.co.uk</p>
+    </div>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+  await transporter.sendMail({
+    from: `"Thurrock Tuition Academy" <${opts.smtpFrom}>`,
+    to: opts.toEmail,
+    subject: opts.replySubject,
+    html,
+  });
 }

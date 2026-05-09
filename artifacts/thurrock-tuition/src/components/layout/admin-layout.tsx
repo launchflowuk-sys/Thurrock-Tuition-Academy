@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   Users,
   Calendar,
-  MessageSquare,
   CheckSquare,
   CreditCard,
   LogOut,
@@ -25,8 +24,7 @@ interface AdminLayoutProps {
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/enquiries", label: "Enquiries", icon: MessageSquare },
-  { href: "/intake", label: "Intake Forms", icon: ClipboardList },
+  { href: "/intake", label: "Applications", icon: ClipboardList },
   { href: "/students", label: "Students", icon: Users },
   { href: "/sessions", label: "Sessions", icon: Calendar },
   { href: "/progress", label: "Progress", icon: GraduationCap },

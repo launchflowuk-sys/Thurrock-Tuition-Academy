@@ -398,6 +398,16 @@ export interface IntakeSubmission {
   /** @nullable */
   currentSchool?: string | null;
   /** @nullable */
+  currentAttainment?: string | null;
+  /** @nullable */
+  goals?: string | null;
+  /** @nullable */
+  previousTutoring?: string | null;
+  /** @nullable */
+  howDidYouHear?: string | null;
+  /** @nullable */
+  preferredSlot?: string | null;
+  /** @nullable */
   additionalInfo?: string | null;
   status: string;
   createdAt: string;
@@ -416,11 +426,23 @@ export interface IntakeSubmissionInput {
   subject: string;
   level: string;
   currentSchool?: string;
+  currentAttainment?: string;
+  goals?: string;
+  previousTutoring?: string;
+  howDidYouHear?: string;
+  preferredSlot?: string;
   additionalInfo?: string;
 }
 
 export interface IntakeSubmissionUpdate {
   status?: string;
+}
+
+export interface IntakeReplyInput {
+  /** @minLength 1 */
+  subject: string;
+  /** @minLength 1 */
+  body: string;
 }
 
 export interface Course {
@@ -485,4 +507,8 @@ export type ListPaymentsParams = {
 
 export type ListMessagesParams = {
   studentId: number;
+};
+
+export type ReplyToIntakeSubmission200 = {
+  ok: boolean;
 };

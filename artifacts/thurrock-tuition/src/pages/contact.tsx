@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useCreateEnquiry, useGetWidgetSettings } from "@workspace/api-client-react";
+import { useCreateIntakeSubmission, useGetWidgetSettings } from "@workspace/api-client-react";
 import PublicNav from "@/components/layout/public-nav";
 import PublicFooter from "@/components/layout/public-footer";
 import { useToast } from "@/hooks/use-toast";
@@ -38,9 +38,24 @@ function BookingWidget() {
   );
 }
 
-const SUBJECTS = ["Maths", "English", "Science"];
+const SUBJECTS = ["Maths", "English", "Science", "11+ (Verbal & Non-Verbal Reasoning)", "Combined (Maths + English)", "Other"];
 const LEVELS = ["SATs (KS2)", "11+ Preparation", "KS3", "GCSE", "A-Level"];
-const SLOTS = ["Morning Session 1 (9am–11am)", "Morning Session 2 (11am–1pm)", "Afternoon Session 1 (1pm–3pm)", "Afternoon Session 2 (3pm–5pm)"];
+const SLOTS = [
+  "Morning 9am–11am",
+  "Late Morning 11am–1pm",
+  "Afternoon 1pm–3pm",
+  "Late Afternoon 3pm–5pm",
+  "Flexible / Any",
+];
+const HOW_HEARD = [
+  "Google / Search engine",
+  "Facebook or Instagram",
+  "Word of mouth / friend",
+  "School recommendation",
+  "Flyer or poster",
+  "Local community group",
+  "Other",
+];
 
 const FAQS = [
   {
@@ -77,44 +92,90 @@ const FAQS = [
   },
 ];
 
+const emptyForm = {
+  // Child details
+  childName: "",
+  childAge: "",
+  currentSchool: "",
+  subject: "",
+  level: "",
+  currentAttainment: "",
+  // Parent details
+  parentName: "",
+  email: "",
+  contactNumber: "",
+  // Goals & background
+  goals: "",
+  previousTutoring: "",
+  preferredSlot: "",
+  howDidYouHear: "",
+  additionalInfo: "",
+};
+
+const inputClass = "w-full border border-[#e2e5f0] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/25 focus:border-[#1B2B6B] transition-all bg-white placeholder:text-gray-400";
+const labelClass = "block text-sm font-semibold text-[#1a1a2e] mb-1.5";
+const sectionClass = "rounded-2xl border border-[#e2e5f0] bg-[#fafbff] p-6 space-y-4";
+const sectionTitle = "text-base font-bold font-serif text-[#1B2B6B] mb-4 flex items-center gap-2";
+
+type Step = 1 | 2 | 3;
+
 export default function ContactPage() {
   const { toast } = useToast();
-  const createEnquiry = useCreateEnquiry();
+  const createSubmission = useCreateIntakeSubmission();
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [step, setStep] = useState<Step>(1);
+  const [form, setForm] = useState(emptyForm);
 
-  const [form, setForm] = useState({
-    parentName: "",
-    childName: "",
-    childAge: "",
-    contactNumber: "",
-    subject: "",
-    level: "",
-    preferredSlot: "",
-    notes: "",
-  });
+  const set = (key: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setForm(f => ({ ...f, [key]: e.target.value }));
 
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm(f => ({ ...f, [key]: e.target.value }));
+  const nextStep = () => {
+    if (step === 1) {
+      if (!form.childName || !form.childAge || !form.subject || !form.level) {
+        toast({ title: "Please complete all required fields in this section", variant: "destructive" });
+        return;
+      }
+    }
+    if (step === 2) {
+      if (!form.parentName || !form.email || !form.contactNumber) {
+        toast({ title: "Please complete all required fields in this section", variant: "destructive" });
+        return;
+      }
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+      if (!emailOk) {
+        toast({ title: "Please enter a valid email address", variant: "destructive" });
+        return;
+      }
+    }
+    setStep(s => (s + 1) as Step);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { parentName, childName, childAge, contactNumber, subject, level, preferredSlot } = form;
-    if (!parentName || !childName || !childAge || !contactNumber || !subject || !level || !preferredSlot) {
-      toast({ title: "Please complete all required fields", variant: "destructive" });
+    if (!form.goals) {
+      toast({ title: "Please tell us what you're hoping to achieve", variant: "destructive" });
       return;
     }
     try {
-      await createEnquiry.mutateAsync({
+      await createSubmission.mutateAsync({
         data: {
-          parentName,
-          childName,
-          childAge: Number(childAge),
-          contactNumber,
-          subject,
-          level,
-          preferredSlot,
-          notes: form.notes || undefined,
+          childName: form.childName,
+          childAge: Number(form.childAge),
+          parentName: form.parentName,
+          email: form.email,
+          contactNumber: form.contactNumber,
+          subject: form.subject,
+          level: form.level,
+          currentSchool: form.currentSchool || undefined,
+          currentAttainment: form.currentAttainment || undefined,
+          goals: form.goals || undefined,
+          previousTutoring: form.previousTutoring || undefined,
+          preferredSlot: form.preferredSlot || undefined,
+          howDidYouHear: form.howDidYouHear || undefined,
+          additionalInfo: form.additionalInfo || undefined,
         },
       });
       setSubmitted(true);
@@ -124,6 +185,24 @@ export default function ContactPage() {
     }
   };
 
+  const StepIndicator = () => (
+    <div className="flex items-center gap-2 mb-8">
+      {([1, 2, 3] as Step[]).map((s) => (
+        <div key={s} className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+            step === s ? "bg-[#1B2B6B] text-white" :
+            step > s ? "bg-[#C9973A] text-white" :
+            "bg-[#e2e5f0] text-[#6b7280]"
+          }`}>{step > s ? "✓" : s}</div>
+          <span className={`text-xs font-medium hidden sm:block ${step === s ? "text-[#1B2B6B]" : "text-gray-400"}`}>
+            {s === 1 ? "About Your Child" : s === 2 ? "Your Details" : "Goals & Background"}
+          </span>
+          {s < 3 && <div className="w-6 h-px bg-[#e2e5f0] mx-1" />}
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <PublicNav />
@@ -132,12 +211,12 @@ export default function ContactPage() {
       <section className="pt-32 pb-20 bg-[#1B2B6B] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B] to-[#0f1a3e]" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">Get in Touch</p>
+          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">Apply Today</p>
           <h1 className="text-5xl md:text-6xl font-bold font-serif text-white mb-6">
-            Book Your Free Assessment in Grays, Thurrock
+            Book Your Free Assessment
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            Fill in the form below and we'll be in touch within 24 hours to confirm your child's free assessment. We welcome families from across Thurrock — Grays, Tilbury, Chafford Hundred, Stanford-le-Hope, Corringham, South Ockendon and beyond.
+            Complete the short application form below — it takes about 3 minutes. We'll review your child's profile and be in touch within 24 hours to arrange their free assessment session.
           </p>
         </div>
       </section>
@@ -146,12 +225,12 @@ export default function ContactPage() {
         <section className="py-24 bg-white">
           <div className="max-w-xl mx-auto px-4 sm:px-6 text-center">
             <div className="text-6xl mb-6">🎉</div>
-            <h2 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-4">Thank You!</h2>
+            <h2 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-4">Application Received!</h2>
             <p className="text-muted-foreground text-lg mb-4">
-              Your enquiry has been received. Khadija will be in touch within 24 hours to arrange your child's free assessment session.
+              Thank you — we have received your application for <strong>{form.childName}</strong>. We'll be in touch within 24 hours to arrange your free assessment session.
             </p>
             <p className="text-muted-foreground mb-8">
-              In the meantime, feel free to send a message on WhatsApp if you have any immediate questions.
+              Check your inbox at <strong>{form.email}</strong> for a confirmation. In the meantime, feel free to message us on WhatsApp.
             </p>
             <a
               href="https://wa.me/447480413679"
@@ -164,125 +243,164 @@ export default function ContactPage() {
           </div>
         </section>
       ) : (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#f8f9fd]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="grid lg:grid-cols-5 gap-16">
+            <div className="grid lg:grid-cols-5 gap-14">
 
               {/* Form */}
               <div className="lg:col-span-3">
-                <h2 className="text-2xl font-bold font-serif text-[#1B2B6B] mb-8">Enquiry Form</h2>
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">Your Name *</label>
-                      <input
-                        type="text"
-                        value={form.parentName}
-                        onChange={set("parentName")}
-                        placeholder="e.g. Sarah Johnson"
-                        className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">Child's Name *</label>
-                      <input
-                        type="text"
-                        value={form.childName}
-                        onChange={set("childName")}
-                        placeholder="e.g. Emma Johnson"
-                        className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                      />
-                    </div>
-                  </div>
+                <h2 className="text-2xl font-bold font-serif text-[#1B2B6B] mb-2">Application Form</h2>
+                <p className="text-muted-foreground text-sm mb-6">All fields marked <span className="text-red-500 font-bold">*</span> are required.</p>
 
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">Child's Age *</label>
-                      <input
-                        type="number"
-                        value={form.childAge}
-                        onChange={set("childAge")}
-                        placeholder="e.g. 14"
-                        min="5"
-                        max="19"
-                        className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                      />
+                <StepIndicator />
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+
+                  {/* Step 1: About Your Child */}
+                  {step === 1 && (
+                    <div className="space-y-5">
+                      <div className={sectionClass}>
+                        <p className={sectionTitle}><span className="bg-[#1B2B6B] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">1</span>About Your Child</p>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className={labelClass}>Child's Full Name <span className="text-red-500">*</span></label>
+                            <input type="text" value={form.childName} onChange={set("childName")} placeholder="e.g. Emma Johnson" className={inputClass} />
+                          </div>
+                          <div>
+                            <label className={labelClass}>Child's Age <span className="text-red-500">*</span></label>
+                            <input type="number" value={form.childAge} onChange={set("childAge")} placeholder="e.g. 14" min="5" max="19" className={inputClass} />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Current School (optional)</label>
+                          <input type="text" value={form.currentSchool} onChange={set("currentSchool")} placeholder="e.g. Grays Convent High School" className={inputClass} />
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className={labelClass}>Subject <span className="text-red-500">*</span></label>
+                            <select value={form.subject} onChange={set("subject")} className={inputClass}>
+                              <option value="">Select a subject</option>
+                              {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label className={labelClass}>Level / Exam <span className="text-red-500">*</span></label>
+                            <select value={form.level} onChange={set("level")} className={inputClass}>
+                              <option value="">Select a level</option>
+                              {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Current Attainment (optional)</label>
+                          <input type="text" value={form.currentAttainment} onChange={set("currentAttainment")} placeholder="e.g. Grade 4, working at Level 3, struggling with algebra..." className={inputClass} />
+                          <p className="text-xs text-muted-foreground mt-1">This helps us plan the right starting point for your child's assessment.</p>
+                        </div>
+                      </div>
+
+                      <button type="button" onClick={nextStep} className="w-full bg-[#1B2B6B] hover:bg-[#243580] text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
+                        Next: Your Details →
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">Contact Number *</label>
-                      <input
-                        type="tel"
-                        value={form.contactNumber}
-                        onChange={set("contactNumber")}
-                        placeholder="e.g. 07700 900123"
-                        className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                      />
+                  )}
+
+                  {/* Step 2: Parent / Guardian Details */}
+                  {step === 2 && (
+                    <div className="space-y-5">
+                      <div className={sectionClass}>
+                        <p className={sectionTitle}><span className="bg-[#1B2B6B] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">2</span>Parent / Guardian Details</p>
+
+                        <div>
+                          <label className={labelClass}>Your Full Name <span className="text-red-500">*</span></label>
+                          <input type="text" value={form.parentName} onChange={set("parentName")} placeholder="e.g. Sarah Johnson" className={inputClass} />
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className={labelClass}>Email Address <span className="text-red-500">*</span></label>
+                            <input type="email" value={form.email} onChange={set("email")} placeholder="e.g. sarah@email.com" className={inputClass} />
+                            <p className="text-xs text-muted-foreground mt-1">We'll send your confirmation and updates here.</p>
+                          </div>
+                          <div>
+                            <label className={labelClass}>Mobile Number <span className="text-red-500">*</span></label>
+                            <input type="tel" value={form.contactNumber} onChange={set("contactNumber")} placeholder="e.g. 07700 900123" className={inputClass} />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Preferred Session Time</label>
+                          <select value={form.preferredSlot} onChange={set("preferredSlot")} className={inputClass}>
+                            <option value="">Select preferred slot (optional)</option>
+                            {SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button type="button" onClick={() => setStep(1)} className="flex-1 border-2 border-[#1B2B6B]/20 hover:border-[#1B2B6B]/50 text-[#1B2B6B] font-semibold px-6 py-4 rounded-xl transition-all">
+                          ← Back
+                        </button>
+                        <button type="button" onClick={nextStep} className="flex-[2] bg-[#1B2B6B] hover:bg-[#243580] text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
+                          Next: Goals & Background →
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">Subject *</label>
-                      <select
-                        value={form.subject}
-                        onChange={set("subject")}
-                        className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                      >
-                        <option value="">Select a subject</option>
-                        {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
+                  {/* Step 3: Goals & Background */}
+                  {step === 3 && (
+                    <div className="space-y-5">
+                      <div className={sectionClass}>
+                        <p className={sectionTitle}><span className="bg-[#1B2B6B] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0">3</span>Goals &amp; Background</p>
+                        <p className="text-xs text-muted-foreground -mt-2 mb-2">This helps us understand where your child is now and build the right plan from day one.</p>
+
+                        <div>
+                          <label className={labelClass}>What are you hoping to achieve? <span className="text-red-500">*</span></label>
+                          <textarea value={form.goals} onChange={set("goals")} rows={3} placeholder="e.g. Pass GCSE Maths with at least a grade 5, get into grammar school, build confidence in algebra, catch up after moving schools..." className={`${inputClass} resize-none`} />
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>What is your child currently struggling with?</label>
+                          <textarea value={form.previousTutoring} onChange={set("previousTutoring")} rows={3} placeholder="e.g. Struggles with exam technique and running out of time, finds fractions difficult, loses focus during long sessions, anxious about exams..." className={`${inputClass} resize-none`} />
+                          <p className="text-xs text-muted-foreground mt-1">Include anything that has held your child back — learning style, previous tutoring experience, or specific topics.</p>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>How did you hear about us?</label>
+                          <select value={form.howDidYouHear} onChange={set("howDidYouHear")} className={inputClass}>
+                            <option value="">Select an option (optional)</option>
+                            {HOW_HEARD.map(h => <option key={h} value={h}>{h}</option>)}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Anything else we should know?</label>
+                          <textarea value={form.additionalInfo} onChange={set("additionalInfo")} rows={3} placeholder="e.g. exam board, target school, specific dates to know, SEN requirements, anything else..." className={`${inputClass} resize-none`} />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button type="button" onClick={() => setStep(2)} className="flex-1 border-2 border-[#1B2B6B]/20 hover:border-[#1B2B6B]/50 text-[#1B2B6B] font-semibold px-6 py-4 rounded-xl transition-all">
+                          ← Back
+                        </button>
+                        <button type="submit" disabled={createSubmission.isPending} className="flex-[2] bg-[#C9973A] hover:bg-[#b8852f] disabled:opacity-60 text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
+                          {createSubmission.isPending ? "Submitting..." : "Submit Application →"}
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground text-center">
+                        Or contact us directly: <a href="https://wa.me/447480413679" className="text-[#1B2B6B] font-medium hover:text-[#C9973A]">WhatsApp 07480 413679</a>
+                      </p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">Level / Exam *</label>
-                      <select
-                        value={form.level}
-                        onChange={set("level")}
-                        className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                      >
-                        <option value="">Select a level</option>
-                        {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-1.5">Preferred Session Slot *</label>
-                    <select
-                      value={form.preferredSlot}
-                      onChange={set("preferredSlot")}
-                      className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all bg-background"
-                    >
-                      <option value="">Select preferred slot</option>
-                      {SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-1.5">Anything else we should know?</label>
-                    <textarea
-                      value={form.notes}
-                      onChange={set("notes")}
-                      rows={4}
-                      placeholder="Tell us about your child's current level, specific challenges, target school or exam board if known..."
-                      className="w-full border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2B6B]/30 focus:border-[#1B2B6B] transition-all resize-none bg-background"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={createEnquiry.isPending}
-                    className="w-full bg-[#1B2B6B] hover:bg-[#243580] disabled:opacity-60 text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
-                  >
-                    {createEnquiry.isPending ? "Submitting..." : "Submit Enquiry →"}
-                  </button>
-
-                  <p className="text-xs text-muted-foreground text-center">
-                    Or contact us directly: <a href="https://wa.me/447480413679" className="text-[#1B2B6B] font-medium hover:text-[#C9973A]">WhatsApp 07480 413679</a>
-                  </p>
+                  )}
                 </form>
               </div>
 
-              {/* Contact Info */}
+              {/* Sidebar Info */}
               <div className="lg:col-span-2 space-y-6">
                 <div className="bg-[#1B2B6B] rounded-2xl p-7 text-white">
                   <h3 className="text-xl font-bold font-serif mb-5">Contact Details</h3>
@@ -304,12 +422,8 @@ export default function ContactPage() {
                       <span className="text-white/80">Mon–Sat: 9am – 6pm</span>
                     </li>
                   </ul>
-                  <a
-                    href="https://wa.me/447480413679"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-6 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ab553] text-white font-semibold px-5 py-3 rounded-xl transition-all duration-200"
-                  >
+                  <a href="https://wa.me/447480413679" target="_blank" rel="noopener noreferrer"
+                    className="mt-6 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ab553] text-white font-semibold px-5 py-3 rounded-xl transition-all duration-200">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.852L.057 23.571a.5.5 0 00.611.611l5.72-1.47A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.878 0-3.638-.49-5.163-1.348l-.37-.213-3.398.873.89-3.328-.23-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
                     Message on WhatsApp
                   </a>
@@ -340,6 +454,12 @@ export default function ContactPage() {
                     Completely free · No obligation to continue
                   </p>
                 </div>
+
+                {/* Progress indicator for mobile */}
+                <div className="bg-white border border-[#e2e5f0] rounded-2xl p-5 text-sm text-muted-foreground leading-relaxed">
+                  <p className="font-semibold text-[#1B2B6B] mb-2">Why we ask these questions</p>
+                  <p className="text-xs">Every child is different. The more we know before your child's first visit, the better we can prepare a focused assessment and personalised plan from day one — saving your child time and giving them a head start.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -353,24 +473,14 @@ export default function ContactPage() {
             <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Questions & Answers</p>
             <h2 className="text-4xl font-bold font-serif text-[#1B2B6B]">Frequently Asked Questions</h2>
           </div>
-
           <div className="space-y-3">
             {FAQS.map(({ q, a }, i) => (
               <div key={i} className="bg-white rounded-2xl border border-border overflow-hidden">
-                <button
-                  className="w-full flex items-center justify-between px-6 py-5 text-left font-semibold text-[#1B2B6B] hover:bg-[#1B2B6B]/3 transition-colors"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                >
+                <button className="w-full flex items-center justify-between px-6 py-5 text-left font-semibold text-[#1B2B6B] hover:bg-[#1B2B6B]/3 transition-colors" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
                   <span>{q}</span>
-                  <span className="shrink-0 ml-4 text-[#C9973A] text-xl leading-none">
-                    {openFaq === i ? "−" : "+"}
-                  </span>
+                  <span className="shrink-0 ml-4 text-[#C9973A] text-xl leading-none">{openFaq === i ? "−" : "+"}</span>
                 </button>
-                {openFaq === i && (
-                  <div className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border pt-4">
-                    {a}
-                  </div>
-                )}
+                {openFaq === i && <div className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border pt-4">{a}</div>}
               </div>
             ))}
           </div>
@@ -381,24 +491,17 @@ export default function ContactPage() {
       <section className="py-14 bg-[#1B2B6B]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Coverage Area</p>
-          <h2 className="text-2xl md:text-3xl font-bold font-serif text-white mb-4">
-            Serving Families Across Thurrock &amp; Essex
-          </h2>
-          <p className="text-white/60 text-sm mb-7 max-w-xl mx-auto">
-            Based in Grays — easily reachable from every part of the borough. Free parking at Queensgate Centre.
-          </p>
+          <h2 className="text-2xl md:text-3xl font-bold font-serif text-white mb-4">Serving Families Across Thurrock &amp; Essex</h2>
+          <p className="text-white/60 text-sm mb-7 max-w-xl mx-auto">Based in Grays — easily reachable from every part of the borough. Free parking at Queensgate Centre.</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["Grays","Tilbury","Chafford Hundred","Stanford-le-Hope","Corringham","South Ockendon","Aveley","West Thurrock","Chadwell St Mary","Purfleet","North Stifford","Orsett","East Tilbury","Badgers Dene","Basildon","Brentwood","Dartford"].map((town) => (
-              <span key={town} className="bg-white/10 border border-white/20 text-white/85 text-xs font-medium px-3 py-1.5 rounded-full">
-                {town}
-              </span>
+            {["Grays","Tilbury","Chafford Hundred","Stanford-le-Hope","Corringham","South Ockendon","Aveley","West Thurrock","Chadwell St Mary","Purfleet","North Stifford","Orsett","East Tilbury","Badgers Dene","Basildon","Brentwood","Dartford"].map(town => (
+              <span key={town} className="bg-white/10 border border-white/20 text-white/85 text-xs font-medium px-3 py-1.5 rounded-full">{town}</span>
             ))}
           </div>
         </div>
       </section>
 
       <BookingWidget />
-
       <PublicFooter />
     </div>
   );

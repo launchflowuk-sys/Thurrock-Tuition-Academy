@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, intakeSubmissionsTable } from "@workspace/db";
+import { db, intakeSubmissionsTable, settingsTable } from "@workspace/db";
 import {
   CreateIntakeSubmissionBody,
   ListIntakeSubmissionsResponse,
@@ -8,7 +8,7 @@ import {
   UpdateIntakeSubmissionParams,
   UpdateIntakeSubmissionResponse,
 } from "@workspace/api-zod";
-import { sendIntakeEmails } from "../lib/email";
+import { sendIntakeEmails, sendIntakeReplyEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -37,6 +37,11 @@ router.post("/intake", async (req, res): Promise<void> => {
     email: parsed.data.email,
     contactNumber: parsed.data.contactNumber,
     currentSchool: parsed.data.currentSchool,
+    goals: parsed.data.goals,
+    currentAttainment: parsed.data.currentAttainment,
+    previousTutoring: parsed.data.previousTutoring,
+    howDidYouHear: parsed.data.howDidYouHear,
+    preferredSlot: parsed.data.preferredSlot,
   }).catch(() => {});
 });
 
@@ -55,6 +60,38 @@ router.delete("/intake/:id", async (req, res): Promise<void> => {
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   await db.delete(intakeSubmissionsTable).where(eq(intakeSubmissionsTable.id, id));
   res.status(204).send();
+});
+
+router.post("/intake/:id/reply", async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+  const { subject, body } = req.body as { subject?: string; body?: string };
+  if (!subject || !body) { res.status(400).json({ error: "subject and body are required" }); return; }
+
+  const [submission] = await db.select().from(intakeSubmissionsTable).where(eq(intakeSubmissionsTable.id, id));
+  if (!submission) { res.status(404).json({ error: "Not found" }); return; }
+
+  const [settings] = await db.select().from(settingsTable).limit(1);
+  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) {
+    res.status(400).json({ error: "SMTP not configured. Please set up email in Settings first." });
+    return;
+  }
+
+  await sendIntakeReplyEmail({
+    toEmail: submission.email,
+    toName: submission.parentName,
+    childName: submission.childName,
+    replySubject: subject,
+    replyBody: body,
+    smtpHost: settings.smtpHost,
+    smtpPort: settings.smtpPort ?? 587,
+    smtpUser: settings.smtpUser,
+    smtpPass: settings.smtpPass,
+    smtpFrom: settings.smtpFrom ?? settings.smtpUser,
+  });
+
+  res.json({ ok: true });
 });
 
 export default router;
