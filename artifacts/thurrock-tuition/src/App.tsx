@@ -90,7 +90,7 @@ function HomeRedirect() {
   );
 }
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL as string;
+const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) ?? "admin@thurrocktuitionacademy.co.uk";
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoaded } = useUser();
