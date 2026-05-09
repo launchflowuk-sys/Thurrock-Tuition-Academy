@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ClerkProvider, Show, useClerk } from "@clerk/react";
+import { ClerkProvider, Show, useClerk, useUser } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { Switch, Route, Redirect, useLocation, Router as WouterRouter } from "wouter";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -90,17 +90,38 @@ function HomeRedirect() {
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Show when="signed-in">
-        <AdminLayout>{children}</AdminLayout>
-      </Show>
-      <Show when="signed-out">
-        <Redirect to="/sign-in" />
-      </Show>
-    </>
-  );
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL as string;
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) return null;
+
+  if (!user) return <Redirect to="/sign-in" />;
+
+  const email = user.primaryEmailAddress?.emailAddress ?? "";
+  if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#1B2B6B] px-4">
+        <img src={`${basePath}/logo.svg`} alt="TTA" className="h-16 mb-6 opacity-90" />
+        <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full text-center">
+          <div className="text-5xl mb-4">🔒</div>
+          <h1 className="text-2xl font-bold font-serif text-[#1B2B6B] mb-3">Access Restricted</h1>
+          <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            This area is only accessible to authorised administrators. You are signed in as <strong>{email}</strong>.
+          </p>
+          <a
+            href={`${basePath}/parent`}
+            className="inline-block bg-[#1B2B6B] hover:bg-[#243580] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 text-sm"
+          >
+            Go to Parent Portal
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return <AdminLayout>{children}</AdminLayout>;
 }
 
 function ParentRoute() {
@@ -184,33 +205,33 @@ function ClerkProviderWithRoutes() {
 
             {/* Admin-only routes — no links anywhere on public site */}
             <Route path="/dashboard">
-              <ProtectedRoute><Dashboard /></ProtectedRoute>
+              <AdminRoute><Dashboard /></AdminRoute>
             </Route>
             <Route path="/enquiries">
-              <ProtectedRoute><EnquiriesPage /></ProtectedRoute>
+              <AdminRoute><EnquiriesPage /></AdminRoute>
             </Route>
             <Route path="/students/:id">
               {(params) => (
-                <ProtectedRoute><StudentDetailPage id={Number(params.id)} /></ProtectedRoute>
+                <AdminRoute><StudentDetailPage id={Number(params.id)} /></AdminRoute>
               )}
             </Route>
             <Route path="/students">
-              <ProtectedRoute><StudentsPage /></ProtectedRoute>
+              <AdminRoute><StudentsPage /></AdminRoute>
             </Route>
             <Route path="/sessions">
-              <ProtectedRoute><SessionsPage /></ProtectedRoute>
+              <AdminRoute><SessionsPage /></AdminRoute>
             </Route>
             <Route path="/progress">
-              <ProtectedRoute><ProgressPage /></ProtectedRoute>
+              <AdminRoute><ProgressPage /></AdminRoute>
             </Route>
             <Route path="/tasks">
-              <ProtectedRoute><TasksPage /></ProtectedRoute>
+              <AdminRoute><TasksPage /></AdminRoute>
             </Route>
             <Route path="/payments">
-              <ProtectedRoute><PaymentsPage /></ProtectedRoute>
+              <AdminRoute><PaymentsPage /></AdminRoute>
             </Route>
             <Route path="/settings">
-              <ProtectedRoute><SettingsPage /></ProtectedRoute>
+              <AdminRoute><SettingsPage /></AdminRoute>
             </Route>
 
             <Route component={NotFound} />
