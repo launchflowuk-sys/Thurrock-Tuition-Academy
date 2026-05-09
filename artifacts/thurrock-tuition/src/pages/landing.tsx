@@ -81,7 +81,7 @@ const WHY_US = [
   {
     icon: "💬",
     title: "Parent Communication",
-    body: "We keep parents fully informed with session notes, homework tracking, and direct WhatsApp access to Khadija when needed.",
+    body: "We keep parents fully informed with session notes, homework tracking, and direct WhatsApp access to our team when needed.",
   },
 ];
 

@@ -136,32 +136,36 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Enquiries */}
+      {/* Recent Applications */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm border-border col-span-2 lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-xl font-serif text-primary">Recent Enquiries</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-xl font-serif text-primary">Recent Applications</CardTitle>
+            <Link href="/intake" className="text-sm font-medium text-primary hover:underline">View all</Link>
           </CardHeader>
           <CardContent>
             {summary?.recentEnquiries && summary.recentEnquiries.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {summary.recentEnquiries.map((enquiry) => (
-                  <div key={enquiry.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-border rounded-lg bg-muted/30">
-                    <div>
-                      <p className="font-semibold text-foreground">{enquiry.parentName}</p>
-                      <p className="text-sm text-muted-foreground">{enquiry.subject} — {enquiry.level}</p>
+                  <Link key={enquiry.id} href="/intake">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-border rounded-lg bg-muted/30 hover:bg-muted/60 hover:border-primary/30 cursor-pointer transition-colors">
+                      <div>
+                        <p className="font-semibold text-foreground">{enquiry.parentName}</p>
+                        <p className="text-sm text-muted-foreground">{enquiry.subject} — {enquiry.level}</p>
+                      </div>
+                      <div className="mt-2 sm:mt-0 flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800">
+                          {enquiry.status}
+                        </span>
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
                     </div>
-                    <div className="mt-2 sm:mt-0">
-                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800">
-                        {enquiry.status}
-                      </span>
-                    </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg">
-                No recent enquiries
+                No recent applications
               </div>
             )}
           </CardContent>

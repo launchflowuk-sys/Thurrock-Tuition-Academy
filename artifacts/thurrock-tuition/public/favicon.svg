@@ -1,3 +1,5 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <rect width="180" height="180" rx="36" fill="#1B2B6B"/>
+  <path d="M90 44L126 62V88C126 110 110 128 90 138C70 128 54 110 54 88V62L90 44Z" stroke="#C9973A" stroke-width="3" fill="#C9973A" fill-opacity="0.12"/>
+  <text x="90" y="105" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-weight="700" fill="#C9973A" text-anchor="middle">TTA</text>
 </svg>

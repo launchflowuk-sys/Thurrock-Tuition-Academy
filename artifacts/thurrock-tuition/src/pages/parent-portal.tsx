@@ -110,9 +110,9 @@ export default function ParentPortalPage() {
           ) : (
             <div className="mt-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
               <p className="text-sm text-amber-800 font-medium">Your child's profile has not been linked to this account yet.</p>
-              <p className="text-sm text-amber-700 mt-1">Please contact Khadija so she can activate your portal access. Make sure she has your email address: <strong>{parentEmail}</strong></p>
+              <p className="text-sm text-amber-700 mt-1">Please contact our administration team to activate your portal access. Make sure they have your email address: <strong>{parentEmail}</strong></p>
               <div className="flex gap-3 mt-3">
-                <a href="https://wa.me/447480413679" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#25D366] text-white px-3 py-1.5 rounded-lg">WhatsApp Khadija</a>
+                <a href="https://wa.me/447480413679" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#25D366] text-white px-3 py-1.5 rounded-lg">WhatsApp Us</a>
                 <a href="mailto:bookings@thurrocktuitionacademy.co.uk" className="inline-flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-lg">Email Us</a>
               </div>
             </div>
