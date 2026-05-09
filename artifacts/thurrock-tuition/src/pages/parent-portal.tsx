@@ -61,7 +61,7 @@ export default function ParentPortalPage() {
           {myStudent ? (
             <p className="text-muted-foreground mt-1">Viewing progress for <strong>{myStudent.name}</strong> — {myStudent.subject} · {myStudent.level} · {myStudent.sessionSlot}</p>
           ) : (
-            <p className="text-muted-foreground mt-1">Your child's profile is being set up. Please contact Khadija at 07480413679.</p>
+            <p className="text-muted-foreground mt-1">Your child's profile is being set up. Please contact us at <a href="mailto:bookings@thurrocktuitionacademy.co.uk" className="text-primary hover:underline">bookings@thurrocktuitionacademy.co.uk</a> or call <a href="tel:07480413679" className="text-primary hover:underline">07480 413679</a>.</p>
           )}
         </div>
 
@@ -139,7 +139,7 @@ export default function ParentPortalPage() {
         )}
 
         <p className="text-center text-xs text-muted-foreground pb-4">
-          Thurrock Tuition Academy · Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock · 07480413679
+          Thurrock Tuition Academy · Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock · 07480 413679 · bookings@thurrocktuitionacademy.co.uk
         </p>
       </main>
     </div>
