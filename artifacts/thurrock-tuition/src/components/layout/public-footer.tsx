@@ -115,6 +115,18 @@ export default function PublicFooter() {
             <span>DBS Checked Tutors</span>
             <span>·</span>
             <span>Grays, Thurrock</span>
+            <span>·</span>
+            <span>
+              Website by{" "}
+              <a
+                href="https://launchflow.co.uk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#C9973A] hover:text-[#d4a84a] transition-colors"
+              >
+                LaunchFlow
+              </a>
+            </span>
           </div>
         </div>
       </div>

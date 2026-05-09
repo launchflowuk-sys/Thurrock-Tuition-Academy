@@ -78,7 +78,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <NavLinks />
         </nav>
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
           <Button
             variant="ghost"
             className="w-full justify-start text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
@@ -88,6 +88,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <LogOut size={20} className="mr-3" />
             Sign Out
           </Button>
+          <p className="text-center text-[10px] text-sidebar-foreground/40">
+            Website by{" "}
+            <a
+              href="https://launchflow.co.uk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C9973A]/70 hover:text-[#C9973A] transition-colors"
+            >
+              LaunchFlow
+            </a>
+          </p>
         </div>
       </aside>
 
@@ -116,7 +127,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <nav className="p-4 space-y-1">
                 <NavLinks />
               </nav>
-              <div className="absolute bottom-0 w-full p-4 border-t border-sidebar-border">
+              <div className="absolute bottom-0 w-full p-4 border-t border-sidebar-border space-y-3">
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
@@ -125,6 +136,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <LogOut size={20} className="mr-3" />
                   Sign Out
                 </Button>
+                <p className="text-center text-[10px] text-sidebar-foreground/40">
+                  Website by{" "}
+                  <a
+                    href="https://launchflow.co.uk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#C9973A]/70 hover:text-[#C9973A] transition-colors"
+                  >
+                    LaunchFlow
+                  </a>
+                </p>
               </div>
             </SheetContent>
           </Sheet>
