@@ -217,69 +217,68 @@ export default function StudentDetailPage({ id }: Props) {
 
       {/* Profile Card */}
       <Card className="shadow-sm">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              {/* Photo */}
-              <div className="relative shrink-0">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center border-2 border-border">
-                  {photoSrc ? (
-                    <img src={photoSrc} alt={student.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl font-bold text-primary/40">{student.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-                <button
-                  onClick={() => photoInputRef.current?.click()}
-                  disabled={uploadingPhoto}
-                  className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/80 transition-colors"
-                  title="Upload photo"
-                >
-                  {uploadingPhoto ? <span className="text-[8px]">…</span> : <Camera size={11} />}
-                </button>
-                <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handlePhotoUpload(e.target.files[0])} />
+        <CardHeader className="pb-3">
+          <div className="flex items-start gap-4">
+            {/* Photo */}
+            <div className="relative shrink-0">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center border-2 border-border">
+                {photoSrc ? (
+                  <img src={photoSrc} alt={student.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xl sm:text-2xl font-bold text-primary/40">{student.name.charAt(0).toUpperCase()}</span>
+                )}
               </div>
-
-              <div>
-                <CardTitle className="text-2xl font-serif">{student.name}</CardTitle>
-                <p className="text-muted-foreground mt-1">Age {student.age} · {student.subject} · {student.level}</p>
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  {portalActive ? (
-                    <Badge className="bg-green-100 text-green-800 border-green-200 gap-1 text-xs">
-                      <ShieldCheck size={11} /> Portal Active · {student.parentEmail}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-amber-600 border-amber-300 gap-1 text-xs">
-                      <ShieldOff size={11} /> Portal Not Activated — add parent email to activate
-                    </Badge>
-                  )}
-                </div>
-              </div>
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/80 transition-colors"
+                title="Upload photo"
+              >
+                {uploadingPhoto ? <span className="text-[8px]">…</span> : <Camera size={11} />}
+              </button>
+              <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handlePhotoUpload(e.target.files[0])} />
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Badge variant="outline" className="text-xs hidden sm:flex">{student.sessionSlot}</Badge>
-              <Button variant="outline" size="sm" onClick={openEditProfile} data-testid="button-edit-profile">
-                <Pencil size={14} className="mr-1" /> Edit
-              </Button>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-xl sm:text-2xl font-serif leading-tight">{student.name}</CardTitle>
+                <Button variant="outline" size="sm" onClick={openEditProfile} data-testid="button-edit-profile" className="shrink-0">
+                  <Pencil size={14} className="mr-1" /> Edit
+                </Button>
+              </div>
+              <p className="text-muted-foreground mt-1 text-sm">{student.subject} · {student.level} · Age {student.age}</p>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="outline" className="text-xs">{student.sessionSlot}</Badge>
+                {portalActive ? (
+                  <Badge className="bg-green-100 text-green-800 border-green-200 gap-1 text-xs max-w-[200px] sm:max-w-none">
+                    <ShieldCheck size={11} className="shrink-0" />
+                    <span className="truncate">Portal Active</span>
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-amber-600 border-amber-300 gap-1 text-xs">
+                    <ShieldOff size={11} className="shrink-0" /> No Portal
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-            <div><span className="text-muted-foreground">Parent</span><p className="font-medium">{student.parentName}</p></div>
-            <div><span className="text-muted-foreground">Contact</span><p className="font-medium">{student.contactNumber}</p></div>
-            <div><span className="text-muted-foreground">Joined</span><p className="font-medium">{new Date(student.joinedAt).toLocaleDateString("en-GB")}</p></div>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm border-t pt-4">
+            <div><span className="text-muted-foreground text-xs uppercase tracking-wide">Parent</span><p className="font-medium mt-0.5 truncate">{student.parentName}</p></div>
+            <div><span className="text-muted-foreground text-xs uppercase tracking-wide">Contact</span><p className="font-medium mt-0.5">{student.contactNumber}</p></div>
+            <div className="col-span-2 sm:col-span-1"><span className="text-muted-foreground text-xs uppercase tracking-wide">Joined</span><p className="font-medium mt-0.5">{new Date(student.joinedAt).toLocaleDateString("en-GB")}</p></div>
           </div>
-          {student.notes && <p className="mt-4 text-sm text-muted-foreground italic border-t pt-3">{student.notes}</p>}
+          {student.notes && <p className="mt-3 text-sm text-muted-foreground italic border-t pt-3">{student.notes}</p>}
         </CardContent>
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList data-testid="tabs-student-detail">
-          <TabsTrigger value="progress">Progress Notes</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="messages" className="relative">
+        <TabsList data-testid="tabs-student-detail" className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+          <TabsTrigger value="progress" className="text-xs sm:text-sm py-2">Progress Notes</TabsTrigger>
+          <TabsTrigger value="tasks" className="text-xs sm:text-sm py-2">Tasks</TabsTrigger>
+          <TabsTrigger value="payments" className="text-xs sm:text-sm py-2">Payments</TabsTrigger>
+          <TabsTrigger value="messages" className="relative text-xs sm:text-sm py-2">
             Messages
             {unreadParentMessages > 0 && (
               <span className="ml-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{unreadParentMessages}</span>
@@ -351,9 +350,9 @@ export default function StudentDetailPage({ id }: Props) {
           {payments?.length === 0 && <div className="text-center py-8 text-muted-foreground">No payment records yet.</div>}
           {payments?.map((payment) => (
             <Card key={payment.id} className="shadow-sm" data-testid={`card-payment-${payment.id}`}>
-              <CardContent className="p-4 flex items-center justify-between">
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <CreditCard size={14} className="text-muted-foreground" />
                     <span className="font-medium">£{Number(payment.amount).toFixed(2)}</span>
                     <Badge className={
@@ -369,7 +368,7 @@ export default function StudentDetailPage({ id }: Props) {
                   {payment.notes && <p className="text-xs text-muted-foreground">{payment.notes}</p>}
                 </div>
                 {payment.status !== "paid" && payment.status !== "cancelled" && (
-                  <Button size="sm" variant="outline" onClick={() => handleMarkPaid(payment.id)} data-testid={`button-mark-paid-${payment.id}`}>
+                  <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={() => handleMarkPaid(payment.id)} data-testid={`button-mark-paid-${payment.id}`}>
                     Mark Paid
                   </Button>
                 )}
