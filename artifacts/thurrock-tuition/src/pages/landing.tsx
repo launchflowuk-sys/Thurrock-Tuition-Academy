@@ -118,14 +118,14 @@ export function LandingPage() {
       <PublicNav />
 
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#1B2B6B]">
+      <section className="relative min-h-screen flex items-start pt-16 overflow-hidden bg-[#1B2B6B]">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B]/95 via-[#1B2B6B]/85 to-[#0f1a3e]/90" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20 lg:pt-16 lg:pb-28">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-[#C9973A]/20 border border-[#C9973A]/40 rounded-full px-4 py-1.5 mb-8 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-[#C9973A] animate-pulse" />
