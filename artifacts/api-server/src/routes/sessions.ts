@@ -10,6 +10,7 @@ import {
   UpdateSessionParams,
   UpdateSessionResponse,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -19,12 +20,12 @@ const toSession = (s: typeof sessionsTable.$inferSelect) => ({
   createdAt: s.createdAt.toISOString(),
 });
 
-router.get("/sessions", async (_req, res): Promise<void> => {
+router.get("/sessions", requireAdmin, async (_req, res): Promise<void> => {
   const sessions = await db.select().from(sessionsTable).orderBy(sessionsTable.date);
   res.json(ListSessionsResponse.parse(sessions.map(toSession)));
 });
 
-router.post("/sessions", async (req, res): Promise<void> => {
+router.post("/sessions", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateSessionBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -34,7 +35,7 @@ router.post("/sessions", async (req, res): Promise<void> => {
   res.status(201).json(GetSessionResponse.parse(toSession(session)));
 });
 
-router.get("/sessions/:id", async (req, res): Promise<void> => {
+router.get("/sessions/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = GetSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -48,7 +49,7 @@ router.get("/sessions/:id", async (req, res): Promise<void> => {
   res.json(GetSessionResponse.parse(toSession(session)));
 });
 
-router.patch("/sessions/:id", async (req, res): Promise<void> => {
+router.patch("/sessions/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

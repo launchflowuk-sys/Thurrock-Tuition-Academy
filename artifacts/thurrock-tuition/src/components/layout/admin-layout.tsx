@@ -14,6 +14,7 @@ import {
   UserCog,
   BookOpen,
   ClipboardList,
+  Inbox,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -24,6 +25,7 @@ interface AdminLayoutProps {
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/intake", label: "Applications", icon: ClipboardList },
   { href: "/students", label: "Students", icon: Users },
   { href: "/sessions", label: "Sessions", icon: Calendar },

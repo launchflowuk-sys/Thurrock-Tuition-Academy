@@ -11,10 +11,11 @@ import {
   UpdateEnquiryResponse,
 } from "@workspace/api-zod";
 import { sendEnquiryEmails } from "../lib/email";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
-router.get("/enquiries", async (req, res): Promise<void> => {
+router.get("/enquiries", requireAdmin, async (req, res): Promise<void> => {
   const enquiries = await db.select().from(enquiriesTable).orderBy(enquiriesTable.createdAt);
   res.json(ListEnquiriesResponse.parse(enquiries.map(e => ({ ...e, createdAt: e.createdAt.toISOString() }))));
 });
@@ -42,7 +43,7 @@ router.post("/enquiries", async (req, res): Promise<void> => {
   }).catch(() => {});
 });
 
-router.get("/enquiries/:id", async (req, res): Promise<void> => {
+router.get("/enquiries/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = GetEnquiryParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -56,7 +57,7 @@ router.get("/enquiries/:id", async (req, res): Promise<void> => {
   res.json(GetEnquiryResponse.parse({ ...enquiry, createdAt: enquiry.createdAt.toISOString() }));
 });
 
-router.patch("/enquiries/:id", async (req, res): Promise<void> => {
+router.patch("/enquiries/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateEnquiryParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

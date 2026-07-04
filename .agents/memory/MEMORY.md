@@ -1,1 +1,2 @@
 - [connect-pg-simple + esbuild](connect-pg-simple-esbuild.md) — createTableIfMissing fails (ENOENT table.sql) in bundled builds; create table manually, set to false.
+- [Express routes default to public](express-routes-default-public.md) — Express applies no auth unless middleware is added per-route; audit every route file, don't assume a global gate exists.

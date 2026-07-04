@@ -8,6 +8,7 @@ import {
   UpdateSettingsResponse,
   GetPaymentPublicSettingsResponse,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -43,12 +44,12 @@ const toSettings = (s: typeof settingsTable.$inferSelect) => ({
   updatedAt: s.updatedAt.toISOString(),
 });
 
-router.get("/settings", async (req, res): Promise<void> => {
+router.get("/settings", requireAdmin, async (req, res): Promise<void> => {
   const settings = await getOrCreateSettings();
   res.json(GetSettingsResponse.parse(toSettings(settings)));
 });
 
-router.put("/settings", async (req, res): Promise<void> => {
+router.put("/settings", requireAdmin, async (req, res): Promise<void> => {
   const parsed = UpdateSettingsBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

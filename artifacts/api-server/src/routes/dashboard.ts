@@ -6,10 +6,11 @@ import {
   GetRecentActivityResponse,
   GetSessionAvailabilityResponse,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
-router.get("/dashboard/summary", async (_req, res): Promise<void> => {
+router.get("/dashboard/summary", requireAdmin, async (_req, res): Promise<void> => {
   const [totalStudentsResult] = await db.select({ count: count() }).from(studentsTable);
   const [pendingEnquiriesResult] = await db.select({ count: count() }).from(enquiriesTable).where(eq(enquiriesTable.status, "pending"));
 
@@ -42,7 +43,7 @@ router.get("/dashboard/summary", async (_req, res): Promise<void> => {
   res.json(GetDashboardSummaryResponse.parse(summary));
 });
 
-router.get("/dashboard/recent-activity", async (_req, res): Promise<void> => {
+router.get("/dashboard/recent-activity", requireAdmin, async (_req, res): Promise<void> => {
   const enquiries = await db.select().from(enquiriesTable).orderBy(desc(enquiriesTable.createdAt)).limit(5);
   const notes = await db.select().from(progressNotesTable).orderBy(desc(progressNotesTable.createdAt)).limit(5);
   const tasks = await db.select().from(tasksTable).orderBy(desc(tasksTable.createdAt)).limit(5);
@@ -71,7 +72,7 @@ router.get("/dashboard/recent-activity", async (_req, res): Promise<void> => {
   res.json(GetRecentActivityResponse.parse(activities));
 });
 
-router.get("/dashboard/session-availability", async (_req, res): Promise<void> => {
+router.get("/dashboard/session-availability", requireAdmin, async (_req, res): Promise<void> => {
   const SLOTS = [
     { slotLabel: "Morning Session 1", startTime: "09:00", endTime: "11:00", capacity: 8 },
     { slotLabel: "Morning Session 2", startTime: "11:00", endTime: "13:00", capacity: 8 },

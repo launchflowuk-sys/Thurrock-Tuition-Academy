@@ -9,12 +9,13 @@ import {
   UpdateIntakeSubmissionResponse,
 } from "@workspace/api-zod";
 import { sendIntakeEmails, sendIntakeReplyEmail } from "../lib/email";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
 const toIntake = (s: typeof intakeSubmissionsTable.$inferSelect) => ({ ...s, createdAt: s.createdAt.toISOString() });
 
-router.get("/intake", async (req, res): Promise<void> => {
+router.get("/intake", requireAdmin, async (req, res): Promise<void> => {
   const rows = await db.select().from(intakeSubmissionsTable).orderBy(desc(intakeSubmissionsTable.createdAt));
   res.json(ListIntakeSubmissionsResponse.parse(rows.map(toIntake)));
 });
@@ -45,7 +46,7 @@ router.post("/intake", async (req, res): Promise<void> => {
   }).catch(() => {});
 });
 
-router.patch("/intake/:id", async (req, res): Promise<void> => {
+router.patch("/intake/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateIntakeSubmissionParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
   const parsed = UpdateIntakeSubmissionBody.safeParse(req.body);
@@ -55,14 +56,14 @@ router.patch("/intake/:id", async (req, res): Promise<void> => {
   res.json(UpdateIntakeSubmissionResponse.parse(toIntake(row)));
 });
 
-router.delete("/intake/:id", async (req, res): Promise<void> => {
+router.delete("/intake/:id", requireAdmin, async (req, res): Promise<void> => {
   const id = Number(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   await db.delete(intakeSubmissionsTable).where(eq(intakeSubmissionsTable.id, id));
   res.status(204).send();
 });
 
-router.post("/intake/:id/reply", async (req, res): Promise<void> => {
+router.post("/intake/:id/reply", requireAdmin, async (req, res): Promise<void> => {
   const id = Number(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 

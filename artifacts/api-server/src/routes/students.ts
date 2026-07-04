@@ -11,6 +11,7 @@ import {
   UpdateStudentParams,
   UpdateStudentResponse,
 } from "@workspace/api-zod";
+import { requireAuth, requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -19,12 +20,18 @@ const toStudent = (s: typeof studentsTable.$inferSelect) => ({
   joinedAt: s.joinedAt.toISOString(),
 });
 
-router.get("/students", async (_req, res): Promise<void> => {
+router.get("/students", requireAuth, async (req, res): Promise<void> => {
   const students = await db.select().from(studentsTable).orderBy(studentsTable.joinedAt);
-  res.json(ListStudentsResponse.parse(students.map(toStudent)));
+  if (req.session.role === "admin") {
+    res.json(ListStudentsResponse.parse(students.map(toStudent)));
+    return;
+  }
+  const email = req.session.email?.toLowerCase();
+  const mine = students.filter(s => s.parentEmail?.toLowerCase() === email);
+  res.json(ListStudentsResponse.parse(mine.map(toStudent)));
 });
 
-router.post("/students", async (req, res): Promise<void> => {
+router.post("/students", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateStudentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -34,7 +41,7 @@ router.post("/students", async (req, res): Promise<void> => {
   res.status(201).json(GetStudentResponse.parse(toStudent(student)));
 });
 
-router.get("/students/:id", async (req, res): Promise<void> => {
+router.get("/students/:id", requireAuth, async (req, res): Promise<void> => {
   const params = GetStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -45,10 +52,14 @@ router.get("/students/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Student not found" });
     return;
   }
+  if (req.session.role !== "admin" && student.parentEmail?.toLowerCase() !== req.session.email?.toLowerCase()) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
   res.json(GetStudentResponse.parse(toStudent(student)));
 });
 
-router.patch("/students/:id", async (req, res): Promise<void> => {
+router.patch("/students/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -67,7 +78,7 @@ router.patch("/students/:id", async (req, res): Promise<void> => {
   res.json(UpdateStudentResponse.parse(toStudent(student)));
 });
 
-router.delete("/students/:id", async (req, res): Promise<void> => {
+router.delete("/students/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

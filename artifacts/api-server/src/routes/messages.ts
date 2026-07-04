@@ -8,6 +8,7 @@ import {
   MarkMessageReadParams,
   MarkMessageReadResponse,
 } from "@workspace/api-zod";
+import { requireAuth, ownsStudent } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -17,10 +18,14 @@ const toMessage = (m: typeof messagesTable.$inferSelect) => ({
   readAt: m.readAt?.toISOString() ?? null,
 });
 
-router.get("/messages", async (req, res): Promise<void> => {
+router.get("/messages", requireAuth, async (req, res): Promise<void> => {
   const params = ListMessagesQueryParams.safeParse(req.query);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!(await ownsStudent(req, Number(params.data.studentId)))) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
   const messages = await db
@@ -31,20 +36,33 @@ router.get("/messages", async (req, res): Promise<void> => {
   res.json(ListMessagesResponse.parse(messages.map(toMessage)));
 });
 
-router.post("/messages", async (req, res): Promise<void> => {
+router.post("/messages", requireAuth, async (req, res): Promise<void> => {
   const parsed = SendMessageBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  if (!(await ownsStudent(req, parsed.data.studentId))) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
   const [message] = await db.insert(messagesTable).values(parsed.data).returning();
   res.status(201).json(toMessage(message));
 });
 
-router.patch("/messages/:id/read", async (req, res): Promise<void> => {
+router.patch("/messages/:id/read", requireAuth, async (req, res): Promise<void> => {
   const params = MarkMessageReadParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [existing] = await db.select().from(messagesTable).where(eq(messagesTable.id, Number(params.data.id)));
+  if (!existing) {
+    res.status(404).json({ error: "Message not found" });
+    return;
+  }
+  if (!(await ownsStudent(req, existing.studentId))) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
   const [message] = await db
@@ -52,10 +70,6 @@ router.patch("/messages/:id/read", async (req, res): Promise<void> => {
     .set({ readAt: new Date() })
     .where(eq(messagesTable.id, Number(params.data.id)))
     .returning();
-  if (!message) {
-    res.status(404).json({ error: "Message not found" });
-    return;
-  }
   res.json(MarkMessageReadResponse.parse(toMessage(message)));
 });
 

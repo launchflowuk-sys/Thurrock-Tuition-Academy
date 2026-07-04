@@ -11,6 +11,7 @@ import {
   UpdateStaffResponse,
   DeleteStaffParams,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -20,12 +21,12 @@ const toStaff = (s: typeof staffTable.$inferSelect) => ({
   joinedAt: s.joinedAt.toISOString(),
 });
 
-router.get("/staff", async (_req, res): Promise<void> => {
+router.get("/staff", requireAdmin, async (_req, res): Promise<void> => {
   const staff = await db.select().from(staffTable).orderBy(staffTable.joinedAt);
   res.json(ListStaffResponse.parse(staff.map(toStaff)));
 });
 
-router.post("/staff", async (req, res): Promise<void> => {
+router.post("/staff", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateStaffBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -38,7 +39,7 @@ router.post("/staff", async (req, res): Promise<void> => {
   res.status(201).json(GetStaffResponse.parse(toStaff(member)));
 });
 
-router.get("/staff/:id", async (req, res): Promise<void> => {
+router.get("/staff/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = GetStaffParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -52,7 +53,7 @@ router.get("/staff/:id", async (req, res): Promise<void> => {
   res.json(GetStaffResponse.parse(toStaff(member)));
 });
 
-router.patch("/staff/:id", async (req, res): Promise<void> => {
+router.patch("/staff/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateStaffParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -75,7 +76,7 @@ router.patch("/staff/:id", async (req, res): Promise<void> => {
   res.json(UpdateStaffResponse.parse(toStaff(member)));
 });
 
-router.delete("/staff/:id", async (req, res): Promise<void> => {
+router.delete("/staff/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteStaffParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

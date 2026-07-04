@@ -44,6 +44,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
 
   req.session.userId = user.id;
   req.session.role = user.role;
+  req.session.email = user.email;
   res.status(201).json(GetCurrentUserResponse.parse(toAuthUser(user)));
 });
 
@@ -69,6 +70,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   req.session.userId = user.id;
   req.session.role = user.role;
+  req.session.email = user.email;
   res.json(GetCurrentUserResponse.parse(toAuthUser(user)));
 });
 

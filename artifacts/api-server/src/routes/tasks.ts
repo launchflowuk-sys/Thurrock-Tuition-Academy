@@ -10,6 +10,7 @@ import {
   UpdateTaskParams,
   UpdateTaskResponse,
 } from "@workspace/api-zod";
+import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -18,22 +19,30 @@ const toTask = (t: typeof tasksTable.$inferSelect) => ({
   createdAt: t.createdAt.toISOString(),
 });
 
-router.get("/tasks", async (req, res): Promise<void> => {
+router.get("/tasks", requireAuth, async (req, res): Promise<void> => {
   const query = ListTasksQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
-  let tasks;
-  if (query.data.studentId != null) {
-    tasks = await db.select().from(tasksTable).where(eq(tasksTable.studentId, query.data.studentId)).orderBy(tasksTable.dueDate);
-  } else {
-    tasks = await db.select().from(tasksTable).orderBy(tasksTable.dueDate);
+  if (query.data.studentId == null) {
+    if (req.session.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const tasks = await db.select().from(tasksTable).orderBy(tasksTable.dueDate);
+    res.json(ListTasksResponse.parse(tasks.map(toTask)));
+    return;
   }
+  if (!(await ownsStudent(req, query.data.studentId))) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  const tasks = await db.select().from(tasksTable).where(eq(tasksTable.studentId, query.data.studentId)).orderBy(tasksTable.dueDate);
   res.json(ListTasksResponse.parse(tasks.map(toTask)));
 });
 
-router.post("/tasks", async (req, res): Promise<void> => {
+router.post("/tasks", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateTaskBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -43,7 +52,7 @@ router.post("/tasks", async (req, res): Promise<void> => {
   res.status(201).json(toTask(task));
 });
 
-router.patch("/tasks/:id", async (req, res): Promise<void> => {
+router.patch("/tasks/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateTaskParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -62,7 +71,7 @@ router.patch("/tasks/:id", async (req, res): Promise<void> => {
   res.json(UpdateTaskResponse.parse(toTask(task)));
 });
 
-router.delete("/tasks/:id", async (req, res): Promise<void> => {
+router.delete("/tasks/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteTaskParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

@@ -10,6 +10,7 @@ import {
   UpdateProgressNoteParams,
   UpdateProgressNoteResponse,
 } from "@workspace/api-zod";
+import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -18,22 +19,30 @@ const toNote = (n: typeof progressNotesTable.$inferSelect) => ({
   createdAt: n.createdAt.toISOString(),
 });
 
-router.get("/progress", async (req, res): Promise<void> => {
+router.get("/progress", requireAuth, async (req, res): Promise<void> => {
   const query = ListProgressNotesQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
-  let notes;
-  if (query.data.studentId != null) {
-    notes = await db.select().from(progressNotesTable).where(eq(progressNotesTable.studentId, query.data.studentId)).orderBy(progressNotesTable.createdAt);
-  } else {
-    notes = await db.select().from(progressNotesTable).orderBy(progressNotesTable.createdAt);
+  if (query.data.studentId == null) {
+    if (req.session.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const notes = await db.select().from(progressNotesTable).orderBy(progressNotesTable.createdAt);
+    res.json(ListProgressNotesResponse.parse(notes.map(toNote)));
+    return;
   }
+  if (!(await ownsStudent(req, query.data.studentId))) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  const notes = await db.select().from(progressNotesTable).where(eq(progressNotesTable.studentId, query.data.studentId)).orderBy(progressNotesTable.createdAt);
   res.json(ListProgressNotesResponse.parse(notes.map(toNote)));
 });
 
-router.post("/progress", async (req, res): Promise<void> => {
+router.post("/progress", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateProgressNoteBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -43,7 +52,7 @@ router.post("/progress", async (req, res): Promise<void> => {
   res.status(201).json(toNote(note));
 });
 
-router.patch("/progress/:id", async (req, res): Promise<void> => {
+router.patch("/progress/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateProgressNoteParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -62,7 +71,7 @@ router.patch("/progress/:id", async (req, res): Promise<void> => {
   res.json(UpdateProgressNoteResponse.parse(toNote(note)));
 });
 
-router.delete("/progress/:id", async (req, res): Promise<void> => {
+router.delete("/progress/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteProgressNoteParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

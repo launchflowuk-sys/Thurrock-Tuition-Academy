@@ -8,6 +8,7 @@ import {
   UpdateCourseParams,
   UpdateCourseResponse,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -17,12 +18,12 @@ const toCourse = (c: typeof coursesTable.$inferSelect) => ({
   createdAt: c.createdAt.toISOString(),
 });
 
-router.get("/courses", async (req, res): Promise<void> => {
+router.get("/courses", requireAdmin, async (req, res): Promise<void> => {
   const rows = await db.select().from(coursesTable).orderBy(asc(coursesTable.displayOrder), asc(coursesTable.createdAt));
   res.json(ListCoursesResponse.parse(rows.map(toCourse)));
 });
 
-router.post("/courses", async (req, res): Promise<void> => {
+router.post("/courses", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateCourseBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
   const [row] = await db.insert(coursesTable).values({
@@ -32,7 +33,7 @@ router.post("/courses", async (req, res): Promise<void> => {
   res.status(201).json(toCourse(row));
 });
 
-router.patch("/courses/:id", async (req, res): Promise<void> => {
+router.patch("/courses/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateCourseParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
   const parsed = UpdateCourseBody.safeParse(req.body);
@@ -44,7 +45,7 @@ router.patch("/courses/:id", async (req, res): Promise<void> => {
   res.json(UpdateCourseResponse.parse(toCourse(row)));
 });
 
-router.delete("/courses/:id", async (req, res): Promise<void> => {
+router.delete("/courses/:id", requireAdmin, async (req, res): Promise<void> => {
   const id = Number(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   await db.delete(coursesTable).where(eq(coursesTable.id, id));

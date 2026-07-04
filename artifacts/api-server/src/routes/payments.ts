@@ -9,6 +9,7 @@ import {
   UpdatePaymentParams,
   UpdatePaymentResponse,
 } from "@workspace/api-zod";
+import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
@@ -18,22 +19,30 @@ const toPayment = (p: typeof paymentsTable.$inferSelect) => ({
   createdAt: p.createdAt.toISOString(),
 });
 
-router.get("/payments", async (req, res): Promise<void> => {
+router.get("/payments", requireAuth, async (req, res): Promise<void> => {
   const query = ListPaymentsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
-  let payments;
-  if (query.data.studentId != null) {
-    payments = await db.select().from(paymentsTable).where(eq(paymentsTable.studentId, query.data.studentId)).orderBy(paymentsTable.sessionDate);
-  } else {
-    payments = await db.select().from(paymentsTable).orderBy(paymentsTable.sessionDate);
+  if (query.data.studentId == null) {
+    if (req.session.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const payments = await db.select().from(paymentsTable).orderBy(paymentsTable.sessionDate);
+    res.json(ListPaymentsResponse.parse(payments.map(toPayment)));
+    return;
   }
+  if (!(await ownsStudent(req, query.data.studentId))) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  const payments = await db.select().from(paymentsTable).where(eq(paymentsTable.studentId, query.data.studentId)).orderBy(paymentsTable.sessionDate);
   res.json(ListPaymentsResponse.parse(payments.map(toPayment)));
 });
 
-router.post("/payments", async (req, res): Promise<void> => {
+router.post("/payments", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreatePaymentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -47,7 +56,7 @@ router.post("/payments", async (req, res): Promise<void> => {
   res.status(201).json(toPayment(payment));
 });
 
-router.patch("/payments/:id", async (req, res): Promise<void> => {
+router.patch("/payments/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdatePaymentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -66,7 +75,7 @@ router.patch("/payments/:id", async (req, res): Promise<void> => {
   res.json(UpdatePaymentResponse.parse(toPayment(payment)));
 });
 
-router.delete("/payments/:id", async (req, res): Promise<void> => {
+router.delete("/payments/:id", requireAdmin, async (req, res): Promise<void> => {
   const id = Number(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   await db.delete(paymentsTable).where(eq(paymentsTable.id, id));
