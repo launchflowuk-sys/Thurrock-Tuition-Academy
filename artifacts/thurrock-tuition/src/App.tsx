@@ -1,4 +1,5 @@
-import { Switch, Route, Redirect, useLocation, Router as WouterRouter } from "wouter";
+import { useEffect } from "react";
+import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AuthProvider, useAuth } from "./lib/auth-context";
@@ -30,17 +31,29 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function HomeRedirect() {
   const { user, isLoading } = useAuth();
-  if (isLoading) return null;
-  if (user) return <Redirect to="/parent" />;
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      setLocation("/parent", { replace: true });
+    }
+  }, [isLoading, user, setLocation]);
+
+  if (isLoading || user) return null;
   return <LandingPage />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
 
-  if (isLoading) return null;
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation("/sign-in", { replace: true });
+    }
+  }, [isLoading, user, setLocation]);
 
-  if (!user) return <Redirect to="/sign-in" />;
+  if (isLoading || !user) return null;
 
   if (user.role !== "admin") {
     return (
@@ -68,22 +81,38 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 function AuthRedirect() {
   const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
 
-  if (isLoading) return null;
+  useEffect(() => {
+    if (isLoading) return;
 
-  if (!user) return <Redirect to="/sign-in" />;
+    if (!user) {
+      setLocation("/sign-in", { replace: true });
+      return;
+    }
 
-  if (user.role === "admin") {
-    return <Redirect to="/dashboard" />;
-  }
-  return <Redirect to="/parent" />;
+    if (user.role === "admin") {
+      setLocation("/dashboard", { replace: true });
+      return;
+    }
+
+    setLocation("/parent", { replace: true });
+  }, [isLoading, user, setLocation]);
+
+  return null;
 }
 
 function ParentRoute() {
   const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
 
-  if (isLoading) return null;
-  if (!user) return <Redirect to="/sign-in" />;
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation("/sign-in", { replace: true });
+    }
+  }, [isLoading, user, setLocation]);
+
+  if (isLoading || !user) return null;
   return <ParentPortalPage />;
 }
 
