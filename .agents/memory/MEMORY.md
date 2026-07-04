@@ -1,0 +1,1 @@
+- [connect-pg-simple + esbuild](connect-pg-simple-esbuild.md) — createTableIfMissing fails (ENOENT table.sql) in bundled builds; create table manually, set to false.

@@ -36,8 +36,77 @@ tags:
     description: Intake / onboarding form submissions
   - name: courses
     description: Course management
+  - name: auth
+    description: Email/password authentication
 
 paths:
+  # ─── AUTH ────────────────────────────────────────────────────────────────────
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Create an account with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupInput"
+      responses:
+        "201":
+          description: Account created and session started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "409":
+          description: Email already in use
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Session started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out and end the session
+      responses:
+        "204":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the currently authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+
   /healthz:
     get:
       operationId: healthCheck
@@ -1027,6 +1096,31 @@ components:
           type: string
       required: [status]
 
+    # ─── AUTH ──────────────────────────────────────────────────────────────────
+    AuthUser:
+      type: object
+      required: [id, email, role]
+      properties:
+        id:       { type: integer }
+        email:    { type: string }
+        fullName: { type: ["string", "null"] }
+        role:     { type: string, enum: [admin, parent] }
+
+    SignupInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:    { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        fullName: { type: string }
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:    { type: string, format: email }
+        password: { type: string }
+
     # ─── ENQUIRY ───────────────────────────────────────────────────────────────
     Enquiry:
       type: object
@@ -1068,7 +1162,7 @@ components:
     # ─── STUDENT ───────────────────────────────────────────────────────────────
     Student:
       type: object
-      required: [id, name, age, parentName, contactNumber, subject, level, sessionSlot, clerkUserId, joinedAt]
+      required: [id, name, age, parentName, contactNumber, subject, level, sessionSlot, joinedAt]
       properties:
         id:            { type: integer }
         name:          { type: string }
@@ -1079,7 +1173,6 @@ components:
         level:         { type: string }
         sessionSlot:   { type: string }
         parentEmail:   { type: ["string", "null"] }
-        clerkUserId:   { type: ["string", "null"] }
         notes:         { type: ["string", "null"] }
         photoUrl:      { type: ["string", "null"] }
         joinedAt:      { type: string }
@@ -1096,7 +1189,6 @@ components:
         level:         { type: string }
         sessionSlot:   { type: string }
         parentEmail:   { type: string }
-        clerkUserId:   { type: string }
         notes:         { type: string }
         photoUrl:      { type: string }
 
@@ -1111,7 +1203,6 @@ components:
         level:         { type: string }
         sessionSlot:   { type: string }
         parentEmail:   { type: string }
-        clerkUserId:   { type: string }
         notes:         { type: string }
         photoUrl:      { type: string }
 

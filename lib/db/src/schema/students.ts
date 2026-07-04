@@ -12,7 +12,6 @@ export const studentsTable = pgTable("students", {
   level: text("level").notNull(),
   sessionSlot: text("session_slot").notNull(),
   parentEmail: text("parent_email"),
-  clerkUserId: text("clerk_user_id"),
   notes: text("notes"),
   photoUrl: text("photo_url"),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { useUser, useClerk } from "@clerk/react";
+import { useLocation } from "wouter";
+import { useAuth } from "@/lib/auth-context";
 import {
   useListStudents,
   useListProgressNotes, getListProgressNotesQueryKey,
@@ -19,16 +20,21 @@ import { CheckCircle2, Circle, CreditCard, LogOut, BookOpen, ClipboardList, Mess
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function ParentPortalPage() {
-  const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const { user, isLoading, logout } = useAuth();
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const { data: students } = useListStudents();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [newMessage, setNewMessage] = useState("");
   const [activeTab, setActiveTab] = useState("progress");
 
-  // Match student by parent email (Option A)
-  const parentEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
+  const handleSignOut = async () => {
+    await logout();
+    setLocation("/");
+  };
+
+  // Match student by parent email
+  const parentEmail = user?.email?.toLowerCase();
   const myStudent = students?.find(s => s.parentEmail?.toLowerCase() === parentEmail);
   const studentId = myStudent?.id;
 
@@ -76,7 +82,7 @@ export default function ParentPortalPage() {
 
   const unreadAdminMessages = messages?.filter(m => m.senderRole === "admin" && !m.readAt).length ?? 0;
 
-  if (!isLoaded) return (
+  if (isLoading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <Skeleton className="h-16 w-64" />
     </div>
@@ -94,8 +100,8 @@ export default function ParentPortalPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm hidden sm:block">{user?.fullName}</span>
-          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/80" onClick={() => signOut({ redirectUrl: basePath || "/" })} data-testid="button-parent-logout">
+          <span className="text-sm hidden sm:block">{user?.fullName ?? user?.email}</span>
+          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/80" onClick={handleSignOut} data-testid="button-parent-logout">
             <LogOut size={16} className="mr-1" /> Sign Out
           </Button>
         </div>
@@ -104,7 +110,7 @@ export default function ParentPortalPage() {
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
         {/* Welcome */}
         <div>
-          <h1 className="text-2xl font-bold font-serif text-primary">Welcome, {user?.firstName}</h1>
+          <h1 className="text-2xl font-bold font-serif text-primary">Welcome, {user?.fullName ?? user?.email}</h1>
           {myStudent ? (
             <p className="text-muted-foreground mt-1">Viewing progress for <strong>{myStudent.name}</strong> — {myStudent.subject} · {myStudent.level} · {myStudent.sessionSlot}</p>
           ) : (

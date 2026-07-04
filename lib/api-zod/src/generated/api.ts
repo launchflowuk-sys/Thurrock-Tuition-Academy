@@ -8,6 +8,42 @@
 import * as zod from "zod";
 
 /**
+ * @summary Create an account with email and password
+ */
+export const signupBodyPasswordMin = 8;
+
+export const SignupBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string().min(signupBodyPasswordMin),
+  fullName: zod.string().optional(),
+});
+
+/**
+ * @summary Log in with email and password
+ */
+export const LoginBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string(),
+});
+
+export const LoginResponse = zod.object({
+  id: zod.number(),
+  email: zod.string(),
+  fullName: zod.string().nullish(),
+  role: zod.enum(["admin", "parent"]),
+});
+
+/**
+ * @summary Get the currently authenticated user
+ */
+export const GetCurrentUserResponse = zod.object({
+  id: zod.number(),
+  email: zod.string(),
+  fullName: zod.string().nullish(),
+  role: zod.enum(["admin", "parent"]),
+});
+
+/**
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -111,7 +147,6 @@ export const ListStudentsResponseItem = zod.object({
   level: zod.string(),
   sessionSlot: zod.string(),
   parentEmail: zod.string().nullish(),
-  clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
   photoUrl: zod.string().nullish(),
   joinedAt: zod.string(),
@@ -131,7 +166,6 @@ export const CreateStudentBody = zod.object({
   level: zod.string(),
   sessionSlot: zod.string(),
   parentEmail: zod.string().optional(),
-  clerkUserId: zod.string().optional(),
   notes: zod.string().optional(),
   photoUrl: zod.string().optional(),
 });
@@ -153,7 +187,6 @@ export const GetStudentResponse = zod.object({
   level: zod.string(),
   sessionSlot: zod.string(),
   parentEmail: zod.string().nullish(),
-  clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
   photoUrl: zod.string().nullish(),
   joinedAt: zod.string(),
@@ -175,7 +208,6 @@ export const UpdateStudentBody = zod.object({
   level: zod.string().optional(),
   sessionSlot: zod.string().optional(),
   parentEmail: zod.string().optional(),
-  clerkUserId: zod.string().optional(),
   notes: zod.string().optional(),
   photoUrl: zod.string().optional(),
 });
@@ -190,7 +222,6 @@ export const UpdateStudentResponse = zod.object({
   level: zod.string(),
   sessionSlot: zod.string(),
   parentEmail: zod.string().nullish(),
-  clerkUserId: zod.string().nullable(),
   notes: zod.string().nullish(),
   photoUrl: zod.string().nullish(),
   joinedAt: zod.string(),

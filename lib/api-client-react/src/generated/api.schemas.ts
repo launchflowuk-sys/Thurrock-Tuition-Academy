@@ -9,6 +9,33 @@ export interface HealthStatus {
   status: string;
 }
 
+export type AuthUserRole = (typeof AuthUserRole)[keyof typeof AuthUserRole];
+
+export const AuthUserRole = {
+  admin: "admin",
+  parent: "parent",
+} as const;
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  /** @nullable */
+  fullName?: string | null;
+  role: AuthUserRole;
+}
+
+export interface SignupInput {
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  fullName?: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
 export interface Enquiry {
   id: number;
   parentName: string;
@@ -58,8 +85,6 @@ export interface Student {
   /** @nullable */
   parentEmail?: string | null;
   /** @nullable */
-  clerkUserId: string | null;
-  /** @nullable */
   notes?: string | null;
   /** @nullable */
   photoUrl?: string | null;
@@ -78,7 +103,6 @@ export interface StudentInput {
   level: string;
   sessionSlot: string;
   parentEmail?: string;
-  clerkUserId?: string;
   notes?: string;
   photoUrl?: string;
 }
@@ -92,7 +116,6 @@ export interface StudentUpdate {
   level?: string;
   sessionSlot?: string;
   parentEmail?: string;
-  clerkUserId?: string;
   notes?: string;
   photoUrl?: string;
 }

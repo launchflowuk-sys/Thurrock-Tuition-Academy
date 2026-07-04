@@ -7,6 +7,8 @@
  */
 
 export * from "./activityItem";
+export * from "./authUser";
+export * from "./authUserRole";
 export * from "./course";
 export * from "./courseInput";
 export * from "./courseUpdate";
@@ -24,6 +26,7 @@ export * from "./listMessagesParams";
 export * from "./listPaymentsParams";
 export * from "./listProgressNotesParams";
 export * from "./listTasksParams";
+export * from "./loginInput";
 export * from "./message";
 export * from "./messageInput";
 export * from "./payment";
@@ -39,6 +42,7 @@ export * from "./sessionInput";
 export * from "./sessionUpdate";
 export * from "./settings";
 export * from "./settingsInput";
+export * from "./signupInput";
 export * from "./slotAvailability";
 export * from "./staffInput";
 export * from "./staffMember";

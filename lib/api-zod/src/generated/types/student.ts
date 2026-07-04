@@ -18,8 +18,6 @@ export interface Student {
   /** @nullable */
   parentEmail?: string | null;
   /** @nullable */
-  clerkUserId: string | null;
-  /** @nullable */
   notes?: string | null;
   /** @nullable */
   photoUrl?: string | null;

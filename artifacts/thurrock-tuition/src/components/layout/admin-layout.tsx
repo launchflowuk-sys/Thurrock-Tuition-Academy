@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useUser, useClerk } from "@clerk/react";
+import { useAuth } from "@/lib/auth-context";
 import {
   LayoutDashboard,
   Users,
@@ -36,12 +36,16 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [location] = useLocation();
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const [location, setLocation] = useLocation();
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  const handleSignOut = async () => {
+    await logout();
+    setLocation("/");
+  };
 
   const NavLinks = ({ onClose }: { onClose?: () => void }) => (
     <>
@@ -80,7 +84,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {user?.fullName || "Admin"}
           </div>
           <div className="text-sidebar-foreground/70 text-xs truncate">
-            {user?.primaryEmailAddress?.emailAddress}
+            {user?.email}
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -90,7 +94,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Button
             variant="ghost"
             className="w-full justify-start text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
-            onClick={() => signOut({ redirectUrl: basePath || "/" })}
+            onClick={handleSignOut}
             data-testid="button-logout"
           >
             <LogOut size={20} className="mr-3" />
@@ -129,7 +133,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   {user?.fullName || "Admin"}
                 </div>
                 <div className="text-sidebar-foreground/70 text-xs truncate">
-                  {user?.primaryEmailAddress?.emailAddress}
+                  {user?.email}
                 </div>
               </div>
               <nav className="p-4 space-y-1">
@@ -139,7 +143,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
-                  onClick={() => { signOut({ redirectUrl: basePath || "/" }); setMobileOpen(false); }}
+                  onClick={() => { handleSignOut(); setMobileOpen(false); }}
                 >
                   <LogOut size={20} className="mr-3" />
                   Sign Out

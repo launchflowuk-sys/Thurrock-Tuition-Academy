@@ -15,7 +15,6 @@ export interface StudentUpdate {
   level?: string;
   sessionSlot?: string;
   parentEmail?: string;
-  clerkUserId?: string;
   notes?: string;
   photoUrl?: string;
 }
