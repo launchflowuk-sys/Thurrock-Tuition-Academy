@@ -9,13 +9,13 @@ A complete web platform for Khadija's tutoring business in Grays, Thurrock — i
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — Postgres connection string; `SESSION_SECRET` — express-session signing secret; `ADMIN_EMAIL` — email that gets `admin` role on signup (defaults to `admin@thurrocktuitionacademy.co.uk`)
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- Frontend: React + Vite, Tailwind v4, shadcn/ui, Wouter routing, Clerk auth, TanStack Query
-- API: Express 5 + Clerk middleware
+- Frontend: React + Vite, Tailwind v4, shadcn/ui, Wouter routing, cookie-session auth, TanStack Query
+- API: Express 5 + express-session (bcrypt password auth, no third-party auth provider)
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
@@ -35,9 +35,9 @@ A complete web platform for Khadija's tutoring business in Grays, Thurrock — i
 ## Architecture decisions
 
 - **Contract-first API**: OpenAPI spec defined in `lib/api-spec`, codegen produces hooks + Zod schemas for both client and server
-- **Clerk auth with proxy**: Clerk is proxied through the Express server at `/clerk` to avoid CORS issues in Replit's proxied iframe environment
+- **Custom session auth**: Email/password auth (bcrypt-hashed, `bcryptjs`) backed by `express-session` + `connect-pg-simple`, replacing an earlier Clerk-based design. Session data (`userId`, `role`, `email`) lives server-side in the `user_sessions` Postgres table; the client only holds the `tta.sid` cookie (`httpOnly`, `sameSite: lax`, `secure` in production). Role is assigned at signup: the email matching `ADMIN_EMAIL` becomes `admin`, everyone else is `parent`. Routes: `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`.
 - **Wouter routing**: Lightweight client-side router; all routes nested under `BASE_URL` for correct iframe proxy routing
-- **Role differentiation by route**: Admin dashboard at `/dashboard`, parent portal at `/parent` — both gated by Clerk sign-in
+- **Role differentiation by route**: Admin dashboard at `/dashboard`, parent portal at `/parent` — both gated by session sign-in
 - **No mocked data**: All data served from live PostgreSQL via Drizzle ORM
 
 ## Product
@@ -67,7 +67,8 @@ A complete web platform for Khadija's tutoring business in Grays, Thurrock — i
 - Always run `pnpm --filter @workspace/api-spec run codegen` after editing `openapi.yaml`
 - Always run `pnpm --filter @workspace/db run push` after editing DB schema files
 - API server must be restarted after code changes (it bundles with esbuild)
-- The Clerk proxy path is `/clerk` — do not change it without updating both `app.ts` and `VITE_CLERK_PROXY_URL`
+- `connect-pg-simple`'s `createTableIfMissing` is set to `false` — its schema asset isn't bundled by esbuild, so the `user_sessions` table must exist via migration, not auto-creation
+- Express applies no auth by default — every route handler must explicitly add `requireAuth`/`requireAdmin`/an ownership check (see `.agents/memory/express-routes-default-public.md`)
 
 ## Pointers
 
