@@ -36,6 +36,10 @@ minimumReleaseAgeExclude:
 
 packages:
   - artifacts/*
+  # Design/marketing tooling, not part of the deployed product — excluded
+  # from the workspace so they're not pulled into the production build.
+  - '!artifacts/mockup-sandbox'
+  - '!artifacts/tta-marketing-deck'
   - lib/*
   - lib/integrations/*
   - scripts
