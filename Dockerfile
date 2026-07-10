@@ -10,6 +10,8 @@ COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+ARG BASE_PATH=/
+ENV BASE_PATH=$BASE_PATH
 RUN pnpm run build
 
 EXPOSE 8080
