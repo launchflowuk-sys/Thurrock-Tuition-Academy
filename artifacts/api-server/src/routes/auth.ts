@@ -7,8 +7,6 @@ import { requireAuth } from "../lib/authMiddleware";
 
 const router: IRouter = Router();
 
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL ?? "admin@thurrocktuitionacademy.co.uk").toLowerCase();
-
 const toAuthUser = (u: typeof usersTable.$inferSelect) => ({
   id: u.id,
   email: u.email,
@@ -31,15 +29,16 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  const role = email === ADMIN_EMAIL ? "admin" : "parent";
 
+  // Public signup can never grant admin — admin accounts are created
+  // directly in the database (or via a future invite system), not here.
   const [user] = await db
     .insert(usersTable)
     .values({
       email,
       passwordHash,
       fullName: parsed.data.fullName,
-      role,
+      role: "parent",
     })
     .returning();
 
