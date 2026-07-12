@@ -34,6 +34,20 @@ export const LoginResponse = zod.object({
 });
 
 /**
+ * @summary Change the current user's password
+ */
+export const changePasswordBodyNewPasswordMin = 8;
+
+export const ChangePasswordBody = zod.object({
+  currentPassword: zod.string(),
+  newPassword: zod.string().min(changePasswordBodyNewPasswordMin),
+});
+
+export const ChangePasswordResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentUserResponse = zod.object({

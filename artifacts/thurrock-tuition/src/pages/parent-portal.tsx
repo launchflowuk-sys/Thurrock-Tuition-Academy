@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Circle, CreditCard, LogOut, BookOpen, ClipboardList, MessageSquare, Send } from "lucide-react";
+import { CheckCircle2, Circle, CreditCard, LogOut, BookOpen, ClipboardList, MessageSquare, Send, UserCog } from "lucide-react";
+import { ChangePasswordForm } from "@/components/change-password-form";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -125,20 +126,26 @@ export default function ParentPortalPage() {
           )}
         </div>
 
-        {myStudent && (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="progress"><BookOpen size={14} className="mr-1.5" />Progress</TabsTrigger>
-              <TabsTrigger value="tasks"><ClipboardList size={14} className="mr-1.5" />Tasks</TabsTrigger>
-              <TabsTrigger value="payments"><CreditCard size={14} className="mr-1.5" />Payments</TabsTrigger>
-              <TabsTrigger value="messages" className="relative">
-                <MessageSquare size={14} className="mr-1.5" />Messages
-                {unreadAdminMessages > 0 && (
-                  <span className="ml-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{unreadAdminMessages}</span>
-                )}
-              </TabsTrigger>
-            </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            {myStudent && (
+              <>
+                <TabsTrigger value="progress"><BookOpen size={14} className="mr-1.5" />Progress</TabsTrigger>
+                <TabsTrigger value="tasks"><ClipboardList size={14} className="mr-1.5" />Tasks</TabsTrigger>
+                <TabsTrigger value="payments"><CreditCard size={14} className="mr-1.5" />Payments</TabsTrigger>
+                <TabsTrigger value="messages" className="relative">
+                  <MessageSquare size={14} className="mr-1.5" />Messages
+                  {unreadAdminMessages > 0 && (
+                    <span className="ml-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{unreadAdminMessages}</span>
+                  )}
+                </TabsTrigger>
+              </>
+            )}
+            <TabsTrigger value="account"><UserCog size={14} className="mr-1.5" />Account</TabsTrigger>
+          </TabsList>
 
+          {myStudent && (
+            <>
             {/* Progress Notes */}
             <TabsContent value="progress" className="mt-4">
               <Card className="shadow-sm">
@@ -266,8 +273,14 @@ export default function ParentPortalPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-          </Tabs>
-        )}
+            </>
+          )}
+
+          {/* Account */}
+          <TabsContent value="account" className="mt-4">
+            <ChangePasswordForm />
+          </TabsContent>
+        </Tabs>
 
         <p className="text-center text-xs text-muted-foreground pb-4">
           Thurrock Tuition Academy · Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock · 07480 413679 · bookings@thurrocktuitionacademy.co.uk

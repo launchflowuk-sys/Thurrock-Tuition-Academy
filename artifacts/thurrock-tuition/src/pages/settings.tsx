@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Mail, CreditCard, Video, Save, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, CreditCard, Video, Save, Eye, EyeOff, CheckCircle2, AlertCircle, UserCog } from "lucide-react";
+import { ChangePasswordForm } from "@/components/change-password-form";
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
@@ -165,10 +166,11 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="smtp" className="space-y-6">
-        <TabsList className="grid grid-cols-3 w-full max-w-lg">
+        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
           <TabsTrigger value="smtp" className="gap-2"><Mail size={15} />Email</TabsTrigger>
           <TabsTrigger value="payment" className="gap-2"><CreditCard size={15} />Payments</TabsTrigger>
           <TabsTrigger value="widget" className="gap-2"><Video size={15} />Booking Widget</TabsTrigger>
+          <TabsTrigger value="account" className="gap-2"><UserCog size={15} />Account</TabsTrigger>
         </TabsList>
 
         {/* ── SMTP ── */}
@@ -373,6 +375,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ── ACCOUNT ── */}
+        <TabsContent value="account">
+          <ChangePasswordForm />
         </TabsContent>
       </Tabs>
     </div>

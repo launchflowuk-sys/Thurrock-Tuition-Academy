@@ -36,6 +36,16 @@ export interface LoginInput {
   password: string;
 }
 
+export interface ChangePasswordInput {
+  currentPassword: string;
+  /** @minLength 8 */
+  newPassword: string;
+}
+
+export interface ChangePasswordResult {
+  success: boolean;
+}
+
 export interface Enquiry {
   id: number;
   parentName: string;
