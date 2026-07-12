@@ -35,11 +35,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signup: async (email, password, fullName) => {
       const user = await signupMutation.mutateAsync({ data: { email, password, fullName } });
       queryClient.setQueryData(getGetCurrentUserQueryKey(), user);
+      await queryClient.refetchQueries({ queryKey: getGetCurrentUserQueryKey() });
       return user;
     },
     login: async (email, password) => {
       const user = await loginMutation.mutateAsync({ data: { email, password } });
       queryClient.setQueryData(getGetCurrentUserQueryKey(), user);
+      await queryClient.refetchQueries({ queryKey: getGetCurrentUserQueryKey() });
       return user;
     },
     logout: async () => {
