@@ -11,4 +11,8 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL,
   },
+  // user_sessions is created by a one-off manual SQL migration and owned by
+  // connect-pg-simple, not Drizzle (see lib/db/sql/create-session-table.sql).
+  // Excluding it here stops `push` from proposing to drop it every run.
+  tablesFilter: ["!user_sessions"],
 });
