@@ -1,10 +1,12 @@
 import path from "node:path";
 import express, { type Express } from "express";
 import cors from "cors";
+import cron from "node-cron";
 import pinoHttp from "pino-http";
 import { sessionMiddleware } from "./lib/session";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { runRecurringBilling } from "./lib/recurringBilling";
 
 // Resolves to artifacts/thurrock-tuition/dist/public. This file always runs
 // bundled from artifacts/api-server/dist/index.mjs (dev builds before
@@ -48,11 +50,29 @@ app.use(
 );
 
 app.use(cors({ credentials: true, origin: true }));
+// Square webhook signature verification needs the exact raw bytes it signed,
+// so this must be parsed before the global express.json() below touches it.
+app.use("/api/webhooks/square", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(sessionMiddleware);
 
 app.use("/api", router);
+
+// Daily at 06:00 server time: auto-generates and emails this month's Square
+// payment link for every student whose latest payment row is marked
+// recurring and whose billingDay matches today. See lib/recurringBilling.ts.
+cron.schedule("0 6 * * *", () => {
+  runRecurringBilling()
+    .then((results) => {
+      const summary = results.reduce<Record<string, number>>((acc, r) => {
+        acc[r.status] = (acc[r.status] ?? 0) + 1;
+        return acc;
+      }, {});
+      logger.info({ summary }, "Recurring billing run complete");
+    })
+    .catch((err) => logger.error({ err }, "Recurring billing run failed"));
+});
 
 app.use(express.static(frontendDist));
 

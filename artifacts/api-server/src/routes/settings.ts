@@ -9,15 +9,10 @@ import {
   GetPaymentPublicSettingsResponse,
 } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/authMiddleware";
+import { encrypt } from "../lib/encryption";
+import { getOrCreateSettings, readSecret } from "../lib/paymentSettings";
 
 const router: IRouter = Router();
-
-async function getOrCreateSettings() {
-  const rows = await db.select().from(settingsTable).limit(1);
-  if (rows.length > 0) return rows[0];
-  const [created] = await db.insert(settingsTable).values({}).returning();
-  return created;
-}
 
 const MASK = "••••••••";
 
@@ -31,7 +26,9 @@ const toSettings = (s: typeof settingsTable.$inferSelect) => ({
   paymentApiKey: s.paymentApiKey ? MASK : null,
   paymentAppId: s.paymentAppId ? MASK : null,
   paymentAccessToken: s.paymentAccessToken ? MASK : null,
-  paymentLocationId: s.paymentLocationId,
+  // Not treated as a secret in the UI (shown in plain, unlike the fields
+  // above) so it must come back decrypted rather than masked.
+  paymentLocationId: readSecret(s.paymentLocationId),
   paymentMode: s.paymentMode,
   paymentEnabled: s.paymentEnabled,
   paypalClientId: s.paypalClientId ? MASK : null,
@@ -64,7 +61,6 @@ router.put("/settings", requireAdmin, async (req, res): Promise<void> => {
     smtpFrom: d.smtpFrom ?? settings.smtpFrom ?? undefined,
     smtpEnabled: d.smtpEnabled ?? settings.smtpEnabled,
     paymentProcessor: d.paymentProcessor ?? settings.paymentProcessor ?? undefined,
-    paymentLocationId: d.paymentLocationId ?? settings.paymentLocationId ?? undefined,
     paymentMode: d.paymentMode ?? settings.paymentMode ?? undefined,
     paymentEnabled: d.paymentEnabled ?? settings.paymentEnabled,
     bookingWidgetCode: d.bookingWidgetCode ?? settings.bookingWidgetCode ?? undefined,
@@ -73,9 +69,10 @@ router.put("/settings", requireAdmin, async (req, res): Promise<void> => {
     updatedAt: new Date(),
   };
   if (d.smtpPass && d.smtpPass !== MASK) updateData.smtpPass = d.smtpPass;
-  if (d.paymentApiKey && d.paymentApiKey !== MASK) updateData.paymentApiKey = d.paymentApiKey;
-  if (d.paymentAppId && d.paymentAppId !== MASK) updateData.paymentAppId = d.paymentAppId;
-  if (d.paymentAccessToken && d.paymentAccessToken !== MASK) updateData.paymentAccessToken = d.paymentAccessToken;
+  if (d.paymentApiKey && d.paymentApiKey !== MASK) updateData.paymentApiKey = encrypt(d.paymentApiKey);
+  if (d.paymentAppId && d.paymentAppId !== MASK) updateData.paymentAppId = encrypt(d.paymentAppId);
+  if (d.paymentAccessToken && d.paymentAccessToken !== MASK) updateData.paymentAccessToken = encrypt(d.paymentAccessToken);
+  if (d.paymentLocationId !== undefined) updateData.paymentLocationId = d.paymentLocationId ? encrypt(d.paymentLocationId) : null;
   if (d.paypalClientId && d.paypalClientId !== MASK) updateData.paypalClientId = d.paypalClientId;
   if (d.paypalSecret && d.paypalSecret !== MASK) updateData.paypalSecret = d.paypalSecret;
   if (d.stripePublishableKey !== undefined) updateData.stripePublishableKey = d.stripePublishableKey;
@@ -100,8 +97,8 @@ router.get("/settings/payment-public", async (req, res): Promise<void> => {
     paymentEnabled: settings.paymentEnabled,
     paymentProcessor: settings.paymentProcessor,
     paymentMode: settings.paymentMode,
-    paymentAppId: settings.paymentAppId,
-    paymentLocationId: settings.paymentLocationId,
+    paymentAppId: readSecret(settings.paymentAppId),
+    paymentLocationId: readSecret(settings.paymentLocationId),
     paypalClientId: settings.paypalClientId,
     stripePublishableKey: settings.stripePublishableKey,
   }));

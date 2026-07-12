@@ -14,6 +14,7 @@ import storageRouter from "./storage";
 import messagesRouter from "./messages";
 import intakeRouter from "./intake-submissions";
 import coursesRouter from "./courses";
+import webhooksRouter from "./webhooks";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(storageRouter);
 router.use(messagesRouter);
 router.use(intakeRouter);
 router.use(coursesRouter);
+router.use(webhooksRouter);
 
 export default router;

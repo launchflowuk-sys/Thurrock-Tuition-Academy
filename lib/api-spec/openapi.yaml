@@ -592,6 +592,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Payment"
 
+  /payments/send-link:
+    post:
+      operationId: sendPaymentLink
+      tags: [payments]
+      summary: Generate a Square payment link for a student and email it to the parent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentLinkInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
   /payments/{id}:
     patch:
       operationId: updatePayment
@@ -1344,15 +1363,21 @@ components:
     # ─── PAYMENT ───────────────────────────────────────────────────────────────
     Payment:
       type: object
-      required: [id, studentId, sessionDate, amount, status, createdAt]
+      required: [id, studentId, sessionDate, amount, status, createdAt, isRecurring]
       properties:
-        id:          { type: integer }
-        studentId:   { type: integer }
-        sessionDate: { type: string }
-        amount:      { type: number }
-        status:      { type: string }
-        notes:       { type: ["string", "null"] }
-        createdAt:   { type: string }
+        id:              { type: integer }
+        studentId:       { type: integer }
+        sessionDate:     { type: string }
+        amount:          { type: number }
+        status:          { type: string }
+        notes:           { type: ["string", "null"] }
+        createdAt:       { type: string }
+        squarePaymentId: { type: ["string", "null"] }
+        paymentLinkId:   { type: ["string", "null"] }
+        paymentLinkUrl:  { type: ["string", "null"] }
+        sentAt:          { type: ["string", "null"] }
+        isRecurring:     { type: boolean }
+        billingDay:      { type: ["integer", "null"] }
 
     PaymentInput:
       type: object
@@ -1367,8 +1392,20 @@ components:
     PaymentUpdate:
       type: object
       properties:
-        status: { type: string }
-        notes:  { type: string }
+        status:      { type: string }
+        notes:       { type: string }
+        isRecurring: { type: boolean }
+        billingDay:  { type: integer, minimum: 1, maximum: 31 }
+
+    PaymentLinkInput:
+      type: object
+      required: [studentId, amount, description]
+      properties:
+        studentId:    { type: integer }
+        amount:       { type: number }
+        description:  { type: string }
+        isRecurring:  { type: boolean }
+        billingDay:   { type: integer, minimum: 1, maximum: 31 }
 
     # ─── DASHBOARD ─────────────────────────────────────────────────────────────
     DashboardSummary:

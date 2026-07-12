@@ -5,11 +5,13 @@ import {
   CreatePaymentBody,
   ListPaymentsQueryParams,
   ListPaymentsResponse,
+  SendPaymentLinkBody,
   UpdatePaymentBody,
   UpdatePaymentParams,
   UpdatePaymentResponse,
 } from "@workspace/api-zod";
 import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
+import { createAndSendPaymentLink } from "../lib/square";
 
 const router: IRouter = Router();
 
@@ -54,6 +56,20 @@ router.post("/payments", requireAdmin, async (req, res): Promise<void> => {
     status: parsed.data.status ?? "pending",
   }).returning();
   res.status(201).json(toPayment(payment));
+});
+
+router.post("/payments/send-link", requireAdmin, async (req, res): Promise<void> => {
+  const parsed = SendPaymentLinkBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  try {
+    const payment = await createAndSendPaymentLink(parsed.data);
+    res.status(201).json(toPayment(payment));
+  } catch (err) {
+    res.status(400).json({ error: err instanceof Error ? err.message : "Failed to create payment link" });
+  }
 });
 
 router.patch("/payments/:id", requireAdmin, async (req, res): Promise<void> => {

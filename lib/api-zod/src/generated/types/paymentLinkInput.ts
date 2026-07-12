@@ -6,9 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface PaymentUpdate {
-  status?: string;
-  notes?: string;
+export interface PaymentLinkInput {
+  studentId: number;
+  amount: number;
+  description: string;
   isRecurring?: boolean;
   /**
    * @minimum 1

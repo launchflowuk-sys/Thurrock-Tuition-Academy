@@ -277,6 +277,64 @@ export async function sendIntakeEmails(data: {
   await Promise.allSettled(sendPromises);
 }
 
+export async function sendPaymentLinkEmail(opts: {
+  to: string;
+  parentName: string;
+  studentName: string;
+  amount: number;
+  description: string;
+  paymentUrl: string;
+}) {
+  const settings = await getSmtpSettings();
+  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
+
+  const transporter = createTransport(settings);
+  const from = settings.smtpFrom ? `"Thurrock Tuition Academy" <${settings.smtpFrom}>` : settings.smtpUser;
+  const formattedAmount = `£${opts.amount.toFixed(2)}`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <p style="margin:0 0 8px;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
+    <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;">Payment Request</h1>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:40px;">
+    <p style="margin:0 0 20px;color:#1a1a2e;font-size:16px;line-height:1.6;">Dear ${opts.parentName},</p>
+    <p style="margin:0 0 24px;color:#4b5563;font-size:15px;line-height:1.7;">
+      A payment request for <strong>${opts.studentName}</strong> is ready: <strong>${opts.description}</strong> — <strong style="color:#1B2B6B;">${formattedAmount}</strong>.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;">
+      <tr><td align="center">
+        <a href="${opts.paymentUrl}" style="display:inline-block;background:#1B2B6B;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">
+          Pay ${formattedAmount} Now
+        </a>
+      </td></tr>
+    </table>
+    <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+      Payment is processed securely by Square. Questions? WhatsApp us: <strong style="color:#1B2B6B;">07480 413679</strong>
+    </p>
+  </td></tr>
+  <tr><td style="background:#1B2B6B;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">© ${new Date().getFullYear()} Thurrock Tuition Academy · Suite 1, Queensgate Centre, Grays, Thurrock</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from,
+    to: opts.to,
+    subject: `Payment Request – ${opts.studentName} (${formattedAmount}) | Thurrock Tuition Academy`,
+    html,
+  }).catch(() => {});
+}
+
 export async function sendIntakeReplyEmail(opts: {
   toEmail: string;
   toName: string;

@@ -33,6 +33,7 @@ export * from "./message";
 export * from "./messageInput";
 export * from "./payment";
 export * from "./paymentInput";
+export * from "./paymentLinkInput";
 export * from "./paymentPublicSettings";
 export * from "./paymentUpdate";
 export * from "./progressNote";

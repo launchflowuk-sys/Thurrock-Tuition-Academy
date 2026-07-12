@@ -15,4 +15,15 @@ export interface Payment {
   /** @nullable */
   notes?: string | null;
   createdAt: string;
+  /** @nullable */
+  squarePaymentId?: string | null;
+  /** @nullable */
+  paymentLinkId?: string | null;
+  /** @nullable */
+  paymentLinkUrl?: string | null;
+  /** @nullable */
+  sentAt?: string | null;
+  isRecurring: boolean;
+  /** @nullable */
+  billingDay?: number | null;
 }

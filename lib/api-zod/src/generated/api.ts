@@ -463,6 +463,12 @@ export const ListPaymentsResponseItem = zod.object({
   status: zod.string(),
   notes: zod.string().nullish(),
   createdAt: zod.string(),
+  squarePaymentId: zod.string().nullish(),
+  paymentLinkId: zod.string().nullish(),
+  paymentLinkUrl: zod.string().nullish(),
+  sentAt: zod.string().nullish(),
+  isRecurring: zod.boolean(),
+  billingDay: zod.number().nullish(),
 });
 export const ListPaymentsResponse = zod.array(ListPaymentsResponseItem);
 
@@ -478,15 +484,40 @@ export const CreatePaymentBody = zod.object({
 });
 
 /**
+ * @summary Generate a Square payment link for a student and email it to the parent
+ */
+export const sendPaymentLinkBodyBillingDayMax = 31;
+
+export const SendPaymentLinkBody = zod.object({
+  studentId: zod.number(),
+  amount: zod.number(),
+  description: zod.string(),
+  isRecurring: zod.boolean().optional(),
+  billingDay: zod
+    .number()
+    .min(1)
+    .max(sendPaymentLinkBodyBillingDayMax)
+    .optional(),
+});
+
+/**
  * @summary Update a payment record
  */
 export const UpdatePaymentParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const updatePaymentBodyBillingDayMax = 31;
+
 export const UpdatePaymentBody = zod.object({
   status: zod.string().optional(),
   notes: zod.string().optional(),
+  isRecurring: zod.boolean().optional(),
+  billingDay: zod
+    .number()
+    .min(1)
+    .max(updatePaymentBodyBillingDayMax)
+    .optional(),
 });
 
 export const UpdatePaymentResponse = zod.object({
@@ -497,6 +528,12 @@ export const UpdatePaymentResponse = zod.object({
   status: zod.string(),
   notes: zod.string().nullish(),
   createdAt: zod.string(),
+  squarePaymentId: zod.string().nullish(),
+  paymentLinkId: zod.string().nullish(),
+  paymentLinkUrl: zod.string().nullish(),
+  sentAt: zod.string().nullish(),
+  isRecurring: zod.boolean(),
+  billingDay: zod.number().nullish(),
 });
 
 /**

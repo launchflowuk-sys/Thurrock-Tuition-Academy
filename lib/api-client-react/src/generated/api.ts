@@ -43,6 +43,7 @@ import type {
   MessageInput,
   Payment,
   PaymentInput,
+  PaymentLinkInput,
   PaymentPublicSettings,
   PaymentUpdate,
   ProgressNote,
@@ -2538,6 +2539,92 @@ export const useCreatePayment = <
   TContext
 > => {
   return useMutation(getCreatePaymentMutationOptions(options));
+};
+
+/**
+ * @summary Generate a Square payment link for a student and email it to the parent
+ */
+export const getSendPaymentLinkUrl = () => {
+  return `/api/payments/send-link`;
+};
+
+export const sendPaymentLink = async (
+  paymentLinkInput: PaymentLinkInput,
+  options?: RequestInit,
+): Promise<Payment> => {
+  return customFetch<Payment>(getSendPaymentLinkUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(paymentLinkInput),
+  });
+};
+
+export const getSendPaymentLinkMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendPaymentLink>>,
+    TError,
+    { data: BodyType<PaymentLinkInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendPaymentLink>>,
+  TError,
+  { data: BodyType<PaymentLinkInput> },
+  TContext
+> => {
+  const mutationKey = ["sendPaymentLink"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendPaymentLink>>,
+    { data: BodyType<PaymentLinkInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return sendPaymentLink(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendPaymentLinkMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendPaymentLink>>
+>;
+export type SendPaymentLinkMutationBody = BodyType<PaymentLinkInput>;
+export type SendPaymentLinkMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Generate a Square payment link for a student and email it to the parent
+ */
+export const useSendPaymentLink = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendPaymentLink>>,
+    TError,
+    { data: BodyType<PaymentLinkInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendPaymentLink>>,
+  TError,
+  { data: BodyType<PaymentLinkInput> },
+  TContext
+> => {
+  return useMutation(getSendPaymentLinkMutationOptions(options));
 };
 
 /**

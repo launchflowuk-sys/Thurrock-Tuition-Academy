@@ -224,6 +224,17 @@ export interface Payment {
   /** @nullable */
   notes?: string | null;
   createdAt: string;
+  /** @nullable */
+  squarePaymentId?: string | null;
+  /** @nullable */
+  paymentLinkId?: string | null;
+  /** @nullable */
+  paymentLinkUrl?: string | null;
+  /** @nullable */
+  sentAt?: string | null;
+  isRecurring: boolean;
+  /** @nullable */
+  billingDay?: number | null;
 }
 
 export interface PaymentInput {
@@ -237,6 +248,24 @@ export interface PaymentInput {
 export interface PaymentUpdate {
   status?: string;
   notes?: string;
+  isRecurring?: boolean;
+  /**
+   * @minimum 1
+   * @maximum 31
+   */
+  billingDay?: number;
+}
+
+export interface PaymentLinkInput {
+  studentId: number;
+  amount: number;
+  description: string;
+  isRecurring?: boolean;
+  /**
+   * @minimum 1
+   * @maximum 31
+   */
+  billingDay?: number;
 }
 
 export interface DashboardSummary {
