@@ -1,6 +1,6 @@
 import { useGetDashboardSummary, getGetDashboardSummaryQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Calendar, CreditCard, ExternalLink, ClipboardList } from "lucide-react";
+import { Users, Calendar, CreditCard, ExternalLink, ClipboardList } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 
@@ -83,7 +83,6 @@ export default function Dashboard() {
 
   const stats = [
     { title: "Total Students", value: summary?.totalStudents || 0, icon: Users, href: "/students", color: "text-blue-600" },
-    { title: "Pending Enquiries", value: summary?.pendingEnquiries || 0, icon: MessageSquare, href: "/enquiries", color: "text-amber-600" },
     { title: "Sessions This Week", value: summary?.sessionsThisWeek || 0, icon: Calendar, href: "/sessions", color: "text-green-600" },
     { title: "Outstanding Payments", value: summary?.outstandingPayments || 0, icon: CreditCard, href: "/payments", color: "text-red-600" },
     { title: "New Intake Forms", value: summary?.newIntakeSubmissions || 0, icon: ClipboardList, href: "/intake", color: "text-purple-600" },
@@ -134,42 +133,6 @@ export default function Dashboard() {
             </a>
           ))}
         </div>
-      </div>
-
-      {/* Recent Applications */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="shadow-sm border-border col-span-2 lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl font-serif text-primary">Recent Applications</CardTitle>
-            <Link href="/intake" className="text-sm font-medium text-primary hover:underline">View all</Link>
-          </CardHeader>
-          <CardContent>
-            {summary?.recentEnquiries && summary.recentEnquiries.length > 0 ? (
-              <div className="space-y-3">
-                {summary.recentEnquiries.map((enquiry) => (
-                  <Link key={enquiry.id} href="/intake">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-border rounded-lg bg-muted/30 hover:bg-muted/60 hover:border-primary/30 cursor-pointer transition-colors">
-                      <div>
-                        <p className="font-semibold text-foreground">{enquiry.parentName}</p>
-                        <p className="text-sm text-muted-foreground">{enquiry.subject} — {enquiry.level}</p>
-                      </div>
-                      <div className="mt-2 sm:mt-0 flex items-center gap-2">
-                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800">
-                          {enquiry.status}
-                        </span>
-                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg">
-                No recent applications
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

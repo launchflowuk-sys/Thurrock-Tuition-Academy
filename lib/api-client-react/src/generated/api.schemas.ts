@@ -46,43 +46,6 @@ export interface ChangePasswordResult {
   success: boolean;
 }
 
-export interface Enquiry {
-  id: number;
-  parentName: string;
-  childName: string;
-  childAge: number;
-  subject: string;
-  level: string;
-  preferredSlot: string;
-  contactNumber: string;
-  /** @nullable */
-  email?: string | null;
-  /** @nullable */
-  notes?: string | null;
-  status: string;
-  createdAt: string;
-}
-
-export interface EnquiryInput {
-  /** @minLength 1 */
-  parentName: string;
-  /** @minLength 1 */
-  childName: string;
-  childAge: number;
-  subject: string;
-  level: string;
-  preferredSlot: string;
-  /** @minLength 1 */
-  contactNumber: string;
-  email?: string;
-  notes?: string;
-}
-
-export interface EnquiryUpdate {
-  status?: string;
-  notes?: string;
-}
-
 export interface Student {
   id: number;
   name: string;
@@ -270,11 +233,9 @@ export interface PaymentLinkInput {
 
 export interface DashboardSummary {
   totalStudents: number;
-  pendingEnquiries: number;
   sessionsThisWeek: number;
   outstandingPayments: number;
   newIntakeSubmissions: number;
-  recentEnquiries: Enquiry[];
 }
 
 export interface ActivityItem {

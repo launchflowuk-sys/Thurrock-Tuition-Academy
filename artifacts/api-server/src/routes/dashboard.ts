@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { desc, eq, count } from "drizzle-orm";
-import { db, enquiriesTable, studentsTable, sessionsTable, progressNotesTable, tasksTable, paymentsTable, intakeSubmissionsTable } from "@workspace/db";
+import { db, studentsTable, sessionsTable, progressNotesTable, tasksTable, paymentsTable, intakeSubmissionsTable } from "@workspace/db";
 import {
   GetDashboardSummaryResponse,
   GetRecentActivityResponse,
@@ -12,7 +12,6 @@ const router: IRouter = Router();
 
 router.get("/dashboard/summary", requireAdmin, async (_req, res): Promise<void> => {
   const [totalStudentsResult] = await db.select({ count: count() }).from(studentsTable);
-  const [pendingEnquiriesResult] = await db.select({ count: count() }).from(enquiriesTable).where(eq(enquiriesTable.status, "pending"));
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -29,32 +28,21 @@ router.get("/dashboard/summary", requireAdmin, async (_req, res): Promise<void> 
   const [outstandingResult] = await db.select({ count: count() }).from(paymentsTable).where(eq(paymentsTable.status, "pending"));
   const [intakeResult] = await db.select({ count: count() }).from(intakeSubmissionsTable).where(eq(intakeSubmissionsTable.status, "new"));
 
-  const recentEnquiries = await db.select().from(enquiriesTable).orderBy(desc(enquiriesTable.createdAt)).limit(5);
-
   const summary = {
     totalStudents: Number(totalStudentsResult?.count ?? 0),
-    pendingEnquiries: Number(pendingEnquiriesResult?.count ?? 0),
     sessionsThisWeek,
     outstandingPayments: Number(outstandingResult?.count ?? 0),
     newIntakeSubmissions: Number(intakeResult?.count ?? 0),
-    recentEnquiries: recentEnquiries.map(e => ({ ...e, createdAt: e.createdAt.toISOString() })),
   };
 
   res.json(GetDashboardSummaryResponse.parse(summary));
 });
 
 router.get("/dashboard/recent-activity", requireAdmin, async (_req, res): Promise<void> => {
-  const enquiries = await db.select().from(enquiriesTable).orderBy(desc(enquiriesTable.createdAt)).limit(5);
   const notes = await db.select().from(progressNotesTable).orderBy(desc(progressNotesTable.createdAt)).limit(5);
   const tasks = await db.select().from(tasksTable).orderBy(desc(tasksTable.createdAt)).limit(5);
 
   const activities = [
-    ...enquiries.map(e => ({
-      id: e.id,
-      type: "enquiry",
-      description: `New enquiry from ${e.parentName} for ${e.childName}`,
-      timestamp: e.createdAt.toISOString(),
-    })),
     ...notes.map(n => ({
       id: n.id + 10000,
       type: "progress",

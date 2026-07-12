@@ -15,106 +15,6 @@ function createTransport(s: { smtpHost: string | null; smtpPort: number | null; 
   });
 }
 
-export function enquiryAcknowledgementHtml(data: {
-  parentName: string;
-  childName: string;
-  subject: string;
-  level: string;
-  preferredSlot?: string | null;
-}): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Enquiry Received – Thurrock Tuition Academy</title>
-</head>
-<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-
-  <!-- Header -->
-  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <p style="margin:0 0 8px;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
-    <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:700;line-height:1.2;">Enquiry Received</h1>
-    <p style="margin:12px 0 0;color:rgba(255,255,255,0.7);font-size:15px;">We'll be in touch within 24 hours</p>
-  </td></tr>
-
-  <!-- Body -->
-  <tr><td style="background:#ffffff;padding:40px;">
-    <p style="margin:0 0 20px;color:#1a1a2e;font-size:16px;line-height:1.6;">Dear ${data.parentName},</p>
-    <p style="margin:0 0 20px;color:#4b5563;font-size:15px;line-height:1.7;">
-      Thank you for getting in touch with <strong style="color:#1B2B6B;">Thurrock Tuition Academy</strong>. We have received your enquiry for <strong>${data.childName}</strong> and are excited to help them reach their full potential.
-    </p>
-
-    <!-- Enquiry Summary -->
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fe;border:1px solid #e5e8f4;border-radius:12px;margin:24px 0;overflow:hidden;">
-      <tr><td style="background:#1B2B6B;padding:14px 20px;">
-        <p style="margin:0;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Your Enquiry Summary</p>
-      </td></tr>
-      <tr><td style="padding:20px;">
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#6b7280;font-size:13px;font-weight:600;width:40%;">Child's Name</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#1a1a2e;font-size:14px;font-weight:600;">${data.childName}</td>
-          </tr>
-          <tr>
-            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#6b7280;font-size:13px;font-weight:600;">Subject</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#1a1a2e;font-size:14px;">${data.subject}</td>
-          </tr>
-          <tr>
-            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#6b7280;font-size:13px;font-weight:600;">Level / Exam</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#1a1a2e;font-size:14px;">${data.level}</td>
-          </tr>
-          <tr>
-            <td style="padding:8px 0;color:#6b7280;font-size:13px;font-weight:600;">Preferred Slot</td>
-            <td style="padding:8px 0;color:#1a1a2e;font-size:14px;">${data.preferredSlot}</td>
-          </tr>
-        </table>
-      </td></tr>
-    </table>
-
-    <!-- Next Steps -->
-    <p style="margin:24px 0 12px;color:#1B2B6B;font-size:15px;font-weight:700;">What happens next?</p>
-    <table width="100%" cellpadding="0" cellspacing="0">
-      ${["We will review your enquiry and contact you within 24 hours to arrange a suitable time.",
-         "Your child will be invited for a <strong>free 2-hour assessment session</strong> — no obligation.",
-         "After the assessment, we will provide written feedback and a personalised study plan."]
-        .map((step, i) => `<tr>
-        <td style="vertical-align:top;padding:8px 12px 8px 0;width:32px;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#1B2B6B;color:#C9973A;border-radius:50%;font-size:13px;font-weight:700;">${i + 1}</span>
-        </td>
-        <td style="padding:8px 0;color:#4b5563;font-size:14px;line-height:1.6;">${step}</td>
-      </tr>`).join("")}
-    </table>
-
-    <!-- WhatsApp CTA -->
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;">
-      <tr><td align="center">
-        <a href="https://wa.me/447480413679" style="display:inline-block;background:#25D366;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">
-          💬 Message us on WhatsApp
-        </a>
-      </td></tr>
-    </table>
-
-    <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
-      Or call us on <strong style="color:#1B2B6B;">07480 413679</strong> · We're based at Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock
-    </p>
-  </td></tr>
-
-  <!-- Footer -->
-  <tr><td style="background:#1B2B6B;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
-    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">© ${new Date().getFullYear()} Thurrock Tuition Academy · Suite 1, Queensgate Centre, Grays, Thurrock</p>
-  </td></tr>
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>`;
-}
-
 export function enquiryAdminNotificationHtml(data: {
   parentName: string;
   childName: string;
@@ -163,52 +63,6 @@ export function enquiryAdminNotificationHtml(data: {
 </table>
 </body>
 </html>`;
-}
-
-export async function sendEnquiryEmails(data: {
-  parentName: string;
-  childName: string;
-  childAge: number;
-  subject: string;
-  level: string;
-  preferredSlot?: string | null;
-  contactNumber: string;
-  email?: string | null;
-  notes?: string | null;
-}) {
-  const settings = await getSmtpSettings();
-  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
-
-  const transporter = createTransport(settings);
-  const from = settings.smtpFrom ? `"Thurrock Tuition Academy" <${settings.smtpFrom}>` : settings.smtpUser;
-
-  const sendPromises: Promise<unknown>[] = [];
-
-  // Acknowledgement to customer
-  if (data.email) {
-    sendPromises.push(
-      transporter.sendMail({
-        from,
-        to: data.email,
-        subject: `Enquiry Received – ${data.childName}'s Free Assessment | Thurrock Tuition Academy`,
-        html: enquiryAcknowledgementHtml(data),
-      }).catch(() => {})
-    );
-  }
-
-  // Notification to admin
-  if (settings.smtpFrom) {
-    sendPromises.push(
-      transporter.sendMail({
-        from,
-        to: settings.smtpFrom,
-        subject: `🔔 New Enquiry: ${data.parentName} – ${data.childName} (${data.subject})`,
-        html: enquiryAdminNotificationHtml(data),
-      }).catch(() => {})
-    );
-  }
-
-  await Promise.allSettled(sendPromises);
 }
 
 export async function sendIntakeEmails(data: {
@@ -331,6 +185,246 @@ export async function sendPaymentLinkEmail(opts: {
     from,
     to: opts.to,
     subject: `Payment Request – ${opts.studentName} (${formattedAmount}) | Thurrock Tuition Academy`,
+    html,
+  }).catch(() => {});
+}
+
+export async function sendTaskAssignedEmail(opts: {
+  to: string;
+  parentName: string;
+  studentName: string;
+  title: string;
+  subject: string;
+  dueDate: string;
+}) {
+  const settings = await getSmtpSettings();
+  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
+
+  const transporter = createTransport(settings);
+  const from = settings.smtpFrom ? `"Thurrock Tuition Academy" <${settings.smtpFrom}>` : settings.smtpUser;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <p style="margin:0 0 8px;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
+    <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;">New Task Assigned</h1>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:40px;">
+    <p style="margin:0 0 20px;color:#1a1a2e;font-size:16px;line-height:1.6;">Dear ${opts.parentName},</p>
+    <p style="margin:0 0 20px;color:#4b5563;font-size:15px;line-height:1.7;">
+      A new task has been set for <strong>${opts.studentName}</strong>:
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fe;border:1px solid #e5e8f4;border-radius:12px;overflow:hidden;">
+      <tr><td style="padding:20px;">
+        <p style="margin:0 0 4px;color:#1B2B6B;font-size:16px;font-weight:700;">${opts.title}</p>
+        <p style="margin:0;color:#6b7280;font-size:13px;">${opts.subject} · Due ${new Date(opts.dueDate).toLocaleDateString("en-GB")}</p>
+      </td></tr>
+    </table>
+    <p style="margin:24px 0 0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+      Log in to the parent portal for full details. Questions? WhatsApp us: <strong style="color:#1B2B6B;">07480 413679</strong>
+    </p>
+  </td></tr>
+  <tr><td style="background:#1B2B6B;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">© ${new Date().getFullYear()} Thurrock Tuition Academy · Suite 1, Queensgate Centre, Grays, Thurrock</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from,
+    to: opts.to,
+    subject: `New Task for ${opts.studentName}: ${opts.title} | Thurrock Tuition Academy`,
+    html,
+  }).catch(() => {});
+}
+
+export async function sendSessionConfirmationEmail(opts: {
+  to: string;
+  parentName: string;
+  studentName: string;
+  date: string;
+  slotLabel: string;
+  startTime: string;
+  endTime: string;
+}) {
+  const settings = await getSmtpSettings();
+  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
+
+  const transporter = createTransport(settings);
+  const from = settings.smtpFrom ? `"Thurrock Tuition Academy" <${settings.smtpFrom}>` : settings.smtpUser;
+  const formattedDate = new Date(opts.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <p style="margin:0 0 8px;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
+    <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;">Session Confirmed</h1>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:40px;">
+    <p style="margin:0 0 20px;color:#1a1a2e;font-size:16px;line-height:1.6;">Dear ${opts.parentName},</p>
+    <p style="margin:0 0 20px;color:#4b5563;font-size:15px;line-height:1.7;">
+      A session has been booked for <strong>${opts.studentName}</strong>:
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fe;border:1px solid #e5e8f4;border-radius:12px;overflow:hidden;">
+      <tr><td style="padding:20px;">
+        <p style="margin:0 0 4px;color:#1B2B6B;font-size:16px;font-weight:700;">${formattedDate}</p>
+        <p style="margin:0;color:#6b7280;font-size:13px;">${opts.slotLabel} · ${opts.startTime} – ${opts.endTime}</p>
+      </td></tr>
+    </table>
+    <p style="margin:24px 0 0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+      We're based at Suite 1, Queensgate Centre, Orsett Road, Grays, Thurrock. Questions? WhatsApp us: <strong style="color:#1B2B6B;">07480 413679</strong>
+    </p>
+  </td></tr>
+  <tr><td style="background:#1B2B6B;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">© ${new Date().getFullYear()} Thurrock Tuition Academy · Suite 1, Queensgate Centre, Grays, Thurrock</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from,
+    to: opts.to,
+    subject: `Session Confirmed for ${opts.studentName} – ${formattedDate} | Thurrock Tuition Academy`,
+    html,
+  }).catch(() => {});
+}
+
+export async function sendProgressNoteEmail(opts: {
+  to: string;
+  parentName: string;
+  studentName: string;
+  subject: string;
+  notePreview: string;
+}) {
+  const settings = await getSmtpSettings();
+  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
+
+  const transporter = createTransport(settings);
+  const from = settings.smtpFrom ? `"Thurrock Tuition Academy" <${settings.smtpFrom}>` : settings.smtpUser;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <p style="margin:0 0 8px;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
+    <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;">New Progress Note</h1>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:40px;">
+    <p style="margin:0 0 20px;color:#1a1a2e;font-size:16px;line-height:1.6;">Dear ${opts.parentName},</p>
+    <p style="margin:0 0 20px;color:#4b5563;font-size:15px;line-height:1.7;">
+      A new progress note has been added for <strong>${opts.studentName}</strong> (${opts.subject}):
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fe;border:1px solid #e5e8f4;border-radius:12px;overflow:hidden;">
+      <tr><td style="padding:20px;">
+        <p style="margin:0;color:#374151;font-size:14px;line-height:1.6;font-style:italic;">"${opts.notePreview}"</p>
+      </td></tr>
+    </table>
+    <p style="margin:24px 0 0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+      Log in to the parent portal to read the full note. Questions? WhatsApp us: <strong style="color:#1B2B6B;">07480 413679</strong>
+    </p>
+  </td></tr>
+  <tr><td style="background:#1B2B6B;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">© ${new Date().getFullYear()} Thurrock Tuition Academy · Suite 1, Queensgate Centre, Grays, Thurrock</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from,
+    to: opts.to,
+    subject: `New Progress Note for ${opts.studentName} | Thurrock Tuition Academy`,
+    html,
+  }).catch(() => {});
+}
+
+export async function sendPaymentReceiptEmail(opts: {
+  to: string;
+  parentName: string;
+  studentName: string;
+  amount: number;
+  description: string;
+  squarePaymentId: string;
+}) {
+  const settings = await getSmtpSettings();
+  if (!settings?.smtpEnabled || !settings.smtpHost || !settings.smtpUser || !settings.smtpPass) return;
+
+  const transporter = createTransport(settings);
+  const from = settings.smtpFrom ? `"Thurrock Tuition Academy" <${settings.smtpFrom}>` : settings.smtpUser;
+  const formattedAmount = `£${opts.amount.toFixed(2)}`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f9;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:#1B2B6B;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <p style="margin:0 0 8px;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">Thurrock Tuition Academy</p>
+    <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;">Payment Received ✓</h1>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:40px;">
+    <p style="margin:0 0 20px;color:#1a1a2e;font-size:16px;line-height:1.6;">Dear ${opts.parentName},</p>
+    <p style="margin:0 0 24px;color:#4b5563;font-size:15px;line-height:1.7;">
+      Thank you — we've received your payment for <strong>${opts.studentName}</strong>.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fe;border:1px solid #e5e8f4;border-radius:12px;overflow:hidden;">
+      <tr><td style="background:#1B2B6B;padding:14px 20px;">
+        <p style="margin:0;color:#C9973A;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Receipt</p>
+      </td></tr>
+      <tr><td style="padding:20px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#6b7280;font-size:13px;font-weight:600;width:40%;">Description</td>
+            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#1a1a2e;font-size:14px;">${opts.description}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#6b7280;font-size:13px;font-weight:600;">Amount</td>
+            <td style="padding:8px 0;border-bottom:1px solid #e5e8f4;color:#1a1a2e;font-size:14px;font-weight:700;">${formattedAmount}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 0;color:#6b7280;font-size:13px;font-weight:600;">Payment ID</td>
+            <td style="padding:8px 0;color:#1a1a2e;font-size:12px;font-family:monospace;">${opts.squarePaymentId}</td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+    <p style="margin:24px 0 0;color:#9ca3af;font-size:13px;line-height:1.6;text-align:center;">
+      Processed securely by Square. Questions? WhatsApp us: <strong style="color:#1B2B6B;">07480 413679</strong>
+    </p>
+  </td></tr>
+  <tr><td style="background:#1B2B6B;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;">© ${new Date().getFullYear()} Thurrock Tuition Academy · Suite 1, Queensgate Centre, Grays, Thurrock</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from,
+    to: opts.to,
+    subject: `Payment Receipt – ${opts.studentName} (${formattedAmount}) | Thurrock Tuition Academy`,
     html,
   }).catch(() => {});
 }

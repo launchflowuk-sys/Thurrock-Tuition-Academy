@@ -10,8 +10,6 @@ servers:
 tags:
   - name: health
     description: Health operations
-  - name: enquiries
-    description: Assessment booking enquiries
   - name: students
     description: Student management
   - name: sessions
@@ -144,84 +142,6 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 
   # ─── ENQUIRIES ───────────────────────────────────────────────────────────────
-  /enquiries:
-    get:
-      operationId: listEnquiries
-      tags: [enquiries]
-      summary: List all enquiries
-      responses:
-        "200":
-          description: List of enquiries
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Enquiry"
-    post:
-      operationId: createEnquiry
-      tags: [enquiries]
-      summary: Submit a new assessment enquiry (public)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EnquiryInput"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Enquiry"
-
-  /enquiries/{id}:
-    get:
-      operationId: getEnquiry
-      tags: [enquiries]
-      summary: Get a single enquiry
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Enquiry
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Enquiry"
-        "404":
-          description: Not found
-    patch:
-      operationId: updateEnquiry
-      tags: [enquiries]
-      summary: Update enquiry status
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EnquiryUpdate"
-      responses:
-        "200":
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Enquiry"
-        "404":
-          description: Not found
-
   # ─── STUDENTS ────────────────────────────────────────────────────────────────
   /students:
     get:
@@ -1176,44 +1096,6 @@ components:
       properties:
         success: { type: boolean }
 
-    # ─── ENQUIRY ───────────────────────────────────────────────────────────────
-    Enquiry:
-      type: object
-      required: [id, parentName, childName, childAge, subject, level, preferredSlot, contactNumber, status, createdAt]
-      properties:
-        id:            { type: integer }
-        parentName:    { type: string }
-        childName:     { type: string }
-        childAge:      { type: integer }
-        subject:       { type: string }
-        level:         { type: string }
-        preferredSlot: { type: string }
-        contactNumber: { type: string }
-        email:         { type: ["string", "null"] }
-        notes:         { type: ["string", "null"] }
-        status:        { type: string }
-        createdAt:     { type: string }
-
-    EnquiryInput:
-      type: object
-      required: [parentName, childName, childAge, subject, level, preferredSlot, contactNumber]
-      properties:
-        parentName:    { type: string, minLength: 1 }
-        childName:     { type: string, minLength: 1 }
-        childAge:      { type: integer }
-        subject:       { type: string }
-        level:         { type: string }
-        preferredSlot: { type: string }
-        contactNumber: { type: string, minLength: 1 }
-        email:         { type: string }
-        notes:         { type: string }
-
-    EnquiryUpdate:
-      type: object
-      properties:
-        status: { type: string }
-        notes:  { type: string }
-
     # ─── STUDENT ───────────────────────────────────────────────────────────────
     Student:
       type: object
@@ -1410,17 +1292,12 @@ components:
     # ─── DASHBOARD ─────────────────────────────────────────────────────────────
     DashboardSummary:
       type: object
-      required: [totalStudents, pendingEnquiries, sessionsThisWeek, outstandingPayments, recentEnquiries, newIntakeSubmissions]
+      required: [totalStudents, sessionsThisWeek, outstandingPayments, newIntakeSubmissions]
       properties:
         totalStudents:          { type: integer }
-        pendingEnquiries:       { type: integer }
         sessionsThisWeek:       { type: integer }
         outstandingPayments:    { type: integer }
         newIntakeSubmissions:   { type: integer }
-        recentEnquiries:
-          type: array
-          items:
-            $ref: "#/components/schemas/Enquiry"
 
     ActivityItem:
       type: object

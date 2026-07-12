@@ -65,90 +65,6 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
- * @summary List all enquiries
- */
-export const ListEnquiriesResponseItem = zod.object({
-  id: zod.number(),
-  parentName: zod.string(),
-  childName: zod.string(),
-  childAge: zod.number(),
-  subject: zod.string(),
-  level: zod.string(),
-  preferredSlot: zod.string(),
-  contactNumber: zod.string(),
-  email: zod.string().nullish(),
-  notes: zod.string().nullish(),
-  status: zod.string(),
-  createdAt: zod.string(),
-});
-export const ListEnquiriesResponse = zod.array(ListEnquiriesResponseItem);
-
-/**
- * @summary Submit a new assessment enquiry (public)
- */
-
-export const CreateEnquiryBody = zod.object({
-  parentName: zod.string().min(1),
-  childName: zod.string().min(1),
-  childAge: zod.number(),
-  subject: zod.string(),
-  level: zod.string(),
-  preferredSlot: zod.string(),
-  contactNumber: zod.string().min(1),
-  email: zod.string().optional(),
-  notes: zod.string().optional(),
-});
-
-/**
- * @summary Get a single enquiry
- */
-export const GetEnquiryParams = zod.object({
-  id: zod.coerce.number(),
-});
-
-export const GetEnquiryResponse = zod.object({
-  id: zod.number(),
-  parentName: zod.string(),
-  childName: zod.string(),
-  childAge: zod.number(),
-  subject: zod.string(),
-  level: zod.string(),
-  preferredSlot: zod.string(),
-  contactNumber: zod.string(),
-  email: zod.string().nullish(),
-  notes: zod.string().nullish(),
-  status: zod.string(),
-  createdAt: zod.string(),
-});
-
-/**
- * @summary Update enquiry status
- */
-export const UpdateEnquiryParams = zod.object({
-  id: zod.coerce.number(),
-});
-
-export const UpdateEnquiryBody = zod.object({
-  status: zod.string().optional(),
-  notes: zod.string().optional(),
-});
-
-export const UpdateEnquiryResponse = zod.object({
-  id: zod.number(),
-  parentName: zod.string(),
-  childName: zod.string(),
-  childAge: zod.number(),
-  subject: zod.string(),
-  level: zod.string(),
-  preferredSlot: zod.string(),
-  contactNumber: zod.string(),
-  email: zod.string().nullish(),
-  notes: zod.string().nullish(),
-  status: zod.string(),
-  createdAt: zod.string(),
-});
-
-/**
  * @summary List all students
  */
 export const ListStudentsResponseItem = zod.object({
@@ -548,26 +464,9 @@ export const DeletePaymentParams = zod.object({
  */
 export const GetDashboardSummaryResponse = zod.object({
   totalStudents: zod.number(),
-  pendingEnquiries: zod.number(),
   sessionsThisWeek: zod.number(),
   outstandingPayments: zod.number(),
   newIntakeSubmissions: zod.number(),
-  recentEnquiries: zod.array(
-    zod.object({
-      id: zod.number(),
-      parentName: zod.string(),
-      childName: zod.string(),
-      childAge: zod.number(),
-      subject: zod.string(),
-      level: zod.string(),
-      preferredSlot: zod.string(),
-      contactNumber: zod.string(),
-      email: zod.string().nullish(),
-      notes: zod.string().nullish(),
-      status: zod.string(),
-      createdAt: zod.string(),
-    }),
-  ),
 });
 
 /**

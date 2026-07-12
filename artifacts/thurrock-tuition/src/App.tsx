@@ -11,7 +11,6 @@ import AboutPage from "@/pages/about";
 import ContactPage from "@/pages/contact";
 import { SignInPage, SignUpPage } from "@/pages/auth";
 import Dashboard from "@/pages/dashboard";
-import EnquiriesPage from "@/pages/enquiries";
 import StudentsPage from "@/pages/students";
 import StudentDetailPage from "@/pages/student-detail";
 import SessionsPage from "@/pages/sessions";
@@ -146,9 +145,6 @@ function AppRoutes() {
             {/* Admin-only routes — no links anywhere on public site */}
             <Route path="/dashboard">
               <AdminRoute><Dashboard /></AdminRoute>
-            </Route>
-            <Route path="/enquiries">
-              <AdminRoute><EnquiriesPage /></AdminRoute>
             </Route>
             <Route path="/students/:id">
               {(params) => (

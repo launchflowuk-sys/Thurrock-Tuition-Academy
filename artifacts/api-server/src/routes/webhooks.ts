@@ -4,6 +4,8 @@ import { WebhooksHelper } from "square";
 import { db, paymentsTable } from "@workspace/db";
 import { logger } from "../lib/logger";
 import { parsePaymentNoteReference } from "../lib/square";
+import { getStudentContact } from "../lib/students";
+import { sendPaymentReceiptEmail } from "../lib/email";
 
 if (!process.env.SQUARE_WEBHOOK_SIGNATURE_KEY) {
   throw new Error("SQUARE_WEBHOOK_SIGNATURE_KEY must be set.");
@@ -58,12 +60,27 @@ router.post("/webhooks/square", async (req, res): Promise<void> => {
       return;
     }
 
-    await db
+    const [updated] = await db
       .update(paymentsTable)
       .set({ status: "paid", squarePaymentId: payment.id })
-      .where(eq(paymentsTable.id, paymentRowId));
+      .where(eq(paymentsTable.id, paymentRowId))
+      .returning();
 
     logger.info({ paymentRowId, squarePaymentId: payment.id }, "Payment marked paid via Square webhook");
+
+    if (updated) {
+      const contact = await getStudentContact(updated.studentId);
+      if (contact) {
+        sendPaymentReceiptEmail({
+          to: contact.parentEmail,
+          parentName: contact.parentName,
+          studentName: contact.studentName,
+          amount: Number(updated.amount),
+          description: updated.notes ?? "Tuition payment",
+          squarePaymentId: payment.id,
+        }).catch(() => {});
+      }
+    }
   } catch (err) {
     logger.error({ err }, "Failed to process Square webhook payload");
   }

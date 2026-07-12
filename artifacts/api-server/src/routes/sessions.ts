@@ -11,6 +11,8 @@ import {
   UpdateSessionResponse,
 } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/authMiddleware";
+import { getStudentContact } from "../lib/students";
+import { sendSessionConfirmationEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -33,6 +35,21 @@ router.post("/sessions", requireAdmin, async (req, res): Promise<void> => {
   }
   const [session] = await db.insert(sessionsTable).values(parsed.data).returning();
   res.status(201).json(GetSessionResponse.parse(toSession(session)));
+
+  for (const studentId of session.studentIds ?? []) {
+    const contact = await getStudentContact(studentId);
+    if (contact) {
+      sendSessionConfirmationEmail({
+        to: contact.parentEmail,
+        parentName: contact.parentName,
+        studentName: contact.studentName,
+        date: session.date,
+        slotLabel: session.slotLabel,
+        startTime: session.startTime,
+        endTime: session.endTime,
+      }).catch(() => {});
+    }
+  }
 });
 
 router.get("/sessions/:id", requireAdmin, async (req, res): Promise<void> => {

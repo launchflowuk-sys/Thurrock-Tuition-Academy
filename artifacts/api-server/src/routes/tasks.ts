@@ -11,6 +11,8 @@ import {
   UpdateTaskResponse,
 } from "@workspace/api-zod";
 import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
+import { getStudentContact } from "../lib/students";
+import { sendTaskAssignedEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -50,6 +52,18 @@ router.post("/tasks", requireAdmin, async (req, res): Promise<void> => {
   }
   const [task] = await db.insert(tasksTable).values(parsed.data).returning();
   res.status(201).json(toTask(task));
+
+  const contact = await getStudentContact(task.studentId);
+  if (contact) {
+    sendTaskAssignedEmail({
+      to: contact.parentEmail,
+      parentName: contact.parentName,
+      studentName: contact.studentName,
+      title: task.title,
+      subject: task.subject,
+      dueDate: task.dueDate,
+    }).catch(() => {});
+  }
 });
 
 router.patch("/tasks/:id", requireAdmin, async (req, res): Promise<void> => {

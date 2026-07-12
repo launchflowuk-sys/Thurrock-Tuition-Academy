@@ -5,13 +5,10 @@
  * Thurrock Tuition Academy API
  * OpenAPI spec version: 0.1.0
  */
-import type { Enquiry } from "./enquiry";
 
 export interface DashboardSummary {
   totalStudents: number;
-  pendingEnquiries: number;
   sessionsThisWeek: number;
   outstandingPayments: number;
   newIntakeSubmissions: number;
-  recentEnquiries: Enquiry[];
 }

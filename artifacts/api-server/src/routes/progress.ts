@@ -11,6 +11,8 @@ import {
   UpdateProgressNoteResponse,
 } from "@workspace/api-zod";
 import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
+import { getStudentContact } from "../lib/students";
+import { sendProgressNoteEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -50,6 +52,18 @@ router.post("/progress", requireAdmin, async (req, res): Promise<void> => {
   }
   const [note] = await db.insert(progressNotesTable).values(parsed.data).returning();
   res.status(201).json(toNote(note));
+
+  const contact = await getStudentContact(note.studentId);
+  if (contact) {
+    const notePreview = note.content.length > 200 ? `${note.content.slice(0, 200)}…` : note.content;
+    sendProgressNoteEmail({
+      to: contact.parentEmail,
+      parentName: contact.parentName,
+      studentName: contact.studentName,
+      subject: note.subject,
+      notePreview,
+    }).catch(() => {});
+  }
 });
 
 router.patch("/progress/:id", requireAdmin, async (req, res): Promise<void> => {
