@@ -7,10 +7,12 @@ import { parsePaymentNoteReference } from "../lib/square";
 import { getStudentContact } from "../lib/students";
 import { sendPaymentReceiptEmail } from "../lib/email";
 
-if (!process.env.SQUARE_WEBHOOK_SIGNATURE_KEY) {
-  throw new Error("SQUARE_WEBHOOK_SIGNATURE_KEY must be set.");
+// Read per-request rather than at import time: this module is imported by the
+// route tree, so a missing key used to stop the entire server from booting even
+// on deployments that never enable Square. Now only this endpoint fails.
+function getSignatureKey(): string | null {
+  return process.env.SQUARE_WEBHOOK_SIGNATURE_KEY || null;
 }
-const SIGNATURE_KEY = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY;
 
 const router: IRouter = Router();
 
@@ -18,6 +20,13 @@ const router: IRouter = Router();
 // global express.json()), so req.body here is the raw Buffer Square signed —
 // required for HMAC signature verification, not a JSON-parsed object.
 router.post("/webhooks/square", async (req, res): Promise<void> => {
+  const signatureKey = getSignatureKey();
+  if (!signatureKey) {
+    logger.error("Square webhook received but SQUARE_WEBHOOK_SIGNATURE_KEY is not set — rejecting");
+    res.status(503).json({ error: "Webhook processing is not configured" });
+    return;
+  }
+
   const rawBody = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : "";
   const signature = req.header("x-square-hmacsha256-signature");
 
@@ -30,7 +39,7 @@ router.post("/webhooks/square", async (req, res): Promise<void> => {
   const isValid = await WebhooksHelper.verifySignature({
     requestBody: rawBody,
     signatureHeader: signature,
-    signatureKey: SIGNATURE_KEY,
+    signatureKey,
     notificationUrl,
   }).catch((err) => {
     logger.error({ err }, "Square webhook signature verification threw");
@@ -78,7 +87,7 @@ router.post("/webhooks/square", async (req, res): Promise<void> => {
           amount: Number(updated.amount),
           description: updated.notes ?? "Tuition payment",
           squarePaymentId: payment.id,
-        }).catch(() => {});
+        }).catch((err) => logger.error({ err }, "Failed to send payment-receipt email"));
       }
     }
   } catch (err) {

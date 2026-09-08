@@ -13,6 +13,7 @@ import {
 import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
 import { getStudentContact } from "../lib/students";
 import { sendProgressNoteEmail } from "../lib/email";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -62,7 +63,7 @@ router.post("/progress", requireAdmin, async (req, res): Promise<void> => {
       studentName: contact.studentName,
       subject: note.subject,
       notePreview,
-    }).catch(() => {});
+    }).catch((err) => logger.error({ err }, "Failed to send progress-note email"));
   }
 });
 

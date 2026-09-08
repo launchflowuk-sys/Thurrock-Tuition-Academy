@@ -1,4 +1,3 @@
-export * from "./enquiries";
 export * from "./students";
 export * from "./sessions";
 export * from "./progress";
@@ -9,4 +8,6 @@ export * from "./staff";
 export * from "./messages";
 export * from "./intake_submissions";
 export * from "./courses";
+export * from "./reviews";
+export * from "./attendance";
 export * from "./users";

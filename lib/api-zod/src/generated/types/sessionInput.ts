@@ -13,5 +13,7 @@ export interface SessionInput {
   endTime: string;
   capacity: number;
   studentIds?: number[];
+  /** @nullable */
+  staffId?: number | null;
   notes?: string;
 }

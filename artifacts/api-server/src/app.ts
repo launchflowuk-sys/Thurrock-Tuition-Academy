@@ -22,8 +22,8 @@ const frontendDist = path.resolve(
 
 const app: Express = express();
 
-// Required for secure session cookies to work behind Replit's production
-// reverse proxy (which terminates TLS before forwarding to this server).
+// Required for secure session cookies to work behind the production reverse
+// proxy (Coolify's Traefik terminates TLS before forwarding to this server).
 // Without this, Express doesn't trust X-Forwarded-Proto, so req.secure is
 // always false and express-session silently drops the Set-Cookie header
 // whenever cookie.secure is true.
@@ -49,7 +49,22 @@ app.use(
   }),
 );
 
-app.use(cors({ credentials: true, origin: true }));
+// The frontend is served by this same server (see express.static below), so
+// browsers never make a cross-origin call in normal operation and no CORS
+// headers are needed. CORS_ORIGINS exists only for the Expo/React Native
+// client: set it to a comma-separated allowlist of exact origins. It is never
+// `origin: true` — reflecting arbitrary origins with credentials: true lets any
+// website make authenticated requests on a signed-in user's behalf.
+const corsOrigins = (process.env.CORS_ORIGINS ?? "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+if (corsOrigins.length > 0) {
+  app.use(cors({ credentials: true, origin: corsOrigins }));
+  logger.info({ corsOrigins }, "CORS enabled for explicit origin allowlist");
+}
+
 // Square webhook signature verification needs the exact raw bytes it signed,
 // so this must be parsed before the global express.json() below touches it.
 app.use("/api/webhooks/square", express.raw({ type: "application/json" }));
@@ -62,7 +77,17 @@ app.use("/api", router);
 // Daily at 06:00 server time: auto-generates and emails this month's Square
 // payment link for every student whose latest payment row is marked
 // recurring and whose billingDay matches today. See lib/recurringBilling.ts.
-cron.schedule("0 6 * * *", () => {
+//
+// This runs in-process, so every replica would bill every parent again. Scale
+// past one container and you MUST set ENABLE_BILLING_CRON=false on the extra
+// replicas (or move the job to its own scheduled one-off container).
+const billingCronEnabled = process.env.ENABLE_BILLING_CRON !== "false";
+
+if (!billingCronEnabled) {
+  logger.info("Recurring billing cron disabled via ENABLE_BILLING_CRON=false");
+}
+
+if (billingCronEnabled) cron.schedule("0 6 * * *", () => {
   runRecurringBilling()
     .then((results) => {
       const summary = results.reduce<Record<string, number>>((acc, r) => {
@@ -79,7 +104,7 @@ app.use(express.static(frontendDist));
 // SPA fallback: any unmatched GET that isn't an /api route or a real static
 // file falls through to index.html so client-side routing can take over.
 app.use((req, res, next) => {
-  if (req.method !== "GET" || req.path.startsWith("/api/")) {
+  if (req.method !== "GET" || req.path === "/api" || req.path.startsWith("/api/")) {
     next();
     return;
   }

@@ -1,21 +1,28 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+// Ported verbatim from the approved design handover
+// (Thurrock-Tuition-Claude-Code-Handover/reference/dist/404).
+// Structure, class names, copy and inline SVG are the reference's; only
+// links are routed through wouter. Styling lives in src/styles/tta-public.css.
+import { Link } from "wouter";
+import PublicShell from "@/components/public/public-shell";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
-          </div>
+    <PublicShell active="" mainClassName="wrap section">
 
-          <p className="mt-4 text-sm text-gray-600">
-            Did you forget to add the page to the router?
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+      <div className="eyebrow">Page not found</div>
+      <h1>Let’s get you back<br />on the right path.</h1>
+      <p className="lead">This page isn’t available. Explore our tuition or get in touch with the academy.</p>
+      <div className="actions">
+      <Link className="btn " href="/">Back to home<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <path d="M4 12h15m-6-6 6 6-6 6" />
+      </svg>
+      </Link>
+      <Link className="btn outline" href="/services">Our tuition<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <path d="M4 12h15m-6-6 6 6-6 6" />
+      </svg>
+      </Link>
+      </div>
+
+    </PublicShell>
   );
 }

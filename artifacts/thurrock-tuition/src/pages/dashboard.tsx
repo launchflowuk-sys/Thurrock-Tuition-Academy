@@ -1,139 +1,160 @@
-import { useGetDashboardSummary, getGetDashboardSummaryQueryKey } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, CreditCard, ExternalLink, ClipboardList } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "wouter";
+import { useGetDashboardSummary, useGetRecentActivity } from "@workspace/api-client-react";
+import { Kpi, Panel, Pill } from "@/components/dashboard/primitives";
+import { currentTerm, examCountdown } from "@/lib/terms";
 
-const QUICK_LINKS = [
-  {
-    label: "Google Drive",
-    url: "https://drive.google.com",
-    description: "Shared documents & resources",
-    emoji: "📁",
-    color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
-    textColor: "text-blue-700",
-  },
-  {
-    label: "OneDrive",
-    url: "https://onedrive.live.com",
-    description: "Microsoft cloud storage",
-    emoji: "☁️",
-    color: "bg-sky-50 border-sky-200 hover:bg-sky-100",
-    textColor: "text-sky-700",
-  },
-  {
-    label: "Khan Academy",
-    url: "https://www.khanacademy.org",
-    description: "Free maths & science lessons",
-    emoji: "🎓",
-    color: "bg-green-50 border-green-200 hover:bg-green-100",
-    textColor: "text-green-700",
-  },
-  {
-    label: "BBC Bitesize",
-    url: "https://www.bbc.co.uk/bitesize",
-    description: "KS2, KS3, GCSE revision",
-    emoji: "📚",
-    color: "bg-red-50 border-red-200 hover:bg-red-100",
-    textColor: "text-red-700",
-  },
-  {
-    label: "Seneca Learning",
-    url: "https://senecalearning.com",
-    description: "Smart revision platform",
-    emoji: "🧠",
-    color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
-    textColor: "text-purple-700",
-  },
-  {
-    label: "Corbettmaths",
-    url: "https://corbettmaths.com",
-    description: "Maths videos & worksheets",
-    emoji: "➕",
-    color: "bg-orange-50 border-orange-200 hover:bg-orange-100",
-    textColor: "text-orange-700",
-  },
-];
+/**
+ * The dashboard leads with the four figures a tuition centre actually asks at
+ * 8am — not the agency's clients/revenue/projects. Underneath sits the
+ * attention row: the things that need a person today.
+ */
 
 export default function Dashboard() {
-  const { data: summary, isLoading } = useGetDashboardSummary({
-    query: { queryKey: getGetDashboardSummaryQueryKey() }
-  });
+  const { data: summary } = useGetDashboardSummary();
+  const { data: activity } = useGetRecentActivity();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold font-serif text-primary">Dashboard</h1>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Card key={i} className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-4 rounded-full" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-[60px]" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const term = currentTerm(new Date());
+  const exams = examCountdown(new Date());
 
-  const stats = [
-    { title: "Total Students", value: summary?.totalStudents || 0, icon: Users, href: "/students", color: "text-blue-600" },
-    { title: "Sessions This Week", value: summary?.sessionsThisWeek || 0, icon: Calendar, href: "/sessions", color: "text-green-600" },
-    { title: "Outstanding Payments", value: summary?.outstandingPayments || 0, icon: CreditCard, href: "/payments", color: "text-red-600" },
-    { title: "New Intake Forms", value: summary?.newIntakeSubmissions || 0, icon: ClipboardList, href: "/intake", color: "text-purple-600" },
-  ];
+  const students = summary?.totalStudents ?? 0;
+  const startedThisMonth = summary?.studentsStartedThisMonth ?? 0;
+  const outstanding = summary?.outstandingPayments ?? 0;
+  const sessionsThisWeek = summary?.sessionsThisWeek ?? 0;
+  const newApplications = summary?.newIntakeSubmissions ?? 0;
+  const awaitingFollowUp = summary?.applicationsAwaitingFollowUp ?? 0;
+  const dbsExpiring = summary?.dbsExpiringSoon ?? 0;
+  const dbsMissing = summary?.dbsNotRecorded ?? 0;
+  const attendance = summary?.attendanceThisWeek ?? null;
+  const atRisk = summary?.studentsAtRisk ?? 0;
+  const unassigned = summary?.unassignedSessions ?? 0;
+
+  // Attendance is the single best predictor of a student leaving, so it is the
+  // figure allowed to switch ground: teal / amber / coral.
+  const attendanceGround =
+    attendance == null ? "cobalt" : attendance >= 85 ? "teal" : attendance >= 67 ? "amber" : "coral";
+
+  // Safeguarding and money are the two that switch ground when they need a
+  // person. Everything else keeps its ground so the strip stays legible.
+  const feesGround = outstanding > 0 ? "coral" : "teal";
+  const dbsGround = dbsExpiring > 0 ? "coral" : dbsMissing > 0 ? "amber" : "teal";
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold font-serif text-primary">Dashboard Overview</h1>
+    <>
+      <h1 className="dash-page-title">Today at the academy</h1>
+      <p className="dash-page-sub">
+        {term.label} · week {term.week} of {term.totalWeeks}
+      </p>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Link key={stat.title} href={stat.href}>
-              <Card className="shadow-sm border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                  <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">{stat.title}</CardTitle>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-primary">{stat.value}</div>
-                </CardContent>
-              </Card>
-            </Link>
-          );
-        })}
+      <div className="kpi-strip">
+        <Kpi
+          ground="navy"
+          label="Active students"
+          value={String(students)}
+          note={
+            startedThisMonth > 0
+              ? `${startedThisMonth} started this month`
+              : "None started this month"
+          }
+          href="/students"
+        />
+        <Kpi
+          ground={attendanceGround}
+          label="Attendance this week"
+          value={attendance == null ? "—" : `${attendance}%`}
+          note={
+            attendance == null
+              ? "No register marked yet"
+              : `${sessionsThisWeek} session${sessionsThisWeek === 1 ? "" : "s"} this week`
+          }
+          href="/attendance"
+        />
+        <Kpi
+          ground={feesGround}
+          label="Fees outstanding"
+          value={String(outstanding)}
+          note={outstanding > 0 ? "Chase gently and early" : "Nothing to chase"}
+          href="/payments"
+        />
+        <Kpi
+          ground="purple"
+          label="New applications"
+          value={String(newApplications)}
+          note={awaitingFollowUp > 0 ? `${awaitingFollowUp} awaiting follow-up` : "All followed up"}
+          href="/intake"
+        />
       </div>
 
-      {/* Quick Links */}
-      <div>
-        <h2 className="text-xl font-serif font-semibold text-primary mb-4">Quick Links</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {QUICK_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-3 p-4 rounded-xl border transition-colors ${link.color}`}
-            >
-              <span className="text-2xl shrink-0">{link.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <p className={`font-semibold text-sm ${link.textColor}`}>{link.label}</p>
-                <p className="text-xs text-muted-foreground truncate">{link.description}</p>
-              </div>
-              <ExternalLink size={14} className="shrink-0 text-muted-foreground/60" />
-            </a>
-          ))}
-        </div>
+      {/* The attention row: things that need a person today. */}
+      <div className="kpi-strip">
+        <Kpi
+          ground={dbsGround}
+          label="Safeguarding — DBS"
+          value={String(dbsExpiring + dbsMissing)}
+          note={
+            dbsExpiring > 0
+              ? `${dbsExpiring} expiring within 60 days`
+              : dbsMissing > 0
+                ? `${dbsMissing} with no DBS recorded`
+                : "All tutors in date"
+          }
+          href="/staff"
+        />
+        <Kpi
+          ground={atRisk > 0 ? "coral" : "teal"}
+          label="Students at risk"
+          value={String(atRisk)}
+          note="2+ absences in a rolling 4 weeks"
+          href="/attendance"
+        />
+        <Panel title="Next exam" subtitle={exams.subtitle}>
+          <p className="panel-figure">{exams.headline}</p>
+          <p className="panel-sub" style={{ marginTop: 8 }}>
+            {exams.detail}
+          </p>
+        </Panel>
+        <Kpi
+          ground={unassigned > 0 ? "amber" : "teal"}
+          label="Unassigned sessions"
+          value={String(unassigned)}
+          note={unassigned > 0 ? "On the timetable with no tutor" : "Every session has a tutor"}
+          href="/sessions"
+        />
       </div>
-    </div>
+
+      <Panel title="Recent activity" subtitle="Progress notes and tasks across all students">
+        {activity && activity.length > 0 ? (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>What happened</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activity.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <Pill ground={item.type === "progress" ? "teal" : "cobalt"}>
+                        {item.type === "progress" ? "Progress" : "Task"}
+                      </Pill>
+                    </td>
+                    <td>{item.description}</td>
+                    <td className="num">
+                      {new Date(item.timestamp).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="empty">Nothing recorded yet.</p>
+        )}
+      </Panel>
+    </>
   );
 }

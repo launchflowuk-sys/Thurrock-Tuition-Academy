@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { desc, eq, count } from "drizzle-orm";
-import { db, studentsTable, sessionsTable, progressNotesTable, tasksTable, paymentsTable, intakeSubmissionsTable } from "@workspace/db";
+import { desc, eq, count, gte, inArray } from "drizzle-orm";
+import { db, studentsTable, sessionsTable, progressNotesTable, tasksTable, paymentsTable, intakeSubmissionsTable, staffTable, attendanceTable } from "@workspace/db";
 import {
   GetDashboardSummaryResponse,
   GetRecentActivityResponse,
@@ -28,11 +28,107 @@ router.get("/dashboard/summary", requireAdmin, async (_req, res): Promise<void> 
   const [outstandingResult] = await db.select({ count: count() }).from(paymentsTable).where(eq(paymentsTable.status, "pending"));
   const [intakeResult] = await db.select({ count: count() }).from(intakeSubmissionsTable).where(eq(intakeSubmissionsTable.status, "new"));
 
+  // "N starting this month" — the figure that gives the headline student count
+  // its direction of travel.
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const [startedThisMonthResult] = await db
+    .select({ count: count() })
+    .from(studentsTable)
+    .where(gte(studentsTable.joinedAt, startOfMonth));
+
+  // Applications that were contacted but never resolved — where enrolment
+  // revenue leaks. "new" is counted separately as newIntakeSubmissions.
+  const [awaitingFollowUpResult] = await db
+    .select({ count: count() })
+    .from(intakeSubmissionsTable)
+    .where(eq(intakeSubmissionsTable.status, "contacted"));
+
+  // Safeguarding: an enhanced DBS falling due inside 60 days needs action now,
+  // and a tutor with no DBS recorded at all is a separate, worse problem.
+  // Dates are stored as ISO date strings, so compare lexically via Date.
+  const DBS_WARNING_DAYS = 60;
+  const dbsHorizon = new Date(now.getTime() + DBS_WARNING_DAYS * 24 * 60 * 60 * 1000);
+  const allStaff = await db.select().from(staffTable);
+  let dbsExpiringSoon = 0;
+  let dbsNotRecorded = 0;
+  for (const member of allStaff) {
+    if (!member.dbsExpiryDate) {
+      dbsNotRecorded += 1;
+      continue;
+    }
+    const expiry = new Date(member.dbsExpiryDate);
+    if (Number.isNaN(expiry.getTime())) {
+      dbsNotRecorded += 1;
+      continue;
+    }
+    // Already expired counts as expiring — it is the more urgent case.
+    if (expiry <= dbsHorizon) dbsExpiringSoon += 1;
+  }
+
+  // Attendance this week — the single best predictor of a student leaving.
+  // Percentage of marked places that were actually attended; "late" counts as
+  // attended, "excused" is excluded from both sides so an authorised absence
+  // doesn't punish the figure.
+  const weekSessionIds = allSessions
+    .filter((s) => {
+      const d = new Date(s.date);
+      return !Number.isNaN(d.getTime()) && d >= startOfWeek && d < endOfWeek;
+    })
+    .map((s) => s.id);
+
+  let attendanceThisWeek: number | null = null;
+  if (weekSessionIds.length > 0) {
+    const marks = await db
+      .select()
+      .from(attendanceTable)
+      .where(inArray(attendanceTable.sessionId, weekSessionIds));
+    const counted = marks.filter((m) => m.status !== "excused");
+    attendanceThisWeek =
+      counted.length > 0
+        ? Math.round((counted.filter((m) => m.status !== "absent").length / counted.length) * 100)
+        : null;
+  }
+
+  // Students at risk: two or more absences in a rolling four weeks.
+  const riskWindowStart = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
+  const riskSessionIds = allSessions
+    .filter((s) => {
+      const d = new Date(s.date);
+      return !Number.isNaN(d.getTime()) && d >= riskWindowStart && d <= now;
+    })
+    .map((s) => s.id);
+  let studentsAtRisk = 0;
+  if (riskSessionIds.length > 0) {
+    const marks = await db
+      .select()
+      .from(attendanceTable)
+      .where(inArray(attendanceTable.sessionId, riskSessionIds));
+    const absences = new Map<number, number>();
+    for (const m of marks) {
+      if (m.status === "absent") {
+        absences.set(m.studentId, (absences.get(m.studentId) ?? 0) + 1);
+      }
+    }
+    studentsAtRisk = [...absences.values()].filter((n) => n >= 2).length;
+  }
+
+  // A session on the timetable with nobody against it.
+  const unassignedSessions = allSessions.filter(
+    (s) => s.staffId == null && new Date(s.date) >= startOfWeek,
+  ).length;
+
   const summary = {
     totalStudents: Number(totalStudentsResult?.count ?? 0),
     sessionsThisWeek,
     outstandingPayments: Number(outstandingResult?.count ?? 0),
     newIntakeSubmissions: Number(intakeResult?.count ?? 0),
+    studentsStartedThisMonth: Number(startedThisMonthResult?.count ?? 0),
+    applicationsAwaitingFollowUp: Number(awaitingFollowUpResult?.count ?? 0),
+    dbsExpiringSoon,
+    dbsNotRecorded,
+    attendanceThisWeek,
+    studentsAtRisk,
+    unassignedSessions,
   };
 
   res.json(GetDashboardSummaryResponse.parse(summary));

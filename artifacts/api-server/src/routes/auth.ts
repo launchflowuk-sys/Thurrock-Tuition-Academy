@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db, usersTable } from "@workspace/db";
 import { SignupBody, LoginBody, ChangePasswordBody, ChangePasswordResponse, GetCurrentUserResponse } from "@workspace/api-zod";
 import { requireAuth } from "../lib/authMiddleware";
+import { loginLimiter, signupLimiter, changePasswordLimiter } from "../lib/rateLimit";
 
 const router: IRouter = Router();
 
@@ -14,7 +15,7 @@ const toAuthUser = (u: typeof usersTable.$inferSelect) => ({
   role: u.role,
 });
 
-router.post("/auth/signup", async (req, res): Promise<void> => {
+router.post("/auth/signup", signupLimiter, async (req, res): Promise<void> => {
   const parsed = SignupBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -48,7 +49,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   res.status(201).json(GetCurrentUserResponse.parse(toAuthUser(user)));
 });
 
-router.post("/auth/login", async (req, res): Promise<void> => {
+router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -74,7 +75,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   res.json(GetCurrentUserResponse.parse(toAuthUser(user)));
 });
 
-router.post("/auth/change-password", requireAuth, async (req, res): Promise<void> => {
+router.post("/auth/change-password", requireAuth, changePasswordLimiter, async (req, res): Promise<void> => {
   const parsed = ChangePasswordBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

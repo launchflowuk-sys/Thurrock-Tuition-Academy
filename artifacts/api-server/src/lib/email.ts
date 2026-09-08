@@ -1,9 +1,32 @@
 import nodemailer from "nodemailer";
 import { db, settingsTable } from "@workspace/db";
+import { readSecret } from "./paymentSettings";
+import { logger } from "./logger";
 
+// smtpPass is encrypted at rest (see routes/settings.ts), so it has to be
+// decrypted before nodemailer sees it. readSecret passes through values that
+// predate encryption, so this is safe on a not-yet-migrated database.
 async function getSmtpSettings() {
   const rows = await db.select().from(settingsTable).limit(1);
-  return rows[0] ?? null;
+  const settings = rows[0];
+  if (!settings) return null;
+  return { ...settings, smtpPass: readSecret(settings.smtpPass) };
+}
+
+// Every outbound email is fire-and-forget — a failed send must never break the
+// request that triggered it. It must also never vanish silently, which is what
+// the previous bare `.catch(() => {})` calls did: a broken SMTP config looked
+// identical to a working one.
+// Origin used for links inside emails. Overridable so staging/local builds
+// don't send parents to the production site.
+function appUrl(): string {
+  return (process.env.APP_URL || "https://www.thurrocktuitionacademy.co.uk").replace(/\/+$/, "");
+}
+
+function onSendFailure(kind: string, to?: string | null) {
+  return (err: unknown) => {
+    logger.error({ err, email: kind, to }, "Failed to send email");
+  };
 }
 
 function createTransport(s: { smtpHost: string | null; smtpPort: number | null; smtpUser: string | null; smtpPass: string | null }) {
@@ -55,7 +78,7 @@ export function enquiryAdminNotificationHtml(data: {
       </tr>`).join("")}
     </table>
     <p style="margin:24px 0 0;text-align:center;">
-      <a href="https://thurrocktuitionacademy.co.uk/enquiries" style="display:inline-block;background:#1B2B6B;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 28px;border-radius:10px;">View in Dashboard →</a>
+      <a href="${appUrl()}/intake" style="display:inline-block;background:#1B2B6B;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 28px;border-radius:10px;">View in Dashboard →</a>
     </p>
   </td></tr>
 </table>
@@ -114,7 +137,7 @@ export async function sendIntakeEmails(data: {
       to: data.email,
       subject: `Application Received – ${data.childName} | Thurrock Tuition Academy`,
       html: ackHtml,
-    }).catch(() => {}),
+    }).catch(onSendFailure("intake-acknowledgement", data.email)),
   ];
 
   if (settings.smtpFrom) {
@@ -124,7 +147,7 @@ export async function sendIntakeEmails(data: {
         to: settings.smtpFrom,
         subject: `📋 New Intake Application: ${data.parentName} – ${data.childName}`,
         html: enquiryAdminNotificationHtml({ ...data, notes: data.currentSchool ? `School: ${data.currentSchool}` : null }),
-      }).catch(() => {})
+      }).catch(onSendFailure("intake-admin-notification", settings.smtpFrom))
     );
   }
 
@@ -186,7 +209,7 @@ export async function sendPaymentLinkEmail(opts: {
     to: opts.to,
     subject: `Payment Request – ${opts.studentName} (${formattedAmount}) | Thurrock Tuition Academy`,
     html,
-  }).catch(() => {});
+  }).catch(onSendFailure("payment-link", opts.to));
 }
 
 export async function sendTaskAssignedEmail(opts: {
@@ -242,7 +265,7 @@ export async function sendTaskAssignedEmail(opts: {
     to: opts.to,
     subject: `New Task for ${opts.studentName}: ${opts.title} | Thurrock Tuition Academy`,
     html,
-  }).catch(() => {});
+  }).catch(onSendFailure("task-assigned", opts.to));
 }
 
 export async function sendSessionConfirmationEmail(opts: {
@@ -300,7 +323,7 @@ export async function sendSessionConfirmationEmail(opts: {
     to: opts.to,
     subject: `Session Confirmed for ${opts.studentName} – ${formattedDate} | Thurrock Tuition Academy`,
     html,
-  }).catch(() => {});
+  }).catch(onSendFailure("session-confirmation", opts.to));
 }
 
 export async function sendProgressNoteEmail(opts: {
@@ -354,7 +377,7 @@ export async function sendProgressNoteEmail(opts: {
     to: opts.to,
     subject: `New Progress Note for ${opts.studentName} | Thurrock Tuition Academy`,
     html,
-  }).catch(() => {});
+  }).catch(onSendFailure("progress-note", opts.to));
 }
 
 export async function sendPaymentReceiptEmail(opts: {
@@ -426,7 +449,7 @@ export async function sendPaymentReceiptEmail(opts: {
     to: opts.to,
     subject: `Payment Receipt – ${opts.studentName} (${formattedAmount}) | Thurrock Tuition Academy`,
     html,
-  }).catch(() => {});
+  }).catch(onSendFailure("payment-receipt", opts.to));
 }
 
 export async function sendIntakeReplyEmail(opts: {

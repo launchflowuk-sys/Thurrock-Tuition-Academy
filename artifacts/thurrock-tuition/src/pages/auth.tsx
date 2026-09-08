@@ -1,45 +1,59 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth-context";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ApiError } from "@workspace/api-client-react";
+
+/**
+ * Sign in and sign up.
+ *
+ * No card, no shadow, no second ground. The wordmark sits bare on the page, a
+ * real heading under it, the fields are the only boxes on the screen, one
+ * full-width brand button. A white rounded panel floating on an almost-white
+ * page adds an edge that means nothing.
+ *
+ * Auth behaviour is unchanged from before the redesign: same login/signup
+ * calls, same /auth-redirect destination, same error handling.
+ */
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-function AuthShell({ children }: { children: React.ReactNode }) {
+function errorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    const data = err.data as { error?: string } | null;
+    if (data?.error) return data.error;
+  }
+  if (err instanceof Error) return err.message;
+  return "Something went wrong. Please try again.";
+}
+
+function AuthPage({
+  title,
+  intro,
+  children,
+  footer,
+}: {
+  title: string;
+  intro: string;
+  children: ReactNode;
+  footer: ReactNode;
+}) {
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-[#1B2B6B]">
-      <div className="px-6 py-4 flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-3">
-          <img src={`${basePath}/logo.svg`} alt="TTA" className="h-9 w-auto" />
-          <div className="hidden sm:block">
-            <p className="font-serif text-white font-bold text-base leading-tight">Thurrock Tuition</p>
-            <p className="text-[#C9973A] text-xs">Academy</p>
+    <div className="dash auth-page">
+      <div className="auth-inner">
+        <Link className="auth-brand" href="/">
+          <img src={`${basePath}/logo.svg`} alt="" width="46" height="51" />
+          <div>
+            <strong>Thurrock Tuition</strong>
+            <span>ACADEMY</span>
           </div>
         </Link>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[440px]">{children}</div>
-      </div>
-
-      <div className="text-center py-4 text-white/40 text-xs">
-        © {new Date().getFullYear()} Thurrock Tuition Academy ·{" "}
-        <Link href="/" className="hover:text-white/70 transition-colors">Back to website</Link>
+        <h1>{title}</h1>
+        <p className="auth-intro">{intro}</p>
+        {children}
+        <p className="auth-foot">{footer}</p>
       </div>
     </div>
   );
-}
-
-function extractErrorMessage(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.status === 401) return "Incorrect email or password.";
-    if (err.status === 409) return "An account with this email already exists.";
-    return err.message;
-  }
-  return "Something went wrong. Please try again.";
 }
 
 export function SignInPage() {
@@ -58,68 +72,51 @@ export function SignInPage() {
       await login(email, password);
       setLocation("/auth-redirect");
     } catch (err) {
-      setError(extractErrorMessage(err));
+      setError(errorMessage(err));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <AuthShell>
-      <div className="bg-white shadow-xl border border-gray-200 rounded-2xl p-8">
-        <h1 className="font-serif text-2xl font-bold text-[#1B2B6B] mb-1">Parent & Staff Login</h1>
-        <p className="text-gray-500 text-sm mb-6">Sign in to access your Thurrock Tuition Academy portal</p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email address</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              data-testid="input-email"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              data-testid="input-password"
-            />
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2" data-testid="text-error">
-              {error}
-            </p>
-          )}
-
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-[#1B2B6B] hover:bg-[#243580] text-white font-semibold rounded-xl py-2.5"
-            data-testid="button-sign-in"
-          >
-            {submitting ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Don't have an account?{" "}
-          <Link href="/sign-up" className="text-[#1B2B6B] font-semibold hover:text-[#C9973A]">
-            Create one
-          </Link>
-        </p>
-      </div>
-    </AuthShell>
+    <AuthPage
+      title="Sign in"
+      intro="For parents and academy staff."
+      footer={
+        <>
+          Don&rsquo;t have an account? <Link href="/sign-up">Create one</Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="field-l">
+          <label htmlFor="email">Email address</label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="field-l">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p className="auth-error">{error}</p>}
+        <button type="submit" className="btn-d lg auth-submit" disabled={submitting}>
+          {submitting ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+    </AuthPage>
   );
 }
 
@@ -140,80 +137,60 @@ export function SignUpPage() {
       await signup(email, password, fullName || undefined);
       setLocation("/auth-redirect");
     } catch (err) {
-      setError(extractErrorMessage(err));
+      setError(errorMessage(err));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <AuthShell>
-      <div className="bg-white shadow-xl border border-gray-200 rounded-2xl p-8">
-        <h1 className="font-serif text-2xl font-bold text-[#1B2B6B] mb-1">Create your account</h1>
-        <p className="text-gray-500 text-sm mb-6">Join the Thurrock Tuition Academy portal</p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="fullName">Full name</Label>
-            <Input
-              id="fullName"
-              type="text"
-              autoComplete="name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              data-testid="input-full-name"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email address</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              data-testid="input-email"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              data-testid="input-password"
-            />
-            <p className="text-xs text-gray-400">At least 8 characters</p>
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2" data-testid="text-error">
-              {error}
-            </p>
-          )}
-
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-[#1B2B6B] hover:bg-[#243580] text-white font-semibold rounded-xl py-2.5"
-            data-testid="button-sign-up"
-          >
-            {submitting ? "Creating account…" : "Create account"}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
-          <Link href="/sign-in" className="text-[#1B2B6B] font-semibold hover:text-[#C9973A]">
-            Sign in
-          </Link>
-        </p>
-      </div>
-    </AuthShell>
+    <AuthPage
+      title="Create your account"
+      intro="Parent accounts give you your child's progress, homework and payments."
+      footer={
+        <>
+          Already have an account? <Link href="/sign-in">Sign in</Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="field-l">
+          <label htmlFor="fullName">Full name</label>
+          <input
+            id="fullName"
+            type="text"
+            autoComplete="name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+        </div>
+        <div className="field-l">
+          <label htmlFor="email">Email address</label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="field-l">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p className="auth-error">{error}</p>}
+        <button type="submit" className="btn-d lg auth-submit" disabled={submitting}>
+          {submitting ? "Creating account…" : "Create account"}
+        </button>
+      </form>
+    </AuthPage>
   );
 }

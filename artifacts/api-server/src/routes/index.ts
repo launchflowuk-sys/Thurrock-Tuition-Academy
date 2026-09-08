@@ -14,6 +14,8 @@ import messagesRouter from "./messages";
 import intakeRouter from "./intake-submissions";
 import coursesRouter from "./courses";
 import webhooksRouter from "./webhooks";
+import reviewsRouter from "./reviews";
+import attendanceRouter from "./attendance";
 
 const router: IRouter = Router();
 
@@ -32,5 +34,7 @@ router.use(messagesRouter);
 router.use(intakeRouter);
 router.use(coursesRouter);
 router.use(webhooksRouter);
+router.use(reviewsRouter);
+router.use(attendanceRouter);
 
 export default router;

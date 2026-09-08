@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, CheckCircle2, Circle, Trash2 } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const SUBJECTS = ["Maths", "English", "Science"];
 
@@ -60,17 +61,30 @@ export default function TasksPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Tasks</h1>
+        <h1 className="dash-page-title">Tasks</h1>
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
       </div>
     );
   }
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = tasks ?? [];
+  const doneCount = list.filter((t) => t.completed).length;
+  const pendingCount = list.length - doneCount;
+  const completionRate = list.length > 0 ? Math.round((doneCount / list.length) * 100) : null;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-serif text-primary">Tasks</h1>
+        <h1 className="dash-page-title">Tasks</h1>
         <Button onClick={() => setShowAdd(true)} data-testid="button-assign-task"><Plus size={16} className="mr-2" /> Assign Task</Button>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Tasks set" value={String(list.length)} note="All time" />
+        <Kpi ground={pendingCount > 0 ? "amber" : "teal"} label="Outstanding" value={String(pendingCount)} note={pendingCount > 0 ? "Not yet completed" : "All caught up"} />
+        <Kpi ground="teal" label="Completed" value={String(doneCount)} note="Marked done" />
+        <Kpi ground="cobalt" label="Completion" value={completionRate == null ? "\u2014" : completionRate + "%"} note="Across all tasks" />
       </div>
 
       <div className="flex gap-2">

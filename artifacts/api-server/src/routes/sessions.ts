@@ -13,6 +13,7 @@ import {
 import { requireAdmin } from "../lib/authMiddleware";
 import { getStudentContact } from "../lib/students";
 import { sendSessionConfirmationEmail } from "../lib/email";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -47,7 +48,7 @@ router.post("/sessions", requireAdmin, async (req, res): Promise<void> => {
         slotLabel: session.slotLabel,
         startTime: session.startTime,
         endTime: session.endTime,
-      }).catch(() => {});
+      }).catch((err) => logger.error({ err }, "Failed to send session-confirmation email"));
     }
   }
 });

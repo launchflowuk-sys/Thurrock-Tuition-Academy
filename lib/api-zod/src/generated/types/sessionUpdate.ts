@@ -13,5 +13,7 @@ export interface SessionUpdate {
   endTime?: string;
   capacity?: number;
   studentIds?: number[];
+  /** @nullable */
+  staffId?: number | null;
   notes?: string;
 }

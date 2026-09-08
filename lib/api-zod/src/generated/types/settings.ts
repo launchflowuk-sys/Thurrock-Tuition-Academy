@@ -38,6 +38,13 @@ export interface Settings {
   /** @nullable */
   stripeSecretKey?: string | null;
   /** @nullable */
+  googlePlaceId?: string | null;
+  /** @nullable */
+  googleApiKey?: string | null;
+  googleReviewsEnabled?: boolean;
+  /** @nullable */
+  googleReviewsSyncedAt?: string | null;
+  /** @nullable */
   bookingWidgetCode?: string | null;
   bookingWidgetEnabled: boolean;
   /** @nullable */

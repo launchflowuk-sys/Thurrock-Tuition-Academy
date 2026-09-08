@@ -1049,6 +1049,163 @@ paths:
         "204":
           description: Deleted
 
+  /reviews/public:
+    get:
+      operationId: listPublicReviews
+      tags: [reviews]
+      summary: Visible reviews for the public website (no auth)
+      responses:
+        "200":
+          description: Visible reviews, ordered for display
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicReviewsResponse"
+
+  /reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List every review, hidden ones included (admin)
+      responses:
+        "200":
+          description: All reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Add a manual review (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+
+  /reviews/{id}:
+    patch:
+      operationId: updateReview
+      tags: [reviews]
+      summary: Update a review (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteReview
+      tags: [reviews]
+      summary: Delete a review (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /reviews/sync-google:
+    post:
+      operationId: syncGoogleReviews
+      tags: [reviews]
+      summary: Pull the latest reviews from the Google Business Profile listing (admin)
+      responses:
+        "200":
+          description: Sync result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoogleReviewSyncResponse"
+        "400":
+          description: Google reviews are not configured
+        "502":
+          description: Google returned an error
+
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: Attendance rows, optionally for one session (admin)
+      parameters:
+        - name: sessionId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Attendance rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attendance"
+    put:
+      operationId: markAttendance
+      tags: [attendance]
+      summary: Mark the register for one session (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceMarkInput"
+      responses:
+        "200":
+          description: Saved rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attendance"
+
+  /attendance/at-risk:
+    get:
+      operationId: listStudentsAtRisk
+      tags: [attendance]
+      summary: Students with two or more absences in a rolling four weeks (admin)
+      responses:
+        "200":
+          description: Students at risk
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentAtRisk"
+
 components:
   schemas:
     HealthStatus:
@@ -1155,6 +1312,7 @@ components:
         endTime:     { type: string }
         capacity:    { type: integer }
         studentIds:  { type: array, items: { type: integer } }
+        staffId:      { type: ["integer", "null"] }
         notes:       { type: ["string", "null"] }
         createdAt:   { type: string }
 
@@ -1168,6 +1326,7 @@ components:
         endTime:    { type: string }
         capacity:   { type: integer }
         studentIds: { type: array, items: { type: integer } }
+        staffId:      { type: ["integer", "null"] }
         notes:      { type: string }
 
     SessionUpdate:
@@ -1179,6 +1338,7 @@ components:
         endTime:    { type: string }
         capacity:   { type: integer }
         studentIds: { type: array, items: { type: integer } }
+        staffId:      { type: ["integer", "null"] }
         notes:      { type: string }
 
     # ─── PROGRESS NOTE ─────────────────────────────────────────────────────────
@@ -1292,12 +1452,21 @@ components:
     # ─── DASHBOARD ─────────────────────────────────────────────────────────────
     DashboardSummary:
       type: object
-      required: [totalStudents, sessionsThisWeek, outstandingPayments, newIntakeSubmissions]
+      required: [totalStudents, sessionsThisWeek, outstandingPayments, newIntakeSubmissions, studentsStartedThisMonth, applicationsAwaitingFollowUp, dbsExpiringSoon, dbsNotRecorded, studentsAtRisk, unassignedSessions]
       properties:
-        totalStudents:          { type: integer }
-        sessionsThisWeek:       { type: integer }
-        outstandingPayments:    { type: integer }
-        newIntakeSubmissions:   { type: integer }
+        totalStudents:               { type: integer }
+        sessionsThisWeek:            { type: integer }
+        outstandingPayments:         { type: integer }
+        newIntakeSubmissions:        { type: integer }
+        studentsStartedThisMonth:    { type: integer }
+        applicationsAwaitingFollowUp: { type: integer }
+        dbsExpiringSoon:             { type: integer }
+        dbsNotRecorded:              { type: integer }
+        # null when no sessions have been marked this week — an unmarked
+        # register is not the same as 0% attendance.
+        attendanceThisWeek:          { type: ["integer", "null"] }
+        studentsAtRisk:              { type: integer }
+        unassignedSessions:          { type: integer }
 
     ActivityItem:
       type: object
@@ -1340,6 +1509,10 @@ components:
         paypalSecret:           { type: ["string", "null"] }
         stripePublishableKey:   { type: ["string", "null"] }
         stripeSecretKey:        { type: ["string", "null"] }
+        googlePlaceId:        { type: ["string", "null"] }
+        googleApiKey:         { type: ["string", "null"] }
+        googleReviewsEnabled: { type: boolean }
+        googleReviewsSyncedAt: { type: ["string", "null"] }
         bookingWidgetCode:      { type: ["string", "null"] }
         bookingWidgetEnabled:   { type: boolean }
         bookingWidgetPlacement: { type: ["string", "null"] }
@@ -1365,6 +1538,10 @@ components:
         paypalSecret:           { type: string }
         stripePublishableKey:   { type: string }
         stripeSecretKey:        { type: string }
+        googlePlaceId:        { type: ["string", "null"] }
+        googleApiKey:         { type: ["string", "null"] }
+        googleReviewsEnabled: { type: boolean }
+        googleReviewsSyncedAt: { type: ["string", "null"] }
         bookingWidgetCode:      { type: string }
         bookingWidgetEnabled:   { type: boolean }
         bookingWidgetPlacement: { type: string }
@@ -1401,6 +1578,8 @@ components:
         role:         { type: string }
         hourlyRate:   { type: ["number", "null"] }
         hoursPerWeek: { type: ["integer", "null"] }
+        dbsCertificateNumber: { type: ["string", "null"] }
+        dbsExpiryDate:        { type: ["string", "null"] }
         notes:        { type: ["string", "null"] }
         joinedAt:     { type: string }
 
@@ -1414,6 +1593,8 @@ components:
         role:         { type: string }
         hourlyRate:   { type: number }
         hoursPerWeek: { type: integer }
+        dbsCertificateNumber: { type: ["string", "null"] }
+        dbsExpiryDate:        { type: ["string", "null"] }
         notes:        { type: string }
 
     StaffUpdate:
@@ -1518,6 +1699,118 @@ components:
         body:    { type: string, minLength: 1 }
 
     # ─── COURSE ──────────────────────────────────────────────────────────────────
+    Attendance:
+      type: object
+      required: [id, sessionId, studentId, status, recordedAt]
+      properties:
+        id:         { type: integer }
+        sessionId:  { type: integer }
+        studentId:  { type: integer }
+        status:     { type: string, enum: [present, absent, late, excused] }
+        notes:      { type: ["string", "null"] }
+        recordedAt: { type: string }
+
+    AttendanceMarkInput:
+      type: object
+      required: [sessionId, entries]
+      properties:
+        sessionId: { type: integer }
+        entries:
+          type: array
+          items:
+            type: object
+            required: [studentId, status]
+            properties:
+              studentId: { type: integer }
+              status:    { type: string, enum: [present, absent, late, excused] }
+              notes:     { type: ["string", "null"] }
+
+    StudentAtRisk:
+      type: object
+      required: [studentId, name, absences, weeks]
+      properties:
+        studentId: { type: integer }
+        name:      { type: string }
+        subject:   { type: ["string", "null"] }
+        level:     { type: ["string", "null"] }
+        absences:  { type: integer }
+        weeks:
+          type: array
+          items: { type: boolean }
+
+    Review:
+      type: object
+      required: [id, source, authorName, rating, body, isVisible, displayOrder, createdAt]
+      properties:
+        id:              { type: integer }
+        source:          { type: string, enum: [manual, google] }
+        authorName:      { type: string }
+        authorPhotoUrl:  { type: ["string", "null"] }
+        rating:          { type: integer, minimum: 1, maximum: 5 }
+        body:            { type: string }
+        relationship:    { type: ["string", "null"] }
+        reviewedAt:      { type: ["string", "null"] }
+        googleReviewId:  { type: ["string", "null"] }
+        isVisible:       { type: boolean }
+        displayOrder:    { type: integer }
+        createdAt:       { type: string }
+
+    ReviewInput:
+      type: object
+      required: [authorName, rating, body]
+      properties:
+        authorName:   { type: string, minLength: 1, maxLength: 120 }
+        rating:       { type: integer, minimum: 1, maximum: 5 }
+        body:         { type: string, minLength: 1, maxLength: 2000 }
+        relationship: { type: ["string", "null"], maxLength: 120 }
+        reviewedAt:   { type: ["string", "null"] }
+        isVisible:    { type: boolean }
+        displayOrder: { type: integer }
+
+    ReviewUpdate:
+      type: object
+      properties:
+        authorName:   { type: string, minLength: 1, maxLength: 120 }
+        rating:       { type: integer, minimum: 1, maximum: 5 }
+        body:         { type: string, minLength: 1, maxLength: 2000 }
+        relationship: { type: ["string", "null"], maxLength: 120 }
+        reviewedAt:   { type: ["string", "null"] }
+        isVisible:    { type: boolean }
+        displayOrder: { type: integer }
+
+    PublicReview:
+      type: object
+      required: [id, source, authorName, rating, body]
+      properties:
+        id:             { type: integer }
+        source:         { type: string, enum: [manual, google] }
+        authorName:     { type: string }
+        authorPhotoUrl: { type: ["string", "null"] }
+        rating:         { type: integer }
+        body:           { type: string }
+        relationship:   { type: ["string", "null"] }
+        reviewedAt:     { type: ["string", "null"] }
+
+    PublicReviewsResponse:
+      type: object
+      required: [reviews, averageRating, total]
+      properties:
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicReview"
+        averageRating: { type: ["number", "null"] }
+        total:         { type: integer }
+
+    GoogleReviewSyncResponse:
+      type: object
+      required: [imported, updated, total, syncedAt]
+      properties:
+        imported: { type: integer }
+        updated:  { type: integer }
+        total:    { type: integer }
+        syncedAt: { type: string }
+
     Course:
       type: object
       required: [id, title, description, subject, level, type, price, duration, available, displayOrder, createdAt]

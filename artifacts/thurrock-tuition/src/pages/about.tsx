@@ -1,237 +1,182 @@
+// Ported verbatim from the approved design handover
+// (Thurrock-Tuition-Claude-Code-Handover/reference/dist/about).
+// Structure, class names, copy and inline SVG are the reference's; only
+// links are routed through wouter. Styling lives in src/styles/tta-public.css.
 import { Link } from "wouter";
-import PublicNav from "@/components/layout/public-nav";
-import PublicFooter from "@/components/layout/public-footer";
+import PublicShell from "@/components/public/public-shell";
 
-const VALUES = [
-  {
-    icon: "❤️",
-    title: "Genuine Care",
-    body: "Every student is treated as an individual. We take the time to understand their learning style, their fears, and their goals — then build a programme around them.",
-  },
-  {
-    icon: "🏆",
-    title: "High Standards",
-    body: "We never settle for 'good enough'. Our students are always pushed — encouragingly — to reach beyond what they think they're capable of.",
-  },
-  {
-    icon: "🤝",
-    title: "Partnership with Parents",
-    body: "Parents aren't kept in the dark. We communicate openly, share progress regularly, and invite parents to be active participants in their child's education.",
-  },
-  {
-    icon: "🌟",
-    title: "Confidence First",
-    body: "Grades improve when confidence grows. We build students up as people before we push them academically — because a confident student is a successful student.",
-  },
-  {
-    icon: "📚",
-    title: "Expertise & Preparation",
-    body: "Our tutors are qualified teachers who know the exam boards inside out. We don't guess — we teach exactly what's needed, in exactly the right way.",
-  },
-  {
-    icon: "🌱",
-    title: "Long-Term Growth",
-    body: "We don't just prepare students for their next exam. We build study habits, critical thinking skills, and self-belief that will serve them for life.",
-  },
-];
-
-const TEAM = [
-  {
-    name: "Khadija",
-    role: "Founder & Lead Tutor",
-    bio: "Khadija founded Thurrock Tuition Academy with a simple belief: every child deserves access to excellent teaching. With years of classroom and tutoring experience across Maths, English and Science, she brings warmth, expertise and a relentless commitment to her students. She is fully DBS checked and holds Qualified Teacher Status.",
-    subjects: ["Maths", "English", "11+", "GCSE", "A-Level"],
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=80",
-  },
-];
-
-const TIMELINE = [
-  { year: "2018", event: "Khadija begins private tutoring from home, working with local families in Grays." },
-  { year: "2020", event: "Despite the pandemic, online sessions allow TTA to grow. Students across Essex benefit from structured remote tuition." },
-  { year: "2022", event: "TTA moves into professional premises at Queensgate Centre, Orsett Road, offering in-person group sessions." },
-  { year: "2023", event: "The parent portal launches, giving families real-time visibility into their child's progress, tasks and sessions." },
-  { year: "2025", event: "TTA continues to grow, with 200+ students supported and an expanding team of qualified tutors." },
-];
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <PublicNav />
+    <PublicShell active="C:/Program Files/Git/about">
 
-      {/* Hero */}
-      <section className="pt-32 pb-20 bg-[#1B2B6B] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1B2B6B] to-[#0f1a3e]" />
-        <div
-          className="absolute inset-0 opacity-10 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&auto=format&fit=crop&q=80')" }}
-        />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">Our Story</p>
-          <h1 className="text-5xl md:text-6xl font-bold font-serif text-white mb-6 text-balance">
-            About Thurrock Tuition Academy
-          </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            A Thurrock-rooted tuition centre founded by a qualified teacher with a passion for seeing every student in Grays, Tilbury, Chafford Hundred and across Essex succeed — whatever their starting point.
-          </p>
-        </div>
+      <section className="page-hero">
+      <div className="wrap">
+      <div className="breadcrumb">
+      <Link href="/">Home</Link>
+      <span>/</span>
+      <span>About the academy</span>
+      </div>
+      <div className="eyebrow">About the academy</div>
+      <h1>A local academy.<br />A personal approach.</h1>
+      <p className="lead">Rooted in Thurrock. Founded on the belief that the right teaching, a little patience and genuine encouragement can change how a child feels about learning.</p>
+      </div>
+      </section>
+      <section className="section wrap">
+      <div className="story">
+      <img src={`${basePath}/img/academy.jpg`} alt="A student browsing the shelves of a library" width="1600" height="1067" loading="lazy" />
+      <div>
+      <div className="eyebrow">Our story</div>
+      <h2>Sometimes, all it takes<br />is someone who has time.</h2>
+      <p>After years of teaching in schools, Khadija saw that students who struggled often needed more support, rather than more pressure. In a busy classroom, individual attention can be hard to find.</p>
+      <p>She started tutoring to make space for patient explanations, questions and another attempt. A few sessions from home grew through word of mouth into Thurrock Tuition Academy.</p>
+      <p>Today, that same personal approach is at the heart of our small-group teaching at Queensgate Centre in Grays.</p>
+      </div>
+      </div>
+      </section>
+      <section className="wrap mission-grid">
+      <div className="mission" id="mission">
+      <div className="eyebrow">Our mission</div>
+      <h2>Help every child see<br />what they can do.</h2>
+      <p>Give students across Thurrock access to expert, personalised tuition, whatever their starting point. Combine serious academic support with the encouragement to feel seen, heard and capable.</p>
+      </div>
+      <div className="mission" id="vision">
+      <div className="eyebrow">Our vision</div>
+      <h2>A stronger future<br />for our community.</h2>
+      <p>Be a trusted place for families across Essex. Help students leave with more than better grades: the resilience, critical thinking and self-belief to take their next step.</p>
+      </div>
+      </section>
+      <section className="section wrap">
+      <div className="founder">
+      <div className="founder-name">
+      <span className="initial" aria-hidden="true">K.</span>
+      <h3>Khadija</h3>
+      <p>Founder & Lead Tutor</p>
+      </div>
+      <div className="founder-copy">
+      <div className="eyebrow">Meet the founder</div>
+      <h2>Great teaching.<br />With a human touch.</h2>
+      <p>Khadija founded the academy with a simple belief: every child deserves excellent teaching. Her classroom and tutoring experience across Maths, English and Science informs a warm, structured approach to learning.</p>
+      <p>A qualified teacher with enhanced DBS clearance, she works with families to make every student’s next step clear.</p>
+      <div className="tags">
+      <span className="tag">Qualified Teacher Status</span>
+      <span className="tag">Enhanced DBS checked</span>
+      </div>
+      </div>
+      </div>
+      </section>
+      <section className="section pricing">
+      <div className="wrap">
+      <div className="section-head">
+      <div>
+      <div className="eyebrow">What matters to us</div>
+      <h2>Our values, in every lesson.</h2>
+      </div>
+      </div>
+      <div className="journey">
+      <div>
+      <span className="num">01 /</span>
+      <h3>Genuine care</h3>
+      <p>We get to know the child, not just the grade. Their strengths, concerns and goals shape the way we teach.</p>
+      </div>
+      <div>
+      <span className="num">02 /</span>
+      <h3>High standards</h3>
+      <p>The right challenge, with the encouragement and support to help students reach it.</p>
+      </div>
+      <div>
+      <span className="num">03 /</span>
+      <h3>A partnership with parents</h3>
+      <p>Open communication, regular progress updates and room for your questions.</p>
+      </div>
+      <div>
+      <span className="num">04 /</span>
+      <h3>Confidence first</h3>
+      <p>Students need to feel safe asking questions, making mistakes and trying again.</p>
+      </div>
+      <div>
+      <span className="num">05 /</span>
+      <h3>Expertise & preparation</h3>
+      <p>Qualified teachers, careful planning and teaching aligned to the exam board.</p>
+      </div>
+      <div>
+      <span className="num">06 /</span>
+      <h3>Long-term growth</h3>
+      <p>Study habits, critical thinking and self-belief that last beyond the next exam.</p>
+      </div>
+      </div>
+      </div>
+      </section>
+      <section className="section wrap">
+      <div className="section-head">
+      <div>
+      <div className="eyebrow">Growing with our community</div>
+      <h2>The academy so far.</h2>
+      </div>
+      </div>
+      <div className="timeline">
+      <div>
+      <b>2018</b>
+      <p>Khadija begins tutoring local families from home in Grays.</p>
+      </div>
+      <div>
+      <b>2020</b>
+      <p>Online sessions extend support to students across Essex.</p>
+      </div>
+      <div>
+      <b>2022</b>
+      <p>The academy moves to Queensgate Centre for in-person group tuition.</p>
+      </div>
+      <div>
+      <b>2023</b>
+      <p>The parent portal brings progress, tasks and sessions together.</p>
+      </div>
+      <div>
+      <b>2025</b>
+      <p>The academy continues to grow, supporting more local families.</p>
+      </div>
+      </div>
+      </section>
+      <section className="section assessment">
+      <div className="wrap assessment-layout">
+      <div>
+      <div className="eyebrow">A good place to begin</div>
+      <h2>Let’s understand<br />how your child learns.</h2>
+      <p>Every new student starts with a free assessment. We take the time to listen, identify the gaps and make a plan together.</p>
+      <div className="actions">
+      <Link className="btn " href="/contact">Book a free assessment<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <path d="M4 12h15m-6-6 6 6-6 6" />
+      </svg>
+      </Link>
+      </div>
+      <p className="smallprint">Completely free. No obligation to continue.</p>
+      </div>
+      <div className="assessment-steps">
+      <div className="assessment-step">
+      <b>01</b>
+      <h3>Baseline assessment</h3>
+      <p>Find out what your child understands and where they need a little more help.</p>
+      </div>
+      <div className="assessment-step">
+      <b>02</b>
+      <h3>A conversation with you</h3>
+      <p>Talk through their goals, challenges and the exams ahead.</p>
+      </div>
+      <div className="assessment-step">
+      <b>03</b>
+      <h3>A personal learning plan</h3>
+      <p>A clear route shaped around their level, exam board and target.</p>
+      </div>
+      <div className="assessment-step">
+      <b>04</b>
+      <h3>Written targets report</h3>
+      <p>Know their starting point and the milestones we’ll work towards.</p>
+      </div>
+      </div>
+      </div>
       </section>
 
-      {/* Mission & Vision */}
-      <section id="mission" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&auto=format&fit=crop&q=80"
-                alt="Tuition session"
-                className="w-full h-[450px] object-cover rounded-3xl shadow-2xl"
-              />
-            </div>
-            <div className="space-y-10">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-[#1B2B6B]/10 rounded-full px-4 py-1.5 mb-4">
-                  <span className="text-[#1B2B6B] text-sm font-semibold">🎯 Our Mission</span>
-                </div>
-                <h2 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-4">To Unlock Every Child's Potential</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Our mission is to provide expert, personalised tuition that helps every student across Thurrock — from Grays and Tilbury to Chafford Hundred, Stanford-le-Hope, Corringham and South Ockendon — regardless of their background or starting point, to achieve grades they're proud of. We believe no child in our community should be left behind for lack of access to great teaching.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mt-3">
-                  We combine rigorous academic support with genuine emotional encouragement. When a student walks into TTA, they feel seen, heard, and supported — not judged. That's what makes the difference, and it's why families across the entire Thurrock borough trust us year after year.
-                </p>
-              </div>
-
-              <div id="vision">
-                <div className="inline-flex items-center gap-2 bg-[#C9973A]/10 rounded-full px-4 py-1.5 mb-4">
-                  <span className="text-[#C9973A] text-sm font-semibold">🌟 Our Vision</span>
-                </div>
-                <h2 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-4">A Community Built on Success</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  We envision Thurrock Tuition Academy becoming the most trusted educational support centre in Essex — a place where families return year after year, where students recommend TTA to their friends, and where the community sees measurable improvements in local educational outcomes.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mt-3">
-                  Our vision extends beyond grades. We want our students to leave TTA equipped with the resilience, critical thinking and self-belief to thrive in whatever path they choose.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why We Started */}
-      <section className="py-24 bg-[#f3f4f8]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-4">The Story Behind TTA</p>
-          <h2 className="text-4xl font-bold font-serif text-[#1B2B6B] mb-8">Why We Started</h2>
-          <div className="space-y-5 text-muted-foreground text-lg leading-relaxed text-left">
-            <p>
-              Thurrock Tuition Academy was founded by Khadija after years of teaching in schools and witnessing a clear pattern: many students who struggled weren't lacking ability — they were lacking support. In a classroom of thirty, it's impossible for a teacher to give each child what they truly need.
-            </p>
-            <p>
-              Khadija started tutoring because she wanted to close that gap. To give students the individual attention, the patient explanation, the second and third attempt that school couldn't always offer. What began as a few sessions from home grew — through word of mouth and a stream of success stories — into what TTA is today.
-            </p>
-            <p>
-              Every student who walks through our door is treated as an individual with unique strengths and unique challenges. That's not a marketing line — it's how we've always worked, and it's what drives the results our families tell us about every year.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Meet the Team */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">The People Behind TTA</p>
-            <h2 className="text-4xl font-bold font-serif text-[#1B2B6B]">Meet Our Team</h2>
-          </div>
-
-          {TEAM.map(({ name, role, bio, subjects, image }) => (
-            <div key={name} className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-              <div className="relative">
-                <img src={image} alt={name} className="w-full h-[450px] object-cover object-top rounded-3xl shadow-xl" />
-                <div className="absolute -bottom-4 -right-4 bg-[#C9973A] rounded-2xl px-5 py-3 shadow-lg">
-                  <p className="text-white text-xs font-semibold">QTS Qualified</p>
-                  <p className="text-white/80 text-xs">Enhanced DBS Checked</p>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-3xl font-bold font-serif text-[#1B2B6B] mb-1">{name}</h3>
-                <p className="text-[#C9973A] font-semibold mb-5">{role}</p>
-                <p className="text-muted-foreground leading-relaxed mb-6">{bio}</p>
-                <div className="flex flex-wrap gap-2">
-                  {subjects.map((s) => (
-                    <span key={s} className="bg-[#1B2B6B]/8 text-[#1B2B6B] text-sm font-medium px-3 py-1.5 rounded-full">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="py-24 bg-[#f3f4f8]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">What We Stand For</p>
-            <h2 className="text-4xl font-bold font-serif text-[#1B2B6B]">Our Core Values</h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {VALUES.map(({ icon, title, body }) => (
-              <div key={title} className="bg-white p-7 rounded-2xl border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="text-3xl mb-4">{icon}</div>
-                <h3 className="text-xl font-bold font-serif text-[#1B2B6B] mb-2">{title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section className="py-24 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <p className="text-[#C9973A] font-semibold uppercase tracking-widest text-sm mb-3">Our Journey</p>
-            <h2 className="text-4xl font-bold font-serif text-[#1B2B6B]">TTA Through the Years</h2>
-          </div>
-          <div className="relative">
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border" />
-            <div className="space-y-10">
-              {TIMELINE.map(({ year, event }) => (
-                <div key={year} className="flex gap-8 items-start">
-                  <div className="flex flex-col items-center shrink-0">
-                    <div className="w-16 h-16 rounded-2xl bg-[#1B2B6B] text-white font-bold font-serif text-sm flex items-center justify-center shadow-md z-10">
-                      {year}
-                    </div>
-                  </div>
-                  <div className="flex-1 pt-4">
-                    <p className="text-muted-foreground leading-relaxed">{event}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-[#1B2B6B]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-4xl font-bold font-serif text-white mb-4">Join the TTA Family</h2>
-          <p className="text-white/70 mb-8 text-lg">Book a free assessment and see what personalised tuition can do for your child.</p>
-          <Link
-            href="/contact"
-            className="inline-block bg-[#C9973A] hover:bg-[#b8872e] text-white font-bold px-10 py-4 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-0.5"
-          >
-            Book Free Assessment →
-          </Link>
-        </div>
-      </section>
-
-      <PublicFooter />
-    </div>
+    </PublicShell>
   );
 }

@@ -24,6 +24,13 @@ export interface SettingsInput {
   paypalSecret?: string;
   stripePublishableKey?: string;
   stripeSecretKey?: string;
+  /** @nullable */
+  googlePlaceId?: string | null;
+  /** @nullable */
+  googleApiKey?: string | null;
+  googleReviewsEnabled?: boolean;
+  /** @nullable */
+  googleReviewsSyncedAt?: string | null;
   bookingWidgetCode?: string;
   bookingWidgetEnabled?: boolean;
   bookingWidgetPlacement?: string;

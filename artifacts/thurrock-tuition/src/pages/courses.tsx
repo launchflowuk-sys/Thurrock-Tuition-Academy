@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Pencil, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const SUBJECTS = ["Maths", "English", "Science", "11+", "Other"];
 const LEVELS = ["KS2", "KS3", "GCSE", "A-Level", "11+", "General"];
@@ -109,22 +110,35 @@ export default function CoursesPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Courses</h1>
+        <h1 className="dash-page-title">Courses</h1>
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 w-full" />)}
       </div>
     );
   }
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = courses ?? [];
+  const availableCount = list.filter((c) => c.available).length;
+  const subjectCount = new Set(list.map((c) => c.subject)).size;
+  const levelCount = new Set(list.map((c) => c.level)).size;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-primary">Courses</h1>
+          <h1 className="dash-page-title">Courses</h1>
           <p className="text-sm text-muted-foreground mt-1">{courses?.length ?? 0} course{courses?.length !== 1 ? "s" : ""} configured</p>
         </div>
         <Button onClick={openAdd} data-testid="button-add-course">
           <Plus size={16} className="mr-2" /> Add Course
         </Button>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Courses" value={String(list.length)} note="In the catalogue" />
+        <Kpi ground={availableCount > 0 ? "teal" : "amber"} label="Available" value={String(availableCount)} note="Open for booking" />
+        <Kpi ground="cobalt" label="Subjects" value={String(subjectCount)} note="Covered" />
+        <Kpi ground="purple" label="Levels" value={String(levelCount)} note="Offered" />
       </div>
 
       {courses?.length === 0 ? (

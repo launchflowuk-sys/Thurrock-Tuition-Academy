@@ -1,0 +1,168 @@
+/* ---------------------------------------------------------------------------
+ * Assessment form controls.
+ *
+ * NOT part of the design handover. The reference Contact page shows a CTA
+ * button where the real application form lives, because the reference was
+ * hosted separately and handed off to the production site. In production that
+ * button would link to itself, so the working multi-step form stays on the page
+ * (see the handover's ROUTES_AND_FUNCTIONALITY.md) and needs form styling the
+ * reference never had to define.
+ *
+ * Everything below is built from the reference's own tokens, spacing rhythm,
+ * radii and focus treatment so the form reads as part of the same system.
+ * Scoped under .tta like the rest of the public design.
+ * ------------------------------------------------------------------------- */
+
+.tta .form-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 30px 0 26px;
+  flex-wrap: wrap;
+}
+.tta .form-steps > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.tta .step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 700 0.85rem/1 Manrope, Arial, sans-serif;
+  background: var(--line);
+  color: var(--muted);
+}
+.tta .step-dot.current {
+  background: var(--navy);
+  color: #fff;
+}
+.tta .step-dot.done {
+  background: var(--yellow);
+  color: var(--navy);
+}
+.tta .step-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.tta .step-name.current {
+  color: var(--navy);
+}
+.tta .step-rule {
+  width: 22px;
+  height: 1px;
+  background: var(--line);
+}
+
+.tta .field {
+  display: block;
+  margin-bottom: 17px;
+}
+.tta .field > label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--ink);
+  margin-bottom: 7px;
+}
+.tta .field .req {
+  color: #c2410c;
+}
+.tta .field input,
+.tta .field select,
+.tta .field textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.tta .field textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+.tta .field input::placeholder,
+.tta .field textarea::placeholder {
+  color: #9aa4b1;
+}
+.tta .field input:focus-visible,
+.tta .field select:focus-visible,
+.tta .field textarea:focus-visible {
+  outline: 3px solid #247ce6;
+  outline-offset: 2px;
+  border-color: var(--navy);
+}
+.tta .field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+.tta .field-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: -9px;
+  margin-bottom: 17px;
+}
+
+.tta .form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+  flex-wrap: wrap;
+}
+.tta .form-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+.tta .form-error {
+  margin-top: 16px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 0.88rem;
+}
+
+.tta .form-done {
+  text-align: center;
+  padding: 18px 0 6px;
+}
+.tta .form-done .tick-big {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: var(--navy);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+.tta .form-done h3 {
+  margin-bottom: 11px;
+}
+.tta .form-done p {
+  max-width: 420px;
+  margin-inline: auto;
+}
+.tta .form-done .actions {
+  justify-content: center;
+  margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+  .tta .field-row {
+    grid-template-columns: 1fr;
+  }
+  .tta .step-name {
+    display: none;
+  }
+}

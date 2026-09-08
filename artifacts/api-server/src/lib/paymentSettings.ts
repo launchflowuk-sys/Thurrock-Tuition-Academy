@@ -16,7 +16,22 @@ export async function getOrCreateSettings() {
   return created;
 }
 
-// Square (and future PayPal/Stripe) credentials, decrypted for actual API use.
+// Every settings column that holds a credential and is therefore encrypted at
+// rest. Keep this in sync with the encrypt() calls in routes/settings.ts and
+// with FIELDS in scripts/encrypt-payment-settings.ts.
+export const ENCRYPTED_SETTINGS_FIELDS = [
+  "smtpPass",
+  "paymentApiKey",
+  "paymentAppId",
+  "paymentAccessToken",
+  "paymentLocationId",
+  "paypalClientId",
+  "paypalSecret",
+  "stripeSecretKey",
+  "googleApiKey",
+] as const;
+
+// Square/PayPal/Stripe credentials, decrypted for actual API use.
 export async function getDecryptedPaymentSettings() {
   const settings = await getOrCreateSettings();
   return {
@@ -25,7 +40,16 @@ export async function getDecryptedPaymentSettings() {
     paymentAppId: readSecret(settings.paymentAppId),
     paymentAccessToken: readSecret(settings.paymentAccessToken),
     paymentLocationId: readSecret(settings.paymentLocationId),
+    paypalClientId: readSecret(settings.paypalClientId),
+    paypalSecret: readSecret(settings.paypalSecret),
+    stripeSecretKey: readSecret(settings.stripeSecretKey),
   };
+}
+
+// SMTP credentials, decrypted for use by nodemailer.
+export async function getDecryptedSmtpSettings() {
+  const settings = await getOrCreateSettings();
+  return { ...settings, smtpPass: readSecret(settings.smtpPass) };
 }
 
 export { readSecret };

@@ -26,9 +26,12 @@
     <meta name="twitter:image" content="https://www.thurrocktuitionacademy.co.uk/opengraph.jpg" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Self-hosted Manrope (headings) + DM Sans (body), bundled with the design
+         handover. Replaces the reference's Google Fonts @import so the public
+         site has no third-party font request and no layout shift from it. -->
+    <link rel="preload" href="/fonts/variable-02.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/variable-08.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/fonts/fonts.css">
 
     <script type="application/ld+json">
     {
@@ -98,7 +101,7 @@
       },
       "priceRange": "££",
       "currenciesAccepted": "GBP",
-      "paymentAccepted": "Cash, Bank Transfer",
+      "paymentAccepted": "Cash, Bank Transfer, Credit Card, Debit Card",
       "sameAs": ["https://wa.me/447480413679"]
     }
     </script>
