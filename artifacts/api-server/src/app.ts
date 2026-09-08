@@ -1,6 +1,7 @@
 import path from "node:path";
 import express, { type Express } from "express";
 import cors from "cors";
+import compression from "compression";
 import cron from "node-cron";
 import pinoHttp from "pino-http";
 import { sessionMiddleware } from "./lib/session";
@@ -28,6 +29,19 @@ const app: Express = express();
 // always false and express-session silently drops the Set-Cookie header
 // whenever cookie.secure is true.
 app.set("trust proxy", 1);
+
+// Compress text responses. Nothing in front of this app does it: Traefik only
+// compresses when its compress middleware is explicitly enabled, and it was
+// not, so the JS bundle was going over the wire at full size — 546kB instead
+// of roughly 160kB. This is the single largest page-weight win on the site.
+//
+// Placed first so it wraps the static assets and the API JSON alike.
+app.use(
+  compression({
+    // Below ~1kB the compression overhead costs more than it saves.
+    threshold: 1024,
+  }),
+);
 
 app.use(
   pinoHttp({
@@ -99,7 +113,23 @@ if (billingCronEnabled) cron.schedule("0 6 * * *", () => {
     .catch((err) => logger.error({ err }, "Recurring billing run failed"));
 });
 
-app.use(express.static(frontendDist));
+app.use(
+  express.static(frontendDist, {
+    // Vite fingerprints everything under /assets, so those URLs are immutable
+    // and can be cached hard. index.html must not be, or a returning visitor
+    // gets an old shell pointing at bundles that no longer exist.
+    setHeaders(res, filePath) {
+      if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      } else if (filePath.endsWith(".html")) {
+        res.setHeader("Cache-Control", "no-cache");
+      } else {
+        // Images, fonts and icons: a day at the edge, revalidate after.
+        res.setHeader("Cache-Control", "public, max-age=86400");
+      }
+    },
+  }),
+);
 
 // SPA fallback: any unmatched GET that isn't an /api route or a real static
 // file falls through to index.html so client-side routing can take over.

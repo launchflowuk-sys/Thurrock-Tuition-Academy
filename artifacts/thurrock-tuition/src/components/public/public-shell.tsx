@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useLocation } from "wouter";
-import { ArrowIcon, MenuIcon } from "./icons";
+import { type ReactNode } from "react";
+import { Link } from "wouter";
+import { ArrowIcon } from "./icons";
+import SiteNav from "./site-nav";
 
 // Shared chrome for every public page, ported from the design handover
 // (Thurrock-Tuition-Claude-Code-Handover/reference/dist). Markup, class names
@@ -48,8 +49,8 @@ const TUITION_LINKS = [
 
 function Brand() {
   return (
-    <Link className="brand" href="/" aria-label="Thurrock Tuition Academy home">
-      <img src={`${basePath}/logo.svg`} alt="" width="51" height="57" />
+    <Link className="brand" href="/">
+      <img src={`${basePath}/logo-mark-96.webp`} alt="" width="46" height="46" decoding="async" />
       <div>
         <strong>Thurrock Tuition</strong>
         <span>ACADEMY</span>
@@ -71,81 +72,6 @@ function UtilityBar() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Header({ active }: { active: string }) {
-  const [open, setOpen] = useState(false);
-  const [location] = useLocation();
-  const menuButton = useRef<HTMLButtonElement>(null);
-
-  // Close on route change — the reference closes the panel when a menu link
-  // is followed.
-  useEffect(() => {
-    setOpen(false);
-  }, [location]);
-
-  // Escape closes the panel and restores focus to the toggle, matching site.js.
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-        menuButton.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
-  const navLink = (href: string, label: string) => (
-    <Link
-      key={label}
-      href={href}
-      className={href === active ? "active" : undefined}
-      aria-current={href === active ? "page" : undefined}
-    >
-      {label}
-    </Link>
-  );
-
-  return (
-    <header className="header">
-      <div className="wrap nav">
-        <Brand />
-        <nav className="navlinks" aria-label="Main navigation">
-          {NAV_LINKS.map((l) => navLink(l.href, l.label))}
-        </nav>
-        <Link className="btn" href="/contact">
-          Book a free assessment
-          <ArrowIcon />
-        </Link>
-        <button
-          ref={menuButton}
-          className="menu-button"
-          type="button"
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Close navigation" : "Open navigation"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <MenuIcon />
-        </button>
-      </div>
-      {/* The reference's mobile panel is an in-flow white panel under the
-          header, not an off-canvas drawer. `open` mirrors its .open class. */}
-      <nav
-        className={open ? "mobile open" : "mobile"}
-        id="mobile-menu"
-        aria-label="Mobile navigation"
-      >
-        {NAV_LINKS.map((l) => navLink(l.href, l.label))}
-        <Link className="btn" href="/contact">
-          Book a free assessment
-          <ArrowIcon />
-        </Link>
-      </nav>
-    </header>
   );
 }
 
@@ -199,7 +125,7 @@ function Footer() {
             </div>
           </div>
           <div>
-            <h4>Explore the academy</h4>
+            <h3>Explore the academy</h3>
             <ul>
               {EXPLORE_LINKS.map((l) => (
                 <li key={l.label}>
@@ -209,7 +135,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h4>Tuition &amp; support</h4>
+            <h3>Tuition &amp; support</h3>
             <ul>
               {TUITION_LINKS.map((l) => (
                 <li key={l.label}>
@@ -219,7 +145,7 @@ function Footer() {
             </ul>
           </div>
           <div className="footer-contact">
-            <h4>Come and say hello</h4>
+            <h3>Come and say hello</h3>
             <p>
               Suite 1, Queensgate Centre<br />Orsett Road, Grays<br />Thurrock, Essex
             </p>
@@ -276,7 +202,7 @@ export default function PublicShell({
         Skip to content
       </a>
       <UtilityBar />
-      <Header active={active} />
+      <SiteNav active={active} />
       <main id="main" className={mainClassName}>
         {children}
       </main>

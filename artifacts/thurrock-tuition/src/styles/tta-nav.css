@@ -1,0 +1,490 @@
+/* ---------------------------------------------------------------------------
+ * Site navigation — desktop mega menu and mobile drawer.
+ *
+ * Extends the ported design system rather than replacing it: same tokens, same
+ * radii, same easing. Scoped under .tta like everything else public.
+ *
+ * The single most important rule in this file is that the mega panel sits at
+ * top:100% of the header with NO gap. A visual gap between the trigger row and
+ * the panel is a strip of page that is not part of the hover region, and the
+ * cursor crossing it closes the menu. Breathing room is padding inside the
+ * panel instead. See the note at the top of site-nav.tsx.
+ * ------------------------------------------------------------------------- */
+
+/* Brand mark — the emblem, with the wordmark as live text beside it. The full
+   badge carries its own baked-in wordmark, which turns to mush at header size
+   and would repeat the text anyway. */
+.tta .brand img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.tta .header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+
+.tta .navlinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.tta .navlinks .chev {
+  width: 15px;
+  height: 15px;
+  opacity: 0.55;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.tta .navlinks .chev.open {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* Right-hand cluster: WhatsApp glyph + primary CTA. */
+.tta .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.tta .nav-wa {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: #1f9d55;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.tta .nav-wa svg {
+  width: 21px;
+  height: 21px;
+}
+.tta .nav-wa:hover {
+  background: #eafaf1;
+  border-color: #b9e6cd;
+  transform: translateY(-2px);
+}
+
+/* ───────────────────────────── Mega panel ─────────────────────────────── */
+
+.tta .mega {
+  position: absolute;
+  top: 100%;      /* flush: no dead strip between trigger row and panel */
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 24px 48px -28px rgba(20, 42, 70, 0.28);
+  z-index: 39;
+}
+
+.tta .mega-inner {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 44px;
+  padding: 34px 0 38px;   /* breathing room lives here, not in a gap */
+}
+
+.tta .mega-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 34px;
+}
+
+.tta .mega-col h4 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin: 0 0 14px;
+}
+.tta .mega-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tta .mega-col li + li {
+  margin-top: 2px;
+}
+.tta .mega-col a {
+  display: block;
+  padding: 9px 11px;
+  margin-left: -11px;
+  border-radius: 11px;
+  transition: background 0.16s ease, transform 0.16s ease;
+}
+.tta .mega-col a:hover {
+  background: var(--grey);
+  transform: translateX(2px);
+}
+.tta .mega-col a span {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.tta .mega-col a small {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.tta .mega-feature {
+  background: var(--navy);
+  border-radius: 18px;
+  padding: 26px;
+  color: #fff;
+  align-self: start;
+}
+.tta .mega-feature h4 {
+  font: 750 1.12rem/1.25 Manrope, Arial, sans-serif;
+  letter-spacing: -0.02em;
+  margin: 0 0 9px;
+  color: #fff;
+}
+.tta .mega-feature p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #c8d4e2;
+  margin: 0 0 18px;
+}
+.tta .mega-feature .btn {
+  width: 100%;
+  justify-content: center;
+  min-height: 46px;
+}
+
+/* ───────────────────────────── Mobile drawer ──────────────────────────── */
+
+.tta .drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 28, 46, 0.52);
+  backdrop-filter: blur(2px);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tta .drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(400px, 90vw);
+  z-index: 61;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -24px 0 60px -20px rgba(15, 28, 46, 0.4);
+  outline: none;
+  /* iOS: keep the last item clear of the home indicator. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.tta .drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.tta .drawer-head img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+.tta .drawer-head strong {
+  display: block;
+  font: 800 1.02rem/1.15 Manrope, Arial, sans-serif;
+  letter-spacing: -0.03em;
+}
+.tta .drawer-head span {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.tta .drawer-close {
+  margin-left: auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.tta .drawer-close svg {
+  width: 19px;
+  height: 19px;
+}
+.tta .drawer-close:hover {
+  background: var(--grey);
+}
+
+.tta .drawer-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 20px 30px;
+  flex: 1;
+}
+
+.tta .drawer-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  padding: 14px 2px;
+  font: 650 1.06rem/1.2 Manrope, Arial, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.tta .drawer-link.active {
+  color: var(--blue);
+}
+.tta .drawer-link svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
+  transition: transform 0.24s ease;
+  flex-shrink: 0;
+}
+.tta .drawer-link.is-open svg {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.tta .drawer-sub {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0 12px 14px;
+  border-left: 2px solid var(--yellow);
+  margin: 4px 0 6px 2px;
+}
+.tta .drawer-sub a {
+  padding: 9px 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+.tta .drawer-sub a:hover {
+  color: var(--ink);
+}
+
+.tta .drawer-actions {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 26px;
+}
+.tta .drawer-actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+.tta .btn.wa {
+  background: #25d366;
+  color: #04321a;
+}
+.tta .btn.wa:hover {
+  background: #1fbb59;
+}
+.tta .btn.wa svg {
+  width: 19px;
+  height: 19px;
+}
+
+.tta .drawer-facts {
+  display: grid;
+  gap: 13px;
+  padding: 20px;
+  background: var(--grey);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+.tta .drawer-facts > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 0.88rem;
+  font-weight: 550;
+  color: var(--ink);
+}
+.tta .drawer-facts svg {
+  width: 21px;
+  height: 21px;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.tta .drawer-areas h4 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin: 0 0 12px;
+}
+.tta .drawer-areas h4 svg {
+  width: 15px;
+  height: 15px;
+}
+.tta .drawer-areas > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.tta .drawer-areas a {
+  font-size: 0.8rem;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+}
+.tta .drawer-areas a:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+.tta .drawer-portal {
+  display: block;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+/* ──────────────────────────── Breakpoints ─────────────────────────────── */
+
+/* The reference hides the desktop nav and shows the burger at 850px. Keep the
+   mega panel off entirely below that — it is a pointer affordance. */
+@media (max-width: 850px) {
+  .tta .mega { display: none; }
+  .tta .nav-actions { display: none; }
+}
+
+@media (min-width: 851px) {
+  .tta .drawer,
+  .tta .drawer-scrim { display: none; }
+}
+
+@media (max-width: 1100px) {
+  .tta .mega-inner {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .tta .mega-feature {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .tta .mega-feature h4 { flex: 1 1 100%; }
+  .tta .mega-feature p { flex: 1; margin-bottom: 0; }
+  .tta .mega-feature .btn { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tta .mega-col a,
+  .tta .nav-wa,
+  .tta .drawer-link svg,
+  .tta .navlinks .chev {
+    transition: none;
+  }
+}
+
+/* ── Drawer motion, in CSS ───────────────────────────────────────────────
+ * Done here rather than with Motion deliberately. Motion's initial/animate on
+ * `x` kept leaving the panel parked at translateX(100%) — completely
+ * off-screen, indistinguishable from "the menu doesn't open". A class toggle
+ * driving a transform transition cannot land in a half-applied state, costs
+ * nothing per frame, and the panel stays in the DOM so `inert` can take it out
+ * of the accessibility tree while closed.
+ */
+.tta .drawer {
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.34s;
+}
+.tta .drawer.open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+}
+
+.tta .drawer-scrim {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+.tta .drawer-scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* height:auto transition without measuring anything in JS. */
+.tta .drawer-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tta .drawer-collapse.open {
+  grid-template-rows: 1fr;
+}
+.tta .drawer-collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tta .drawer,
+  .tta .drawer.open,
+  .tta .drawer-scrim,
+  .tta .drawer-collapse {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* <picture> wraps the hero/approach/story photos so WebP can be served with a
+   JPEG fallback. The design's sizing rules target the <img>, and a stray
+   inline-block wrapper would break the object-fit crop, so the picture element
+   is made transparent to layout. */
+.tta picture {
+  display: contents;
+}
+
+/* Footer credit links carried no underline, so they were distinguishable by
+   colour alone — unreadable as links for anyone with low vision or colour
+   blindness (WCAG 1.4.1 Use of Colour). */
+.tta .footer-bottom a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  color: #dbe4ef;
+}
+.tta .footer-bottom a:hover {
+  color: var(--yellow);
+}

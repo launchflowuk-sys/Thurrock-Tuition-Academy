@@ -1,2 +1,21 @@
 User-agent: *
 Allow: /
+
+# Private application areas — no value in the index, and they only dilute
+# crawl budget on a small site.
+Disallow: /dashboard
+Disallow: /students
+Disallow: /sessions
+Disallow: /attendance
+Disallow: /progress
+Disallow: /tasks
+Disallow: /payments
+Disallow: /courses
+Disallow: /reviews
+Disallow: /staff
+Disallow: /settings
+Disallow: /intake
+Disallow: /parent
+Disallow: /auth-redirect
+
+Sitemap: https://www.thurrocktuitionacademy.co.uk/sitemap.xml
