@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCreateIntakeSubmission } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowIcon } from "./icons";
@@ -78,6 +78,29 @@ export default function AssessmentForm() {
   const createSubmission = useCreateIntakeSubmission();
   const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState<Step>(1);
+  const formTop = useRef<HTMLDivElement>(null);
+
+  // Bring the form itself back into view when the step changes — NOT the top
+  // of the page.
+  //
+  // This used to be window.scrollTo({top: 0}). On desktop the form sits near
+  // the top so it looked harmless, but on a phone the form is a long way down
+  // the Contact page: tapping "Next" threw the visitor back up to the hero,
+  // and they had to scroll all the way down again to find the fields they were
+  // just filling in. Every step. Anchoring to the form keeps their place.
+  const revealForm = () => {
+    const el = formTop.current;
+    if (!el) return;
+    // Offset by the sticky header, or the first field hides underneath it.
+    const HEADER = 112;
+    const y = el.getBoundingClientRect().top + window.scrollY - HEADER;
+    window.scrollTo({
+      top: Math.max(0, y),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  };
   const [form, setForm] = useState(emptyForm);
 
   const set =
@@ -104,7 +127,7 @@ export default function AssessmentForm() {
       }
     }
     setStep((s) => (s + 1) as Step);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    revealForm();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,7 +156,7 @@ export default function AssessmentForm() {
         },
       });
       setSubmitted(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      revealForm();
     } catch {
       toast({ title: "Something went wrong. Please try WhatsApp instead.", variant: "destructive" });
     }
@@ -161,6 +184,7 @@ export default function AssessmentForm() {
   }
 
   return (
+    <div ref={formTop}>
     <form onSubmit={handleSubmit} noValidate>
       <div className="form-steps" aria-label={`Step ${step} of 3`}>
         {([1, 2, 3] as Step[]).map((s) => (
@@ -275,7 +299,7 @@ export default function AssessmentForm() {
             </select>
           </div>
           <div className="form-actions">
-            <button type="button" className="btn outline" onClick={() => setStep(1)}>
+            <button type="button" className="btn outline" onClick={() => { setStep(1); revealForm(); }}>
               Back
             </button>
             <button type="button" className="btn" onClick={nextStep}>
@@ -314,7 +338,7 @@ export default function AssessmentForm() {
             <textarea id="additionalInfo" value={form.additionalInfo} onChange={set("additionalInfo")} rows={3} placeholder="e.g. exam board, target school, specific dates to know, SEN requirements, anything else..." />
           </div>
           <div className="form-actions">
-            <button type="button" className="btn outline" onClick={() => setStep(2)}>
+            <button type="button" className="btn outline" onClick={() => { setStep(2); revealForm(); }}>
               Back
             </button>
             <button type="submit" className="btn" disabled={createSubmission.isPending}>
@@ -325,5 +349,6 @@ export default function AssessmentForm() {
         </>
       )}
     </form>
+    </div>
   );
 }
