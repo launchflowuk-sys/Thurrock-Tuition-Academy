@@ -41,6 +41,10 @@ testem.log
 .env
 .env.*
 !.env.example
+Credentials.txt
+credentials.txt
+*.credentials
+secrets.txt
 
 # System Files
 .DS_Store
