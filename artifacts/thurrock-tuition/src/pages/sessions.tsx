@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useListSessions, getListSessionsQueryKey, useCreateSession, useGetSessionAvailability, getGetSessionAvailabilityQueryKey } from "@workspace/api-client-react";
+import { useListSessions, getListSessionsQueryKey, useCreateSession, useGetSessionAvailability, getGetSessionAvailabilityQueryKey, useListStaff } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Users, Clock } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const SLOT_LABELS = ["Morning Session 1", "Morning Session 2", "Afternoon Session 1", "Afternoon Session 2"];
 const SLOT_TIMES: Record<string, { start: string; end: string }> = {
@@ -23,22 +24,23 @@ export default function SessionsPage() {
   const { data: sessions, isLoading } = useListSessions();
   const { data: availability } = useGetSessionAvailability({ query: { queryKey: getGetSessionAvailabilityQueryKey() } });
   const createSession = useCreateSession();
+  const { data: staffList } = useListStaff();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ date: "", slotLabel: "Morning Session 1", capacity: "8" });
+  const [form, setForm] = useState({ date: "", slotLabel: "Morning Session 1", capacity: "8", staffId: "" });
 
   const handleCreate = async () => {
     if (!form.date) { toast({ title: "Please select a date", variant: "destructive" }); return; }
     const times = SLOT_TIMES[form.slotLabel];
     await createSession.mutateAsync(
-      { data: { date: form.date, slotLabel: form.slotLabel, startTime: times.start, endTime: times.end, capacity: Number(form.capacity) } },
+      { data: { date: form.date, slotLabel: form.slotLabel, startTime: times.start, endTime: times.end, capacity: Number(form.capacity), staffId: form.staffId ? Number(form.staffId) : null } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListSessionsQueryKey() });
           toast({ title: "Session created" });
           setShowAdd(false);
-          setForm({ date: "", slotLabel: "Morning Session 1", capacity: "8" });
+          setForm({ date: "", slotLabel: "Morning Session 1", capacity: "8", staffId: "" });
         },
       }
     );
@@ -47,19 +49,39 @@ export default function SessionsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Sessions</h1>
+        <h1 className="dash-page-title">Sessions</h1>
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 w-full" />)}
       </div>
     );
   }
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = sessions ?? [];
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
+  const thisWeek = list.filter((s) => {
+    const d = new Date(s.date);
+    return d >= weekStart && d < weekEnd;
+  }).length;
+  const unassigned = list.filter((s) => s.staffId == null).length;
+  const places = list.reduce((n, s) => n + (s.capacity ?? 0), 0);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-serif text-primary">Sessions</h1>
+        <h1 className="dash-page-title">Sessions</h1>
         <Button onClick={() => setShowAdd(true)} data-testid="button-add-session">
           <Plus size={16} className="mr-2" /> Schedule Session
         </Button>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Sessions" value={String(list.length)} note="On the timetable" />
+        <Kpi ground="cobalt" label="This week" value={String(thisWeek)} note="Scheduled" />
+        <Kpi ground={unassigned > 0 ? "amber" : "teal"} label="Unassigned" value={String(unassigned)} note={unassigned > 0 ? "No tutor set" : "All covered"} />
+        <Kpi ground="purple" label="Places" value={String(places)} note="Total capacity" />
       </div>
 
       {/* Slot Availability Overview */}
@@ -96,6 +118,7 @@ export default function SessionsPage() {
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1"><Clock size={13} /> {session.startTime}–{session.endTime}</span>
                     <span className="flex items-center gap-1"><Users size={13} /> {session.studentIds?.length ?? 0}/{session.capacity} students</span>
+                    <span>{session.staffId ? ((staffList ?? []).find(m => m.id === session.staffId)?.name ?? "Tutor set") : "No tutor assigned"}</span>
                   </div>
                   {session.notes && <p className="text-sm text-muted-foreground italic">{session.notes}</p>}
                 </div>
@@ -126,6 +149,19 @@ export default function SessionsPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Capacity</label>
               <Input type="number" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} data-testid="input-session-capacity" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Tutor</label>
+              <select
+                value={form.staffId}
+                onChange={e => setForm(f => ({ ...f, staffId: e.target.value }))}
+                data-testid="select-session-tutor"
+              >
+                <option value="">Unassigned</option>
+                {(staffList ?? []).map(m => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
             </div>
           </div>
           <DialogFooter>

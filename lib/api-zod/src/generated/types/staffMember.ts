@@ -18,6 +18,10 @@ export interface StaffMember {
   /** @nullable */
   hoursPerWeek?: number | null;
   /** @nullable */
+  dbsCertificateNumber?: string | null;
+  /** @nullable */
+  dbsExpiryDate?: string | null;
+  /** @nullable */
   notes?: string | null;
   joinedAt: string;
 }

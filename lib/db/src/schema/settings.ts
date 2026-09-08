@@ -19,6 +19,12 @@ export const settingsTable = pgTable("settings", {
   paypalSecret: text("paypal_secret"),
   stripePublishableKey: text("stripe_publishable_key"),
   stripeSecretKey: text("stripe_secret_key"),
+  // Google Business Profile review sync. The API key is a credential and is
+  // encrypted at rest like the payment ones (see ENCRYPTED_SETTINGS_FIELDS).
+  googlePlaceId: text("google_place_id"),
+  googleApiKey: text("google_api_key"),
+  googleReviewsEnabled: boolean("google_reviews_enabled").notNull().default(false),
+  googleReviewsSyncedAt: timestamp("google_reviews_synced_at", { withTimezone: true }),
   bookingWidgetCode: text("booking_widget_code"),
   bookingWidgetEnabled: boolean("booking_widget_enabled").notNull().default(false),
   bookingWidgetPlacement: text("booking_widget_placement").default("contact"),

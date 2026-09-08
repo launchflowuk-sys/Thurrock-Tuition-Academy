@@ -5,9 +5,9 @@ import { randomUUID } from "node:crypto";
 import { pipeline } from "node:stream/promises";
 import type { Request } from "express";
 
-// Local filesystem replacement for the old Replit-sidecar-backed GCS storage.
-// UPLOAD_DIR must be a persistent volume in production (see CLAUDE.md) — if
-// it's left as regular container storage, every upload is lost on redeploy.
+// Local filesystem storage. UPLOAD_DIR must be a persistent mounted volume in
+// production (see CLAUDE.md) — if it's left as regular container storage,
+// every upload is lost on redeploy.
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "/data/uploads";
 const PRIVATE_DIR = path.join(UPLOAD_DIR, "uploads");
 const PUBLIC_DIR = path.join(UPLOAD_DIR, "public");

@@ -13,6 +13,7 @@ import {
 import { requireAuth, requireAdmin, ownsStudent } from "../lib/authMiddleware";
 import { getStudentContact } from "../lib/students";
 import { sendTaskAssignedEmail } from "../lib/email";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -62,7 +63,7 @@ router.post("/tasks", requireAdmin, async (req, res): Promise<void> => {
       title: task.title,
       subject: task.subject,
       dueDate: task.dueDate,
-    }).catch(() => {});
+    }).catch((err) => logger.error({ err }, "Failed to send task-assigned email"));
   }
 });
 

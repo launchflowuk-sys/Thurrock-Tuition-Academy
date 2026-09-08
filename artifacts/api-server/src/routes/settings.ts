@@ -20,6 +20,9 @@ const toSettings = (s: typeof settingsTable.$inferSelect) => ({
   smtpHost: s.smtpHost,
   smtpPort: s.smtpPort,
   smtpUser: s.smtpUser,
+  // Masked, not omitted: without this the UI has no value to send back and
+  // the `!== MASK` guard on write can never be satisfied.
+  smtpPass: s.smtpPass ? MASK : null,
   smtpFrom: s.smtpFrom,
   smtpEnabled: s.smtpEnabled,
   paymentProcessor: s.paymentProcessor,
@@ -35,6 +38,10 @@ const toSettings = (s: typeof settingsTable.$inferSelect) => ({
   paypalSecret: s.paypalSecret ? MASK : null,
   stripePublishableKey: s.stripePublishableKey,
   stripeSecretKey: s.stripeSecretKey ? MASK : null,
+  googlePlaceId: s.googlePlaceId,
+  googleApiKey: s.googleApiKey ? MASK : null,
+  googleReviewsEnabled: s.googleReviewsEnabled,
+  googleReviewsSyncedAt: s.googleReviewsSyncedAt ? s.googleReviewsSyncedAt.toISOString() : null,
   bookingWidgetCode: s.bookingWidgetCode,
   bookingWidgetEnabled: s.bookingWidgetEnabled,
   bookingWidgetPlacement: s.bookingWidgetPlacement,
@@ -63,20 +70,26 @@ router.put("/settings", requireAdmin, async (req, res): Promise<void> => {
     paymentProcessor: d.paymentProcessor ?? settings.paymentProcessor ?? undefined,
     paymentMode: d.paymentMode ?? settings.paymentMode ?? undefined,
     paymentEnabled: d.paymentEnabled ?? settings.paymentEnabled,
+    googlePlaceId: d.googlePlaceId ?? settings.googlePlaceId ?? undefined,
+    googleReviewsEnabled: d.googleReviewsEnabled ?? settings.googleReviewsEnabled,
     bookingWidgetCode: d.bookingWidgetCode ?? settings.bookingWidgetCode ?? undefined,
     bookingWidgetEnabled: d.bookingWidgetEnabled ?? settings.bookingWidgetEnabled,
     bookingWidgetPlacement: d.bookingWidgetPlacement ?? settings.bookingWidgetPlacement ?? undefined,
     updatedAt: new Date(),
   };
-  if (d.smtpPass && d.smtpPass !== MASK) updateData.smtpPass = d.smtpPass;
+  // Secrets: every credential column is encrypted at rest. MASK is what the
+  // GET returns in place of a stored secret, so receiving it back means "user
+  // didn't touch this field" — never overwrite the real value with the mask.
+  if (d.smtpPass && d.smtpPass !== MASK) updateData.smtpPass = encrypt(d.smtpPass);
   if (d.paymentApiKey && d.paymentApiKey !== MASK) updateData.paymentApiKey = encrypt(d.paymentApiKey);
   if (d.paymentAppId && d.paymentAppId !== MASK) updateData.paymentAppId = encrypt(d.paymentAppId);
   if (d.paymentAccessToken && d.paymentAccessToken !== MASK) updateData.paymentAccessToken = encrypt(d.paymentAccessToken);
   if (d.paymentLocationId !== undefined) updateData.paymentLocationId = d.paymentLocationId ? encrypt(d.paymentLocationId) : null;
-  if (d.paypalClientId && d.paypalClientId !== MASK) updateData.paypalClientId = d.paypalClientId;
-  if (d.paypalSecret && d.paypalSecret !== MASK) updateData.paypalSecret = d.paypalSecret;
+  if (d.paypalClientId && d.paypalClientId !== MASK) updateData.paypalClientId = encrypt(d.paypalClientId);
+  if (d.paypalSecret && d.paypalSecret !== MASK) updateData.paypalSecret = encrypt(d.paypalSecret);
   if (d.stripePublishableKey !== undefined) updateData.stripePublishableKey = d.stripePublishableKey;
-  if (d.stripeSecretKey && d.stripeSecretKey !== MASK) updateData.stripeSecretKey = d.stripeSecretKey;
+  if (d.stripeSecretKey && d.stripeSecretKey !== MASK) updateData.stripeSecretKey = encrypt(d.stripeSecretKey);
+  if (d.googleApiKey && d.googleApiKey !== MASK) updateData.googleApiKey = encrypt(d.googleApiKey);
 
   const [updated] = await db.update(settingsTable).set(updateData).where(eq(settingsTable.id, settings.id)).returning();
   res.json(UpdateSettingsResponse.parse(toSettings(updated)));
@@ -99,7 +112,7 @@ router.get("/settings/payment-public", async (req, res): Promise<void> => {
     paymentMode: settings.paymentMode,
     paymentAppId: readSecret(settings.paymentAppId),
     paymentLocationId: readSecret(settings.paymentLocationId),
-    paypalClientId: settings.paypalClientId,
+    paypalClientId: readSecret(settings.paypalClientId),
     stripePublishableKey: settings.stripePublishableKey,
   }));
 });

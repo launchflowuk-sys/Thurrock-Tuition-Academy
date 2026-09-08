@@ -175,6 +175,7 @@ export const ListSessionsResponseItem = zod.object({
   endTime: zod.string(),
   capacity: zod.number(),
   studentIds: zod.array(zod.number()),
+  staffId: zod.number().nullish(),
   notes: zod.string().nullable(),
   createdAt: zod.string(),
 });
@@ -190,6 +191,7 @@ export const CreateSessionBody = zod.object({
   endTime: zod.string(),
   capacity: zod.number(),
   studentIds: zod.array(zod.number()).optional(),
+  staffId: zod.number().nullish(),
   notes: zod.string().optional(),
 });
 
@@ -208,6 +210,7 @@ export const GetSessionResponse = zod.object({
   endTime: zod.string(),
   capacity: zod.number(),
   studentIds: zod.array(zod.number()),
+  staffId: zod.number().nullish(),
   notes: zod.string().nullable(),
   createdAt: zod.string(),
 });
@@ -226,6 +229,7 @@ export const UpdateSessionBody = zod.object({
   endTime: zod.string().optional(),
   capacity: zod.number().optional(),
   studentIds: zod.array(zod.number()).optional(),
+  staffId: zod.number().nullish(),
   notes: zod.string().optional(),
 });
 
@@ -237,6 +241,7 @@ export const UpdateSessionResponse = zod.object({
   endTime: zod.string(),
   capacity: zod.number(),
   studentIds: zod.array(zod.number()),
+  staffId: zod.number().nullish(),
   notes: zod.string().nullable(),
   createdAt: zod.string(),
 });
@@ -467,6 +472,13 @@ export const GetDashboardSummaryResponse = zod.object({
   sessionsThisWeek: zod.number(),
   outstandingPayments: zod.number(),
   newIntakeSubmissions: zod.number(),
+  studentsStartedThisMonth: zod.number(),
+  applicationsAwaitingFollowUp: zod.number(),
+  dbsExpiringSoon: zod.number(),
+  dbsNotRecorded: zod.number(),
+  attendanceThisWeek: zod.number().nullish(),
+  studentsAtRisk: zod.number(),
+  unassignedSessions: zod.number(),
 });
 
 /**
@@ -508,6 +520,8 @@ export const ListStaffResponseItem = zod.object({
   role: zod.string(),
   hourlyRate: zod.number().nullish(),
   hoursPerWeek: zod.number().nullish(),
+  dbsCertificateNumber: zod.string().nullish(),
+  dbsExpiryDate: zod.string().nullish(),
   notes: zod.string().nullish(),
   joinedAt: zod.string(),
 });
@@ -524,6 +538,8 @@ export const CreateStaffBody = zod.object({
   role: zod.string(),
   hourlyRate: zod.number().optional(),
   hoursPerWeek: zod.number().optional(),
+  dbsCertificateNumber: zod.string().nullish(),
+  dbsExpiryDate: zod.string().nullish(),
   notes: zod.string().optional(),
 });
 
@@ -542,6 +558,8 @@ export const GetStaffResponse = zod.object({
   role: zod.string(),
   hourlyRate: zod.number().nullish(),
   hoursPerWeek: zod.number().nullish(),
+  dbsCertificateNumber: zod.string().nullish(),
+  dbsExpiryDate: zod.string().nullish(),
   notes: zod.string().nullish(),
   joinedAt: zod.string(),
 });
@@ -571,6 +589,8 @@ export const UpdateStaffResponse = zod.object({
   role: zod.string(),
   hourlyRate: zod.number().nullish(),
   hoursPerWeek: zod.number().nullish(),
+  dbsCertificateNumber: zod.string().nullish(),
+  dbsExpiryDate: zod.string().nullish(),
   notes: zod.string().nullish(),
   joinedAt: zod.string(),
 });
@@ -667,6 +687,10 @@ export const GetSettingsResponse = zod.object({
   paypalSecret: zod.string().nullish(),
   stripePublishableKey: zod.string().nullish(),
   stripeSecretKey: zod.string().nullish(),
+  googlePlaceId: zod.string().nullish(),
+  googleApiKey: zod.string().nullish(),
+  googleReviewsEnabled: zod.boolean().optional(),
+  googleReviewsSyncedAt: zod.string().nullish(),
   bookingWidgetCode: zod.string().nullish(),
   bookingWidgetEnabled: zod.boolean(),
   bookingWidgetPlacement: zod.string().nullish(),
@@ -694,6 +718,10 @@ export const UpdateSettingsBody = zod.object({
   paypalSecret: zod.string().optional(),
   stripePublishableKey: zod.string().optional(),
   stripeSecretKey: zod.string().optional(),
+  googlePlaceId: zod.string().nullish(),
+  googleApiKey: zod.string().nullish(),
+  googleReviewsEnabled: zod.boolean().optional(),
+  googleReviewsSyncedAt: zod.string().nullish(),
   bookingWidgetCode: zod.string().optional(),
   bookingWidgetEnabled: zod.boolean().optional(),
   bookingWidgetPlacement: zod.string().optional(),
@@ -716,6 +744,10 @@ export const UpdateSettingsResponse = zod.object({
   paypalSecret: zod.string().nullish(),
   stripePublishableKey: zod.string().nullish(),
   stripeSecretKey: zod.string().nullish(),
+  googlePlaceId: zod.string().nullish(),
+  googleApiKey: zod.string().nullish(),
+  googleReviewsEnabled: zod.boolean().optional(),
+  googleReviewsSyncedAt: zod.string().nullish(),
   bookingWidgetCode: zod.string().nullish(),
   bookingWidgetEnabled: zod.boolean(),
   bookingWidgetPlacement: zod.string().nullish(),
@@ -922,3 +954,180 @@ export const UpdateCourseResponse = zod.object({
 export const DeleteCourseParams = zod.object({
   id: zod.coerce.number(),
 });
+
+/**
+ * @summary Visible reviews for the public website (no auth)
+ */
+export const ListPublicReviewsResponse = zod.object({
+  reviews: zod.array(
+    zod.object({
+      id: zod.number(),
+      source: zod.enum(["manual", "google"]),
+      authorName: zod.string(),
+      authorPhotoUrl: zod.string().nullish(),
+      rating: zod.number(),
+      body: zod.string(),
+      relationship: zod.string().nullish(),
+      reviewedAt: zod.string().nullish(),
+    }),
+  ),
+  averageRating: zod.number().nullable(),
+  total: zod.number(),
+});
+
+/**
+ * @summary List every review, hidden ones included (admin)
+ */
+export const listReviewsResponseRatingMax = 5;
+
+export const ListReviewsResponseItem = zod.object({
+  id: zod.number(),
+  source: zod.enum(["manual", "google"]),
+  authorName: zod.string(),
+  authorPhotoUrl: zod.string().nullish(),
+  rating: zod.number().min(1).max(listReviewsResponseRatingMax),
+  body: zod.string(),
+  relationship: zod.string().nullish(),
+  reviewedAt: zod.string().nullish(),
+  googleReviewId: zod.string().nullish(),
+  isVisible: zod.boolean(),
+  displayOrder: zod.number(),
+  createdAt: zod.string(),
+});
+export const ListReviewsResponse = zod.array(ListReviewsResponseItem);
+
+/**
+ * @summary Add a manual review (admin)
+ */
+export const createReviewBodyAuthorNameMax = 120;
+
+export const createReviewBodyRatingMax = 5;
+
+export const createReviewBodyBodyMax = 2000;
+
+export const createReviewBodyRelationshipMax = 120;
+
+export const CreateReviewBody = zod.object({
+  authorName: zod.string().min(1).max(createReviewBodyAuthorNameMax),
+  rating: zod.number().min(1).max(createReviewBodyRatingMax),
+  body: zod.string().min(1).max(createReviewBodyBodyMax),
+  relationship: zod.string().max(createReviewBodyRelationshipMax).nullish(),
+  reviewedAt: zod.string().nullish(),
+  isVisible: zod.boolean().optional(),
+  displayOrder: zod.number().optional(),
+});
+
+/**
+ * @summary Update a review (admin)
+ */
+export const UpdateReviewParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const updateReviewBodyAuthorNameMax = 120;
+
+export const updateReviewBodyRatingMax = 5;
+
+export const updateReviewBodyBodyMax = 2000;
+
+export const updateReviewBodyRelationshipMax = 120;
+
+export const UpdateReviewBody = zod.object({
+  authorName: zod.string().min(1).max(updateReviewBodyAuthorNameMax).optional(),
+  rating: zod.number().min(1).max(updateReviewBodyRatingMax).optional(),
+  body: zod.string().min(1).max(updateReviewBodyBodyMax).optional(),
+  relationship: zod.string().max(updateReviewBodyRelationshipMax).nullish(),
+  reviewedAt: zod.string().nullish(),
+  isVisible: zod.boolean().optional(),
+  displayOrder: zod.number().optional(),
+});
+
+export const updateReviewResponseRatingMax = 5;
+
+export const UpdateReviewResponse = zod.object({
+  id: zod.number(),
+  source: zod.enum(["manual", "google"]),
+  authorName: zod.string(),
+  authorPhotoUrl: zod.string().nullish(),
+  rating: zod.number().min(1).max(updateReviewResponseRatingMax),
+  body: zod.string(),
+  relationship: zod.string().nullish(),
+  reviewedAt: zod.string().nullish(),
+  googleReviewId: zod.string().nullish(),
+  isVisible: zod.boolean(),
+  displayOrder: zod.number(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete a review (admin)
+ */
+export const DeleteReviewParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary Pull the latest reviews from the Google Business Profile listing (admin)
+ */
+export const SyncGoogleReviewsResponse = zod.object({
+  imported: zod.number(),
+  updated: zod.number(),
+  total: zod.number(),
+  syncedAt: zod.string(),
+});
+
+/**
+ * @summary Attendance rows, optionally for one session (admin)
+ */
+export const ListAttendanceQueryParams = zod.object({
+  sessionId: zod.coerce.number().optional(),
+});
+
+export const ListAttendanceResponseItem = zod.object({
+  id: zod.number(),
+  sessionId: zod.number(),
+  studentId: zod.number(),
+  status: zod.enum(["present", "absent", "late", "excused"]),
+  notes: zod.string().nullish(),
+  recordedAt: zod.string(),
+});
+export const ListAttendanceResponse = zod.array(ListAttendanceResponseItem);
+
+/**
+ * @summary Mark the register for one session (admin)
+ */
+export const MarkAttendanceBody = zod.object({
+  sessionId: zod.number(),
+  entries: zod.array(
+    zod.object({
+      studentId: zod.number(),
+      status: zod.enum(["present", "absent", "late", "excused"]),
+      notes: zod.string().nullish(),
+    }),
+  ),
+});
+
+export const MarkAttendanceResponseItem = zod.object({
+  id: zod.number(),
+  sessionId: zod.number(),
+  studentId: zod.number(),
+  status: zod.enum(["present", "absent", "late", "excused"]),
+  notes: zod.string().nullish(),
+  recordedAt: zod.string(),
+});
+export const MarkAttendanceResponse = zod.array(MarkAttendanceResponseItem);
+
+/**
+ * @summary Students with two or more absences in a rolling four weeks (admin)
+ */
+export const ListStudentsAtRiskResponseItem = zod.object({
+  studentId: zod.number(),
+  name: zod.string(),
+  subject: zod.string().nullish(),
+  level: zod.string().nullish(),
+  absences: zod.number(),
+  weeks: zod.array(zod.boolean()),
+});
+export const ListStudentsAtRiskResponse = zod.array(
+  ListStudentsAtRiskResponseItem,
+);

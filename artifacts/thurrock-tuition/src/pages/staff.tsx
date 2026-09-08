@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, User, Clock, PoundSterling } from "lucide-react";
 import type { StaffMember } from "@workspace/api-client-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const ROLES = ["Tutor", "Senior Tutor", "Admin", "Assistant"];
 
@@ -24,6 +25,8 @@ const emptyForm = {
   role: "Tutor",
   hourlyRate: "",
   hoursPerWeek: "",
+  dbsCertificateNumber: "",
+  dbsExpiryDate: "",
   notes: "",
 };
 
@@ -55,6 +58,8 @@ export default function StaffPage() {
       role: member.role,
       hourlyRate: member.hourlyRate !== null ? String(member.hourlyRate) : "",
       hoursPerWeek: member.hoursPerWeek !== null ? String(member.hoursPerWeek) : "",
+      dbsCertificateNumber: member.dbsCertificateNumber ?? "",
+      dbsExpiryDate: member.dbsExpiryDate ?? "",
       notes: member.notes ?? "",
     });
     setShowDialog(true);
@@ -70,6 +75,8 @@ export default function StaffPage() {
       role: form.role,
       hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : undefined,
       hoursPerWeek: form.hoursPerWeek ? Number(form.hoursPerWeek) : undefined,
+      dbsCertificateNumber: form.dbsCertificateNumber || undefined,
+      dbsExpiryDate: form.dbsExpiryDate || undefined,
       notes: form.notes || undefined,
     };
 
@@ -95,13 +102,27 @@ export default function StaffPage() {
 
   const isPending = createStaff.isPending || updateStaff.isPending;
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = staff ?? [];
+  const dbsHorizon = new Date(Date.now() + 60 * 86400000);
+  const dbsExpiring = list.filter((m) => m.dbsExpiryDate && new Date(m.dbsExpiryDate) <= dbsHorizon).length;
+  const dbsMissing = list.filter((m) => !m.dbsExpiryDate).length;
+  const roleCount = new Set(list.map((m) => m.role)).size;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-serif text-primary">Staff</h1>
+        <h1 className="dash-page-title">Staff</h1>
         <Button onClick={openAdd} data-testid="button-add-staff">
           <Plus size={16} className="mr-2" /> Add Staff Member
         </Button>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Team" value={String(list.length)} note="Tutors and staff" />
+        <Kpi ground={dbsExpiring > 0 ? "coral" : "teal"} label="DBS expiring" value={String(dbsExpiring)} note={dbsExpiring > 0 ? "Within 60 days" : "All in date"} />
+        <Kpi ground={dbsMissing > 0 ? "amber" : "teal"} label="DBS not recorded" value={String(dbsMissing)} note={dbsMissing > 0 ? "Needs a certificate date" : "All recorded"} />
+        <Kpi ground="purple" label="Roles" value={String(roleCount)} note="Distinct roles" />
       </div>
 
       {isLoading && (
@@ -182,6 +203,11 @@ export default function StaffPage() {
             <div className="grid grid-cols-2 gap-3">
               <Input placeholder="Hourly rate (£)" type="number" step="0.01" value={form.hourlyRate} onChange={e => setForm(f => ({ ...f, hourlyRate: e.target.value }))} data-testid="input-staff-rate" />
               <Input placeholder="Hours per week" type="number" value={form.hoursPerWeek} onChange={e => setForm(f => ({ ...f, hoursPerWeek: e.target.value }))} data-testid="input-staff-hours" />
+              <Input placeholder="DBS certificate number" value={form.dbsCertificateNumber} onChange={e => setForm(f => ({ ...f, dbsCertificateNumber: e.target.value }))} data-testid="input-staff-dbs-number" />
+              <div className="field-l">
+                <label htmlFor="dbsExpiryDate">DBS expiry date</label>
+                <Input id="dbsExpiryDate" type="date" value={form.dbsExpiryDate} onChange={e => setForm(f => ({ ...f, dbsExpiryDate: e.target.value }))} data-testid="input-staff-dbs-expiry" />
+              </div>
             </div>
             <Textarea placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} data-testid="textarea-staff-notes" />
           </div>

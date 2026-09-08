@@ -1,30 +1,39 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AuthProvider, useAuth } from "./lib/auth-context";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { LandingPage } from "@/pages/landing";
+import { ScrollToTop } from "@/components/scroll-to-top";
+
+// Eager: the public marketing pages and auth screens. These are the SEO-facing
+// entry points and must not wait on a second network round-trip.
+import LandingPage from "@/pages/landing";
 import ServicesPage from "@/pages/services";
 import AboutPage from "@/pages/about";
 import ContactPage from "@/pages/contact";
 import { SignInPage, SignUpPage } from "@/pages/auth";
-import Dashboard from "@/pages/dashboard";
-import StudentsPage from "@/pages/students";
-import StudentDetailPage from "@/pages/student-detail";
-import SessionsPage from "@/pages/sessions";
-import ProgressPage from "@/pages/progress";
-import TasksPage from "@/pages/tasks";
-import PaymentsPage from "@/pages/payments";
-import ParentPortalPage from "@/pages/parent-portal";
-import SettingsPage from "@/pages/settings";
-import StaffPage from "@/pages/staff";
-import IntakePage from "@/pages/intake";
-import CoursesPage from "@/pages/courses";
 import NotFound from "@/pages/not-found";
-import AdminLayout from "@/components/layout/admin-layout";
-import { ScrollToTop } from "@/components/scroll-to-top";
+
+// Lazy: the admin dashboard and parent portal. A visitor reading the public
+// site never signs in, so shipping the whole back office to them just inflates
+// the first paint. Split out, each is fetched on first navigation instead.
+const AdminLayout = lazy(() => import("@/components/layout/admin-layout"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const StudentsPage = lazy(() => import("@/pages/students"));
+const StudentDetailPage = lazy(() => import("@/pages/student-detail"));
+const SessionsPage = lazy(() => import("@/pages/sessions"));
+const ProgressPage = lazy(() => import("@/pages/progress"));
+const TasksPage = lazy(() => import("@/pages/tasks"));
+const PaymentsPage = lazy(() => import("@/pages/payments"));
+const ParentPortalPage = lazy(() => import("@/pages/parent-portal"));
+const SettingsPage = lazy(() => import("@/pages/settings"));
+const StaffPage = lazy(() => import("@/pages/staff"));
+const IntakePage = lazy(() => import("@/pages/intake"));
+const CoursesPage = lazy(() => import("@/pages/courses"));
+const ReviewsPage = lazy(() => import("@/pages/reviews"));
+const AttendancePage = lazy(() => import("@/pages/attendance"));
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -121,6 +130,7 @@ function AppRoutes() {
       <AuthProvider>
         <TooltipProvider>
           <ScrollToTop />
+          <Suspense fallback={null}>
           <Switch>
             {/* Public website pages */}
             <Route path="/" component={HomeRedirect} />
@@ -178,9 +188,16 @@ function AppRoutes() {
             <Route path="/courses">
               <AdminRoute><CoursesPage /></AdminRoute>
             </Route>
+            <Route path="/reviews">
+              <AdminRoute><ReviewsPage /></AdminRoute>
+            </Route>
+            <Route path="/attendance">
+              <AdminRoute><AttendancePage /></AdminRoute>
+            </Route>
 
             <Route component={NotFound} />
           </Switch>
+          </Suspense>
           <Toaster />
         </TooltipProvider>
       </AuthProvider>

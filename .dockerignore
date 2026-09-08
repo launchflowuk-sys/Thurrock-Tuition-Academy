@@ -1,0 +1,41 @@
+# Never copy host-built dependencies or build output into the image — they are
+# Windows/macOS binaries and would clobber the linux-x64 install done by
+# `pnpm install --frozen-lockfile` in the Dockerfile.
+# NOTE: .dockerignore patterns are NOT recursive unless prefixed with **/ —
+# a bare `*.tsbuildinfo` matches only the repo root. Leaving the nested ones in
+# meant a stale lib/*/tsconfig.tsbuildinfo was copied into the image, so
+# `tsc --build` decided the libs were up to date and emitted nothing, and the
+# build then died with TS6305 "output file has not been built from source".
+node_modules
+**/node_modules
+dist
+**/dist
+*.tsbuildinfo
+**/*.tsbuildinfo
+**/.vite-temp
+
+# VCS / tooling
+.git
+.gitignore
+.github
+.agents
+.claude
+.vscode
+.idea
+
+# Local env — secrets are injected by Coolify, never baked into the image
+.env
+.env.*
+!.env.example
+
+# Docs and non-deployed artifacts
+CLAUDE.md
+attached_assets
+artifacts/mockup-sandbox
+artifacts/tta-marketing-deck
+
+# Misc
+.DS_Store
+Thumbs.db
+npm-debug.log
+coverage

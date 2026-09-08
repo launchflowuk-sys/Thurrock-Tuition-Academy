@@ -11,4 +11,12 @@ export interface DashboardSummary {
   sessionsThisWeek: number;
   outstandingPayments: number;
   newIntakeSubmissions: number;
+  studentsStartedThisMonth: number;
+  applicationsAwaitingFollowUp: number;
+  dbsExpiringSoon: number;
+  dbsNotRecorded: number;
+  /** @nullable */
+  attendanceThisWeek?: number | null;
+  studentsAtRisk: number;
+  unassignedSessions: number;
 }

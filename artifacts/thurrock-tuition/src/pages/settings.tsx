@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Mail, CreditCard, Video, Save, Eye, EyeOff, CheckCircle2, AlertCircle, UserCog } from "lucide-react";
+import { Mail, CreditCard, Video, Save, Eye, EyeOff, CheckCircle2, AlertCircle, UserCog, Star } from "lucide-react";
 import { ChangePasswordForm } from "@/components/change-password-form";
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
@@ -86,6 +86,7 @@ export default function SettingsPage() {
     stripeSecretKey: "",
   });
   const [widget, setWidget] = useState({ code: "", enabled: false, placement: "contact" });
+  const [google, setGoogle] = useState({ placeId: "", apiKey: "", enabled: false, syncedAt: null as string | null });
 
   useEffect(() => {
     if (!settings) return;
@@ -110,6 +111,12 @@ export default function SettingsPage() {
       stripePublishableKey: settings.stripePublishableKey ?? "",
       stripeSecretKey: settings.stripeSecretKey ?? "",
     });
+    setGoogle({
+      placeId: settings.googlePlaceId ?? "",
+      apiKey: "",
+      enabled: settings.googleReviewsEnabled ?? false,
+      syncedAt: settings.googleReviewsSyncedAt ?? null,
+    });
     setWidget({
       code: settings.bookingWidgetCode ?? "",
       enabled: settings.bookingWidgetEnabled,
@@ -117,7 +124,7 @@ export default function SettingsPage() {
     });
   }, [settings]);
 
-  const save = async (section: "smtp" | "payment" | "widget") => {
+  const save = async (section: "smtp" | "payment" | "widget" | "google") => {
     let body: Record<string, unknown>;
     if (section === "smtp") {
       body = { smtpHost: smtp.host, smtpPort: Number(smtp.port), smtpUser: smtp.user, smtpPass: smtp.pass, smtpFrom: smtp.from, smtpEnabled: smtp.enabled };
@@ -134,6 +141,14 @@ export default function SettingsPage() {
         paypalSecret: payment.paypalSecret,
         stripePublishableKey: payment.stripePublishableKey,
         stripeSecretKey: payment.stripeSecretKey,
+      };
+    } else if (section === "google") {
+      body = {
+        googlePlaceId: google.placeId,
+        googleReviewsEnabled: google.enabled,
+        // Only send a key the admin actually typed — an empty value leaves the
+        // stored one alone rather than wiping it.
+        ...(google.apiKey ? { googleApiKey: google.apiKey } : {}),
       };
     } else {
       body = { bookingWidgetCode: widget.code, bookingWidgetEnabled: widget.enabled, bookingWidgetPlacement: widget.placement };
@@ -166,10 +181,11 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="smtp" className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+        <TabsList className="grid grid-cols-5 w-full max-w-3xl">
           <TabsTrigger value="smtp" className="gap-2"><Mail size={15} />Email</TabsTrigger>
           <TabsTrigger value="payment" className="gap-2"><CreditCard size={15} />Payments</TabsTrigger>
           <TabsTrigger value="widget" className="gap-2"><Video size={15} />Booking Widget</TabsTrigger>
+          <TabsTrigger value="google" className="gap-2"><Star size={15} />Reviews</TabsTrigger>
           <TabsTrigger value="account" className="gap-2"><UserCog size={15} />Account</TabsTrigger>
         </TabsList>
 
@@ -378,6 +394,63 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* ── ACCOUNT ── */}
+        {/* ── Google reviews ── */}
+        <TabsContent value="google">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Google reviews</CardTitle>
+              <CardDescription>
+                Pull reviews from the academy&rsquo;s Google Business Profile onto the
+                homepage. Google returns at most five. Manage which ones show under Reviews.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="field-l">
+                <label htmlFor="googlePlaceId">Google Place ID</label>
+                <Input
+                  id="googlePlaceId"
+                  value={google.placeId}
+                  onChange={(e) => setGoogle({ ...google, placeId: e.target.value })}
+                  placeholder="e.g. ChIJ..."
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Find it with Google&rsquo;s Place ID Finder, or from your Business Profile URL.
+                </p>
+              </div>
+              <div className="field-l">
+                <label htmlFor="googleApiKey">Google API key</label>
+                <Input
+                  id="googleApiKey"
+                  type="password"
+                  value={google.apiKey}
+                  onChange={(e) => setGoogle({ ...google, apiKey: e.target.value })}
+                  placeholder={settings?.googleApiKey ? "Saved — type a new key to replace it" : "Places API (New) key"}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Needs the Places API (New) enabled. Stored encrypted; leave blank to keep the current key.
+                </p>
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={google.enabled}
+                  onChange={(e) => setGoogle({ ...google, enabled: e.target.checked })}
+                />
+                Enable Google review syncing
+              </label>
+              {google.syncedAt && (
+                <p className="text-xs text-muted-foreground">
+                  Last synced {new Date(google.syncedAt).toLocaleString("en-GB")}
+                </p>
+              )}
+              <Button onClick={() => save("google")} disabled={updateSettings.isPending} className="gap-2">
+                <Save size={15} />
+                Save
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="account">
           <ChangePasswordForm />
         </TabsContent>

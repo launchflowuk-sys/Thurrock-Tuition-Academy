@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { ClipboardList, Mail, Phone, School, Trash2, User, Target, ChevronDown, ChevronUp, Send, Info } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const STATUS_STYLES: Record<string, string> = {
   new: "bg-blue-100 text-blue-800 border-blue-200",
@@ -134,7 +135,7 @@ export default function ApplicationsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Applications</h1>
+        <h1 className="dash-page-title">Applications</h1>
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-40 w-full" />)}
       </div>
     );
@@ -144,11 +145,17 @@ export default function ApplicationsPage() {
   const filtered = statusFilter === "all" ? sorted : sorted.filter(s => s.status === statusFilter);
   const newCount = sorted.filter(s => s.status === "new").length;
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = submissions ?? [];
+  const freshCount = list.filter((s) => s.status === "new").length;
+  const contactedCount = list.filter((s) => s.status === "contacted").length;
+  const enrolledCount = list.filter((s) => s.status === "enrolled").length;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-primary">Applications</h1>
+          <h1 className="dash-page-title">Applications</h1>
           {newCount > 0 && (
             <p className="text-sm text-muted-foreground mt-1">
               <span className="font-semibold text-blue-600">{newCount} new</span> application{newCount !== 1 ? "s" : ""} awaiting review
@@ -166,6 +173,13 @@ export default function ApplicationsPage() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Applications" value={String(list.length)} note="All time" />
+        <Kpi ground={freshCount > 0 ? "cobalt" : "teal"} label="New" value={String(freshCount)} note={freshCount > 0 ? "Not yet contacted" : "All contacted"} />
+        <Kpi ground={contactedCount > 0 ? "amber" : "teal"} label="Awaiting follow-up" value={String(contactedCount)} note="Contacted, no decision" />
+        <Kpi ground="teal" label="Enrolled" value={String(enrolledCount)} note="Converted" />
       </div>
 
       {filtered.length === 0 ? (

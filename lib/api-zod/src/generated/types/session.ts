@@ -15,6 +15,8 @@ export interface Session {
   capacity: number;
   studentIds: number[];
   /** @nullable */
+  staffId?: number | null;
+  /** @nullable */
   notes: string | null;
   createdAt: string;
 }

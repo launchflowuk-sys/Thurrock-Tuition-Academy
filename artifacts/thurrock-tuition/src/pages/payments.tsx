@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { CreditCard, CheckCircle, AlertCircle, Clock, XCircle, Send, Link as LinkIcon, Repeat } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 type PaymentStatus = "pending" | "paid" | "overdue" | "cancelled" | "link_sent";
 
@@ -116,7 +117,7 @@ export default function PaymentsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Payments</h1>
+        <h1 className="dash-page-title">Payments</h1>
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
       </div>
     );
@@ -201,11 +202,17 @@ export default function PaymentsPage() {
     );
   };
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = payments ?? [];
+  const outstandingCount = list.filter((p) => p.status !== "paid").length;
+  const paidCount = list.filter((p) => p.status === "paid").length;
+  const recurringCount = list.filter((p) => p.isRecurring).length;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-primary">Payments</h1>
+          <h1 className="dash-page-title">Payments</h1>
           {unpaidTotal > 0 && (
             <p className="text-sm text-muted-foreground mt-1">
               Outstanding: <span className="font-bold text-amber-600">£{unpaidTotal.toFixed(2)}</span>
@@ -232,6 +239,13 @@ export default function PaymentsPage() {
             Send Payment Link
           </Button>
         </div>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Payment records" value={String(list.length)} note="All time" />
+        <Kpi ground={outstandingCount > 0 ? "coral" : "teal"} label="Outstanding" value={String(outstandingCount)} note={outstandingCount > 0 ? "Chase gently and early" : "Nothing to chase"} />
+        <Kpi ground="teal" label="Settled" value={String(paidCount)} note="Marked paid" />
+        <Kpi ground="purple" label="Recurring" value={String(recurringCount)} note="On monthly billing" />
       </div>
 
       {filtered.length > 0 ? (

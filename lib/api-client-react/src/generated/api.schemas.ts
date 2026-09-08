@@ -102,6 +102,8 @@ export interface Session {
   capacity: number;
   studentIds: number[];
   /** @nullable */
+  staffId?: number | null;
+  /** @nullable */
   notes: string | null;
   createdAt: string;
 }
@@ -113,6 +115,8 @@ export interface SessionInput {
   endTime: string;
   capacity: number;
   studentIds?: number[];
+  /** @nullable */
+  staffId?: number | null;
   notes?: string;
 }
 
@@ -123,6 +127,8 @@ export interface SessionUpdate {
   endTime?: string;
   capacity?: number;
   studentIds?: number[];
+  /** @nullable */
+  staffId?: number | null;
   notes?: string;
 }
 
@@ -236,6 +242,14 @@ export interface DashboardSummary {
   sessionsThisWeek: number;
   outstandingPayments: number;
   newIntakeSubmissions: number;
+  studentsStartedThisMonth: number;
+  applicationsAwaitingFollowUp: number;
+  dbsExpiringSoon: number;
+  dbsNotRecorded: number;
+  /** @nullable */
+  attendanceThisWeek?: number | null;
+  studentsAtRisk: number;
+  unassignedSessions: number;
 }
 
 export interface ActivityItem {
@@ -286,6 +300,13 @@ export interface Settings {
   /** @nullable */
   stripeSecretKey?: string | null;
   /** @nullable */
+  googlePlaceId?: string | null;
+  /** @nullable */
+  googleApiKey?: string | null;
+  googleReviewsEnabled?: boolean;
+  /** @nullable */
+  googleReviewsSyncedAt?: string | null;
+  /** @nullable */
   bookingWidgetCode?: string | null;
   bookingWidgetEnabled: boolean;
   /** @nullable */
@@ -311,6 +332,13 @@ export interface SettingsInput {
   paypalSecret?: string;
   stripePublishableKey?: string;
   stripeSecretKey?: string;
+  /** @nullable */
+  googlePlaceId?: string | null;
+  /** @nullable */
+  googleApiKey?: string | null;
+  googleReviewsEnabled?: boolean;
+  /** @nullable */
+  googleReviewsSyncedAt?: string | null;
   bookingWidgetCode?: string;
   bookingWidgetEnabled?: boolean;
   bookingWidgetPlacement?: string;
@@ -352,6 +380,10 @@ export interface StaffMember {
   /** @nullable */
   hoursPerWeek?: number | null;
   /** @nullable */
+  dbsCertificateNumber?: string | null;
+  /** @nullable */
+  dbsExpiryDate?: string | null;
+  /** @nullable */
   notes?: string | null;
   joinedAt: string;
 }
@@ -365,6 +397,10 @@ export interface StaffInput {
   role: string;
   hourlyRate?: number;
   hoursPerWeek?: number;
+  /** @nullable */
+  dbsCertificateNumber?: string | null;
+  /** @nullable */
+  dbsExpiryDate?: string | null;
   notes?: string;
 }
 
@@ -468,6 +504,179 @@ export interface IntakeReplyInput {
   body: string;
 }
 
+export type AttendanceStatus =
+  (typeof AttendanceStatus)[keyof typeof AttendanceStatus];
+
+export const AttendanceStatus = {
+  present: "present",
+  absent: "absent",
+  late: "late",
+  excused: "excused",
+} as const;
+
+export interface Attendance {
+  id: number;
+  sessionId: number;
+  studentId: number;
+  status: AttendanceStatus;
+  /** @nullable */
+  notes?: string | null;
+  recordedAt: string;
+}
+
+export type AttendanceMarkInputEntriesItemStatus =
+  (typeof AttendanceMarkInputEntriesItemStatus)[keyof typeof AttendanceMarkInputEntriesItemStatus];
+
+export const AttendanceMarkInputEntriesItemStatus = {
+  present: "present",
+  absent: "absent",
+  late: "late",
+  excused: "excused",
+} as const;
+
+export type AttendanceMarkInputEntriesItem = {
+  studentId: number;
+  status: AttendanceMarkInputEntriesItemStatus;
+  /** @nullable */
+  notes?: string | null;
+};
+
+export interface AttendanceMarkInput {
+  sessionId: number;
+  entries: AttendanceMarkInputEntriesItem[];
+}
+
+export interface StudentAtRisk {
+  studentId: number;
+  name: string;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  level?: string | null;
+  absences: number;
+  weeks: boolean[];
+}
+
+export type ReviewSource = (typeof ReviewSource)[keyof typeof ReviewSource];
+
+export const ReviewSource = {
+  manual: "manual",
+  google: "google",
+} as const;
+
+export interface Review {
+  id: number;
+  source: ReviewSource;
+  authorName: string;
+  /** @nullable */
+  authorPhotoUrl?: string | null;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating: number;
+  body: string;
+  /** @nullable */
+  relationship?: string | null;
+  /** @nullable */
+  reviewedAt?: string | null;
+  /** @nullable */
+  googleReviewId?: string | null;
+  isVisible: boolean;
+  displayOrder: number;
+  createdAt: string;
+}
+
+export interface ReviewInput {
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  authorName: string;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating: number;
+  /**
+   * @minLength 1
+   * @maxLength 2000
+   */
+  body: string;
+  /**
+   * @maxLength 120
+   * @nullable
+   */
+  relationship?: string | null;
+  /** @nullable */
+  reviewedAt?: string | null;
+  isVisible?: boolean;
+  displayOrder?: number;
+}
+
+export interface ReviewUpdate {
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  authorName?: string;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating?: number;
+  /**
+   * @minLength 1
+   * @maxLength 2000
+   */
+  body?: string;
+  /**
+   * @maxLength 120
+   * @nullable
+   */
+  relationship?: string | null;
+  /** @nullable */
+  reviewedAt?: string | null;
+  isVisible?: boolean;
+  displayOrder?: number;
+}
+
+export type PublicReviewSource =
+  (typeof PublicReviewSource)[keyof typeof PublicReviewSource];
+
+export const PublicReviewSource = {
+  manual: "manual",
+  google: "google",
+} as const;
+
+export interface PublicReview {
+  id: number;
+  source: PublicReviewSource;
+  authorName: string;
+  /** @nullable */
+  authorPhotoUrl?: string | null;
+  rating: number;
+  body: string;
+  /** @nullable */
+  relationship?: string | null;
+  /** @nullable */
+  reviewedAt?: string | null;
+}
+
+export interface PublicReviewsResponse {
+  reviews: PublicReview[];
+  /** @nullable */
+  averageRating: number | null;
+  total: number;
+}
+
+export interface GoogleReviewSyncResponse {
+  imported: number;
+  updated: number;
+  total: number;
+  syncedAt: string;
+}
+
 export interface Course {
   id: number;
   title: string;
@@ -534,4 +743,8 @@ export type ListMessagesParams = {
 
 export type ReplyToIntakeSubmission200 = {
   ok: boolean;
+};
+
+export type ListAttendanceParams = {
+  sessionId?: number;
 };

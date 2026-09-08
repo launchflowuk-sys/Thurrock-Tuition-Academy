@@ -1,6 +1,6 @@
-// One-off migration: encrypts any plaintext Square/payment credentials
-// already sitting in settingsTable. Safe to re-run — fields already in the
-// iv:authTag:ciphertext format are left untouched.
+// One-off migration: encrypts any plaintext credentials already sitting in
+// settingsTable (SMTP password, Square, PayPal and Stripe secrets). Safe to
+// re-run — fields already in the iv:authTag:ciphertext format are left alone.
 //
 // Run manually, after setting SETTINGS_ENCRYPTION_KEY in this environment
 // and taking a database backup:
@@ -9,7 +9,9 @@ import { eq } from "drizzle-orm";
 import { db, settingsTable } from "@workspace/db";
 import { encrypt, isEncrypted } from "../lib/encryption";
 
-const FIELDS = ["paymentApiKey", "paymentAccessToken", "paymentLocationId", "paymentAppId"] as const;
+import { ENCRYPTED_SETTINGS_FIELDS } from "../lib/paymentSettings";
+
+const FIELDS = ENCRYPTED_SETTINGS_FIELDS;
 
 async function main() {
   const rows = await db.select().from(settingsTable).limit(1);

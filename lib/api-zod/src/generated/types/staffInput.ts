@@ -15,5 +15,9 @@ export interface StaffInput {
   role: string;
   hourlyRate?: number;
   hoursPerWeek?: number;
+  /** @nullable */
+  dbsCertificateNumber?: string | null;
+  /** @nullable */
+  dbsExpiryDate?: string | null;
   notes?: string;
 }

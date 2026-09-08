@@ -10,6 +10,8 @@ import {
 } from "@workspace/api-zod";
 import { sendIntakeEmails, sendIntakeReplyEmail } from "../lib/email";
 import { requireAdmin } from "../lib/authMiddleware";
+import { intakeLimiter } from "../lib/rateLimit";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -20,7 +22,7 @@ router.get("/intake", requireAdmin, async (req, res): Promise<void> => {
   res.json(ListIntakeSubmissionsResponse.parse(rows.map(toIntake)));
 });
 
-router.post("/intake", async (req, res): Promise<void> => {
+router.post("/intake", intakeLimiter, async (req, res): Promise<void> => {
   const parsed = CreateIntakeSubmissionBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -43,7 +45,7 @@ router.post("/intake", async (req, res): Promise<void> => {
     previousTutoring: parsed.data.previousTutoring,
     howDidYouHear: parsed.data.howDidYouHear,
     preferredSlot: parsed.data.preferredSlot,
-  }).catch(() => {});
+  }).catch((err) => logger.error({ err }, "Failed to send intake emails"));
 });
 
 router.patch("/intake/:id", requireAdmin, async (req, res): Promise<void> => {

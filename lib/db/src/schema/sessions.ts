@@ -10,6 +10,10 @@ export const sessionsTable = pgTable("sessions", {
   endTime: text("end_time").notNull(),
   capacity: integer("capacity").notNull().default(8),
   studentIds: integer("student_ids").array().notNull().default([]),
+  // The tutor taking the session. Null means unassigned, which the dashboard
+  // surfaces as an amber attention figure — a session on the timetable with
+  // nobody against it is the thing that quietly fails on the day.
+  staffId: integer("staff_id"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, Circle, CreditCard, LogOut, BookOpen, ClipboardList, MessageSquare, Send, UserCog } from "lucide-react";
 import { ChangePasswordForm } from "@/components/change-password-form";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -56,6 +57,9 @@ export default function ParentPortalPage() {
     { query: { enabled: !!studentId, queryKey: getListMessagesQueryKey({ studentId: studentId ?? 0 }) } }
   );
 
+  const openTasks = (tasks ?? []).filter((t) => !t.completed).length;
+  const duePayments = (payments ?? []).filter((p) => p.status !== "paid").length;
+
   const sendMessage = useSendMessage();
   const markRead = useMarkMessageRead();
 
@@ -90,28 +94,28 @@ export default function ParentPortalPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground py-4 px-6 flex items-center justify-between shadow">
+    <div className="dash parent-portal">
+      {/* Header — the one dark thing on the page, same as the staff rail. */}
+      <header className="portal-bar">
         <div className="flex items-center gap-3">
-          <img src={`${basePath}/logo.svg`} alt="TTA" className="h-10 w-auto" />
+          <img src={`${basePath}/logo.svg`} alt="" width="38" height="42" />
           <div>
-            <span className="font-serif text-lg font-bold">Thurrock Tuition Academy</span>
-            <p className="text-xs text-primary-foreground/70">Parent Portal</p>
+            <strong>Thurrock Tuition Academy</strong>
+            <span>PARENT PORTAL</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm hidden sm:block">{user?.fullName ?? user?.email}</span>
-          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/80" onClick={handleSignOut} data-testid="button-parent-logout">
-            <LogOut size={16} className="mr-1" /> Sign Out
-          </Button>
+          <button type="button" className="btn-d ghost sm portal-signout" onClick={handleSignOut} data-testid="button-parent-logout">
+            <LogOut size={16} /> Sign out
+          </button>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+      <main className="portal-main">
         {/* Welcome */}
         <div>
-          <h1 className="text-2xl font-bold font-serif text-primary">Welcome, {user?.fullName ?? user?.email}</h1>
+          <h1 className="dash-page-title">Welcome, {user?.fullName ?? user?.email}</h1>
           {myStudent ? (
             <p className="text-muted-foreground mt-1">Viewing progress for <strong>{myStudent.name}</strong> — {myStudent.subject} · {myStudent.level} · {myStudent.sessionSlot}</p>
           ) : (
@@ -125,6 +129,29 @@ export default function ParentPortalPage() {
             </div>
           )}
         </div>
+
+        {myStudent && (
+          <div className="kpi-strip portal-kpis">
+            <Kpi
+              ground="navy"
+              label="Homework to do"
+              value={String(openTasks)}
+              note={openTasks === 0 ? "All caught up" : "Set by the academy"}
+            />
+            <Kpi
+              ground={duePayments > 0 ? "coral" : "teal"}
+              label="Payments due"
+              value={String(duePayments)}
+              note={duePayments > 0 ? "Please settle when you can" : "Nothing outstanding"}
+            />
+            <Kpi
+              ground="cobalt"
+              label="Progress notes"
+              value={String(notes?.length ?? 0)}
+              note="Written after sessions"
+            />
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>

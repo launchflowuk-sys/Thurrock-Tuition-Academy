@@ -37,13 +37,18 @@ yarn-error.log
 testem.log
 /typings
 
+# Local environment / secrets — .env.example is the only one committed
+.env
+.env.*
+!.env.example
+Credentials.txt
+credentials.txt
+*.credentials
+secrets.txt
+
 # System Files
 .DS_Store
 Thumbs.db
 
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
-
-# Replit
-.cache/
-.local/

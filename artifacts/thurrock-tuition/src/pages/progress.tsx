@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const SUBJECTS = ["Maths", "English", "Science", "11+", "Other"];
 
@@ -85,7 +86,7 @@ export default function ProgressPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Progress Notes</h1>
+        <h1 className="dash-page-title">Progress Notes</h1>
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
       </div>
     );
@@ -93,13 +94,28 @@ export default function ProgressPage() {
 
   const sorted = [...(notes ?? [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const list = notes ?? [];
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonth = list.filter((n) => new Date(n.sessionDate) >= startOfMonth).length;
+  const covered = new Set(list.map((n) => n.studentId)).size;
+  const roll = students?.length ?? 0;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-serif text-primary">Progress Notes</h1>
+        <h1 className="dash-page-title">Progress Notes</h1>
         <Button onClick={openAdd} data-testid="button-add-progress-note">
           <Plus size={16} className="mr-2" /> Add Note
         </Button>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Progress notes" value={String(list.length)} note="All time" />
+        <Kpi ground="cobalt" label="This month" value={String(thisMonth)} note="Written since the 1st" />
+        <Kpi ground="teal" label="Students covered" value={String(covered)} note={"of " + roll + " on the roll"} />
+        <Kpi ground={roll > 0 && covered < roll ? "amber" : "purple"} label="Without a note" value={String(Math.max(0, roll - covered))} note="Nothing recorded yet" />
       </div>
 
       <div className="grid gap-4">

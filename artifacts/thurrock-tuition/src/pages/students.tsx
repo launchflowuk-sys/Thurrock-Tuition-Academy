@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Search, UserPlus, ChevronRight, ShieldCheck, ShieldOff } from "lucide-react";
+import { Kpi } from "@/components/dashboard/primitives";
 
 const SUBJECTS = ["Maths", "English", "Science"];
 const LEVELS = ["SATs", "11+", "KS3", "GCSE", "A-Level"];
@@ -52,19 +53,34 @@ export default function StudentsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-serif text-primary">Students</h1>
+        <h1 className="dash-page-title">Students</h1>
         {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full" />)}
       </div>
     );
   }
 
+  // Figures for this screen's strip, derived from data already loaded.
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const list = students ?? [];
+  const joinedThisMonth = list.filter((s) => new Date(s.joinedAt) >= startOfMonth).length;
+  const subjectCount = new Set(list.map((s) => s.subject)).size;
+  const levelCount = new Set(list.map((s) => s.level)).size;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-serif text-primary">Students</h1>
+        <h1 className="dash-page-title">Students</h1>
         <Button onClick={() => setShowAdd(true)} data-testid="button-add-student">
           <UserPlus size={16} className="mr-2" /> Add Student
         </Button>
+      </div>
+
+      <div className="kpi-strip">
+        <Kpi ground="navy" label="Active students" value={String(list.length)} note="On the roll" />
+        <Kpi ground="teal" label="Started this month" value={String(joinedThisMonth)} note="New enrolments" />
+        <Kpi ground="cobalt" label="Subjects" value={String(subjectCount)} note="Being taught" />
+        <Kpi ground="purple" label="Levels" value={String(levelCount)} note="SATs through A-Level" />
       </div>
 
       <div className="relative">

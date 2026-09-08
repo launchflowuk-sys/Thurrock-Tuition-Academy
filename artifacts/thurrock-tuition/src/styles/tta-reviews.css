@@ -1,0 +1,121 @@
+/* ---------------------------------------------------------------------------
+ * Parent reviews section.
+ *
+ * NOT part of the design handover — the approved reference has no testimonials
+ * section at all. Added because the live site carries parent reviews and they
+ * are now admin-managed and Google-synced rather than hardcoded.
+ *
+ * Built entirely from the reference's own vocabulary so it reads as part of the
+ * same page: the subject-card geometry (18px radius, 33px padding, 22px gaps),
+ * the same eyebrow, the same borders, the same section rhythm. Scoped under
+ * .tta like everything else public.
+ * ------------------------------------------------------------------------- */
+
+.tta .reviews {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.tta .review {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 33px;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+}
+
+.tta .review .stars {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 17px;
+  color: var(--yellow);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.tta .review .stars .off {
+  color: var(--line);
+}
+
+.tta .review blockquote {
+  margin: 0 0 24px;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--ink);
+  flex: 1;
+}
+
+.tta .review .who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 19px;
+}
+
+.tta .review .who img,
+.tta .review .initials {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.tta .review .initials {
+  background: var(--navy);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font: 700 0.85rem/1 Manrope, Arial, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.tta .review .who strong {
+  display: block;
+  font: 650 0.95rem/1.3 Manrope, Arial, sans-serif;
+  color: var(--ink);
+}
+.tta .review .who small {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Average rating badge beside the section heading. */
+.tta .review-summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tta .review-summary b {
+  font: 800 1.5rem/1 Manrope, Arial, sans-serif;
+  color: var(--navy);
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 850px) {
+  .tta .reviews {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Odd counts leave a hole at two-up; the last card spans instead. */
+  .tta .reviews > .review:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .tta .reviews {
+    grid-template-columns: 1fr;
+  }
+  .tta .review {
+    padding: 26px;
+  }
+  .tta .reviews > .review:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
