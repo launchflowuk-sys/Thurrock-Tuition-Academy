@@ -73,7 +73,13 @@ VOLUME ["/data"]
 
 # gosu lets the entrypoint drop privileges by exec, so PID 1 remains node and
 # Coolify's SIGTERM reaches the graceful-shutdown handler.
-RUN apt-get update   && apt-get install -y --no-install-recommends gosu   && rm -rf /var/lib/apt/lists/*
+#
+# curl is not optional: Coolify runs its health check as `curl`/`wget` INSIDE
+# this container, and node:24-slim ships neither. Without it the probe exits 1
+# with "curl: not found", Coolify marks a perfectly healthy container unhealthy
+# and rolls the deployment back. The HEALTHCHECK below uses node's fetch and
+# would have been fine on its own — but Coolify's own probe overrides it.
+RUN apt-get update   && apt-get install -y --no-install-recommends gosu curl   && rm -rf /var/lib/apt/lists/*
 
 # NOTE: deliberately no `USER node` here. The entrypoint starts as root purely
 # to chown the mounted upload volume — which Coolify created root-owned, since

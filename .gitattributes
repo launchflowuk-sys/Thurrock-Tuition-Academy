@@ -1,0 +1,11 @@
+# Shell scripts and SQL must keep LF endings regardless of the checkout
+# platform. A .sh file checked out with CRLF on Windows bakes "#!/bin/sh\r"
+# into the Docker image, and the container dies at startup with the misleading
+# "no such file or directory" — the shell, not the script, is what is missing.
+*.sh    text eol=lf
+*.sql   text eol=lf
+Dockerfile      text eol=lf
+docker-entrypoint.sh text eol=lf
+
+# Let git handle everything else normally.
+* text=auto
