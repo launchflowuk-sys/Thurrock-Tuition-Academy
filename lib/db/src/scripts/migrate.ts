@@ -17,7 +17,10 @@ import { pool } from "../index";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SQL_DIR = path.resolve(here, "..", "..", "sql");
 
-const MIGRATIONS = ["create-session-table.sql"];
+const MIGRATIONS = [
+  "create-session-table.sql",
+  "2026-09-08-reviews-attendance-safeguarding.sql",
+];
 
 async function main(): Promise<void> {
   for (const file of MIGRATIONS) {
