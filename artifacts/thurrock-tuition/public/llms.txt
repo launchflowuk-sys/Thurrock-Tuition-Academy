@@ -11,10 +11,10 @@ Ockendon, Aveley, West Thurrock, Purfleet and Chadwell St Mary.
 
 ## Pages
 
-- [Home](https://www.thurrocktuitionacademy.co.uk/): Overview, subjects, stages and parent FAQs.
-- [Our tuition](https://www.thurrocktuitionacademy.co.uk/services): Programme detail per subject and stage, the six-step journey, and session pricing.
-- [About](https://www.thurrocktuitionacademy.co.uk/about): Mission, vision, founder, values and history.
-- [Contact and free assessment](https://www.thurrocktuitionacademy.co.uk/contact): Application form, FAQs, timetable and location.
+- [Home](https://thurrocktuitionacademy.co.uk/): Overview, subjects, stages and parent FAQs.
+- [Our tuition](https://thurrocktuitionacademy.co.uk/services): Programme detail per subject and stage, the six-step journey, and session pricing.
+- [About](https://thurrocktuitionacademy.co.uk/about): Mission, vision, founder, values and history.
+- [Contact and free assessment](https://thurrocktuitionacademy.co.uk/contact): Application form, FAQs, timetable and location.
 
 ## Key facts
 

@@ -18,4 +18,4 @@ Disallow: /intake
 Disallow: /parent
 Disallow: /auth-redirect
 
-Sitemap: https://www.thurrocktuitionacademy.co.uk/sitemap.xml
+Sitemap: https://thurrocktuitionacademy.co.uk/sitemap.xml

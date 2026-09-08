@@ -20,7 +20,7 @@ async function getSmtpSettings() {
 // Origin used for links inside emails. Overridable so staging/local builds
 // don't send parents to the production site.
 function appUrl(): string {
-  return (process.env.APP_URL || "https://www.thurrocktuitionacademy.co.uk").replace(/\/+$/, "");
+  return (process.env.APP_URL || "https://thurrocktuitionacademy.co.uk").replace(/\/+$/, "");
 }
 
 function onSendFailure(kind: string, to?: string | null) {
