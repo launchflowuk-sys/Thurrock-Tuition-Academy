@@ -71,8 +71,17 @@ COPY --from=build /deploy/package.json ./artifacts/api-server/package.json
 RUN mkdir -p /data/uploads && chown -R node:node /data
 VOLUME ["/data"]
 
-# Drop root. node:24-slim ships an unprivileged `node` user.
-USER node
+# gosu lets the entrypoint drop privileges by exec, so PID 1 remains node and
+# Coolify's SIGTERM reaches the graceful-shutdown handler.
+RUN apt-get update   && apt-get install -y --no-install-recommends gosu   && rm -rf /var/lib/apt/lists/*
+
+# NOTE: deliberately no `USER node` here. The entrypoint starts as root purely
+# to chown the mounted upload volume — which Coolify created root-owned, since
+# every previous release ran as root — and then execs as node. Setting USER
+# here instead would leave uploads failing with EACCES against that volume.
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 EXPOSE 8080
 
