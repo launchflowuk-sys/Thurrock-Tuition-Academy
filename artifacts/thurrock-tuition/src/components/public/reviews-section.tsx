@@ -12,7 +12,10 @@ import { useListPublicReviews } from "@workspace/api-client-react";
 function Stars({ rating }: { rating: number }) {
   const rounded = Math.round(rating);
   return (
-    <div className="stars" aria-label={`${rating} out of 5 stars`}>
+    // role="img" is required: aria-label is prohibited on a bare <div>, which
+    // has no implicit role, so screen readers would ignore the rating entirely
+    // and announce five meaningless star glyphs instead.
+    <div className="stars" role="img" aria-label={`Rated ${rating} out of 5`}>
       {[1, 2, 3, 4, 5].map((n) => (
         <span key={n} className={n <= rounded ? undefined : "off"} aria-hidden="true">
           ★

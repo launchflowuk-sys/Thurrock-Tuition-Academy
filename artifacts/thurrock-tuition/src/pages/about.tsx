@@ -25,7 +25,10 @@ export default function AboutPage() {
       </section>
       <section className="section wrap">
       <div className="story">
-      <img src={`${basePath}/img/academy.jpg`} alt="A student browsing the shelves of a library" width="1600" height="1067" loading="lazy" />
+      <picture>
+        <source srcSet={`${basePath}/img/academy.webp`} type="image/webp" />
+        <img src={`${basePath}/img/academy.jpg`} alt="A student browsing the shelves of a library" width="1600" height="1067" loading="lazy" decoding="async" />
+      </picture>
       <div>
       <div className="eyebrow">Our story</div>
       <h2>Sometimes, all it takes<br />is someone who has time.</h2>

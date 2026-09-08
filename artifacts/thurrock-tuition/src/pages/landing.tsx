@@ -37,7 +37,10 @@ export default function LandingPage() {
       </div>
       </div>
       <div className="hero-media reveal">
-      <img src={`${basePath}/img/lesson.jpg`} alt="Students listening and learning during a classroom lesson" width="1400" height="871" fetchPriority="high" />
+      <picture>
+        <source srcSet={`${basePath}/img/lesson.webp`} type="image/webp" />
+        <img src={`${basePath}/img/lesson.jpg`} alt="Students listening and learning during a classroom lesson" width="1400" height="871" fetchPriority="high" decoding="async" />
+      </picture>
       <div className="photo-label">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z" />
@@ -153,7 +156,10 @@ export default function LandingPage() {
       <section className="wrap">
       <div className="approach">
       <div className="approach-image">
-      <img src={`${basePath}/img/study.jpg`} alt="Open books and study notes on a desk" width="1000" height="667" loading="lazy" />
+      <picture>
+        <source srcSet={`${basePath}/img/study.webp`} type="image/webp" />
+        <img src={`${basePath}/img/study.jpg`} alt="Open books and study notes on a desk" width="1000" height="667" loading="lazy" decoding="async" />
+      </picture>
       </div>
       <div className="approach-copy">
       <div className="eyebrow">The Thurrock difference</div>
