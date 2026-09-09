@@ -41,7 +41,7 @@ function AuthPage({
     <div className="dash auth-page">
       <div className="auth-inner">
         <Link className="auth-brand" href="/">
-          <img src={`${basePath}/logo.svg`} alt="" width="46" height="51" />
+          <img src={`${basePath}/logo-mark-96.webp`} alt="" width="46" height="51" />
           <div>
             <strong>Thurrock Tuition</strong>
             <span>ACADEMY</span>

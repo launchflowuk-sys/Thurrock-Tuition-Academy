@@ -98,7 +98,7 @@ export default function ParentPortalPage() {
       {/* Header — the one dark thing on the page, same as the staff rail. */}
       <header className="portal-bar">
         <div className="flex items-center gap-3">
-          <img src={`${basePath}/logo.svg`} alt="" width="38" height="42" />
+          <img src={`${basePath}/logo-badge-96.webp`} alt="" width="38" height="42" />
           <div>
             <strong>Thurrock Tuition Academy</strong>
             <span>PARENT PORTAL</span>

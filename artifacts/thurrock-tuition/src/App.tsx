@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import RouteFallback from "@/components/route-fallback";
+import DashboardContentSkeleton from "@/components/dashboard/content-skeleton";
 
 // Eager: the public marketing pages and auth screens. These are the SEO-facing
 // entry points and must not wait on a second network round-trip.
@@ -114,7 +115,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   if (user.role !== "admin") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#1B2B6B] px-4">
-        <img src={`${basePath}/logo.svg`} alt="TTA" className="h-16 mb-6 opacity-90" />
+        <img src={`${basePath}/logo-badge-96.webp`} alt="TTA" className="h-16 mb-6 opacity-90" />
         <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full text-center">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-2xl font-bold font-serif text-[#1B2B6B] mb-3">Access Restricted</h1>
@@ -134,7 +135,23 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <AdminLayout>{children}</AdminLayout>;
+  // The Suspense boundary belongs INSIDE the layout, not around it.
+  //
+  // With one boundary wrapping the whole Switch, a page chunk suspended the
+  // entire admin tree — AdminLayout included — so every section change tore
+  // the rail and topbar off screen and replaced them with a full-page loader.
+  // That is why navigation still "looked like loading a new page" even after
+  // the white flash was gone: it was a splash screen between every click.
+  //
+  // Boundaries resolve to the nearest ancestor, so putting one here keeps the
+  // shell mounted and swaps only the panel area for a matching skeleton.
+  // AdminLayout is still lazy, so the outer boundary covers it once at cold
+  // boot and never again.
+  return (
+    <AdminLayout>
+      <Suspense fallback={<DashboardContentSkeleton />}>{children}</Suspense>
+    </AdminLayout>
+  );
 }
 
 function AuthRedirect() {

@@ -26,7 +26,7 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function RouteFallback({ label = "Loading" }: { label?: string }) {
   return (
     <div className="route-fallback" role="status" aria-live="polite" aria-busy="true">
-      <img src={`${basePath}/logo.svg`} alt="" width="44" height="49" />
+      <img src={`${basePath}/logo-mark-96.webp`} alt="" width="44" height="49" />
       <span className="route-fallback-bar" aria-hidden="true">
         <i />
       </span>

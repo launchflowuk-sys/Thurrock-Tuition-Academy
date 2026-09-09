@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="dash-shell">
         <aside className={railOpen ? "dash-rail open" : "dash-rail"}>
           <div className="dash-rail-brand">
-            <img src={`${basePath}/logo.svg`} alt="" width="38" height="42" />
+            <img src={`${basePath}/logo-badge-96.webp`} alt="" width="38" height="42" />
             <div>
               <strong>Thurrock Tuition</strong>
               <span>ACADEMY</span>

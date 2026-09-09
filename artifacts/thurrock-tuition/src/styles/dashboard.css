@@ -432,7 +432,12 @@
 
 /* ============================== Responsive ============================== */
 
-.dash-menu-btn { display: none; }
+/* Must out-specify `.dash .btn-d { display: inline-flex }` above, which is two
+   classes to this rule's one. Bare `.dash-menu-btn { display: none }` lost that
+   fight regardless of source order, so the rail toggle sat in the topbar at
+   every width — including full desktop, where the rail is permanent and the
+   button does nothing a user wants. */
+.dash .dash-menu-btn { display: none; }
 
 @media (max-width: 1100px) {
   .kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -446,7 +451,7 @@
   }
   .dash-rail.open { transform: translateX(0); }
   .dash-main { margin-left: 0; }
-  .dash-menu-btn { display: inline-flex; }
+  .dash .dash-menu-btn { display: inline-flex; }
   .dash-body { padding: 18px; }
   .dash-topbar { padding: 12px 18px; }
 }
@@ -465,7 +470,7 @@
     flex-wrap: wrap;
     row-gap: 10px;
   }
-  .dash-menu-btn { order: 1; }
+  .dash .dash-menu-btn { order: 1; }
   /* The CTA only — .dash-menu-btn also carries .btn-d.in-row. */
   .dash-topbar > .btn-d.in-row:not(.dash-menu-btn) {
     order: 2;
@@ -1001,4 +1006,31 @@
   /* Every action is full width rather than three half-buttons on two lines. */
   .dash .app-panel-actions > * { width: 100%; justify-content: center; }
   .dash .app-form-actions > .btn-d { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ===================== Content-area loading skeleton ====================
+ *
+ * Sits inside .dash-body, so the rail and topbar stay on screen while a page
+ * chunk arrives. Deliberately dull: matching grey blocks, no logo, no
+ * spinner. A section change should not look like a page load.
+ * ---------------------------------------------------------------------- */
+
+.dash .dash-skeleton { max-width: 1500px; }
+.dash .sk {
+  background: #eceef1;
+  border-radius: 8px;
+  animation: sk-pulse 1.25s ease-in-out infinite;
+}
+.dash .sk-title { width: 260px; height: 32px; margin-bottom: 10px; }
+.dash .sk-sub   { width: 190px; height: 15px; margin-bottom: 24px; }
+.dash .sk-kpi   { height: 148px; border-radius: var(--r-kpi); }
+.dash .sk-panel { height: 300px; border-radius: var(--r-surface); }
+
+@keyframes sk-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash .sk { animation: none; }
 }
