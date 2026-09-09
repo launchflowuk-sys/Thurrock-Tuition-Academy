@@ -64,6 +64,34 @@ pnpm workspace packages live under `artifacts/*`, `lib/*`, `lib/integrations/*`,
 
 **Theme**: Navy (`#1B2B6B`) primary, Gold (`#C9973A`) secondary; Crimson Pro for serif headings, Inter for body — see `artifacts/thurrock-tuition/src/index.css`.
 
+## Deploying
+
+**Pushing `main` auto-deploys to the live business site**, `https://thurrocktuitionacademy.co.uk` (and `www`). Coolify project `imwzf2fxe5n0yztnqmg2ar3w`, app `l88052ek1plpw91p1achw6jy`, database `j4m1f7m1pitlbzm4i0vh56ix`. The same server hosts CABIO and two other clients, and the API token in `Credentials.txt` (gitignored) reaches all of them — scope every API call to the TTA uuids.
+
+**Migrations run before the deploy, never after.** The app selects columns that must already exist, or the public homepage 500s. The database is not reachable from outside the server, so apply SQL through it:
+
+```
+Get-Content .\lib\db\sql\FILE.sql -Raw | ssh root@178.105.149.221 'docker exec -i $(docker ps -qf name=j4m1f7m1pitlbzm4i0vh56ix) psql -U postgres -d postgres -v ON_ERROR_STOP=1'
+```
+
+Then verify with `lib/db/sql/verify-migration.sql` (read-only; every row should read `ok`). Write migrations add-only and `IF NOT EXISTS`, so rolling the app back needs no database change.
+
+Build traps already hit — don't repeat them:
+
+- Coolify's health check runs `curl` **inside** the container. `node:24-slim` has neither curl nor wget, so a healthy container gets marked unhealthy and rolled back. `curl` is installed in the Dockerfile for this reason alone.
+- `pnpm-lock.yaml` is at the repo root. Adding a dependency to any `artifacts/*/package.json` and committing only that directory fails the build with `ERR_PNPM_OUTDATED_LOCKFILE`.
+- `.dockerignore` patterns are not recursive — a bare `*.tsbuildinfo` misses nested ones, and a stale `lib/db/tsconfig.tsbuildinfo` makes `tsc --build` emit nothing (TS6305).
+- `.gitattributes` pins `*.sh` to LF. A CRLF `docker-entrypoint.sh` bakes `#!/bin/sh` into the image; the container then dies with a misleading "no such file or directory".
+- `UPLOAD_DIR` is a root-owned Coolify volume. The entrypoint chowns it and drops to `node` via `gosu` — do not add a bare `USER node`.
+
+## Verifying
+
+- **A 200 proves nothing.** The SPA fallback returns 200 + `index.html` for every unmatched GET, so `/sitemap.xml`, `/llms.txt` and `/favicon.ico` all "pass" a status check while serving HTML. Assert on content or `Content-Type`.
+- **You cannot sign in over `http://localhost`.** With `NODE_ENV=production` the session cookie is `Secure` and the browser will not store it on plain HTTP — login returns 200 and nothing happens. To exercise any authenticated screen locally, run a second container with `NODE_ENV=development` on another port.
+- **Never gate auth on `document.cookie`.** The session cookie is `httpOnly` and therefore invisible to it. Doing so once broke sign-in for every admin and parent in production: the check could never be true, `/api/auth/me` was never called, and `/auth-redirect` bounced back to `/sign-in` in a loop.
+- `docker restart` reuses the container's original image; `docker rm -f` + `docker run` is what picks up a rebuild.
+- Git Bash mangles `BASE_PATH=/` into a Windows path — prefix with `MSYS_NO_PATHCONV=1` or use PowerShell.
+
 ## Gotchas
 
 - Always run the `api-spec` `codegen` script after editing `openapi.yaml` — don't hand-edit generated files.
