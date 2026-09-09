@@ -1,11 +1,12 @@
 import { Suspense, lazy, useEffect } from "react";
-import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
+import { Switch, Route, useLocation, Link, Router as WouterRouter } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AuthProvider, useAuth } from "./lib/auth-context";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import RouteFallback from "@/components/route-fallback";
 
 // Eager: the public marketing pages and auth screens. These are the SEO-facing
 // entry points and must not wait on a second network round-trip.
@@ -36,6 +37,46 @@ const CoursesPage = lazy(() => import("@/pages/courses"));
 const ReviewsPage = lazy(() => import("@/pages/reviews"));
 const AttendancePage = lazy(() => import("@/pages/attendance"));
 
+/**
+ * Warm the dashboard chunks once the browser is idle.
+ *
+ * Each admin page is its own chunk, so the *first* click into a section had to
+ * wait on a network fetch before it could draw anything. Pulling them in
+ * during idle time means the click is served from cache and the transition is
+ * immediate. These are the same `import()` calls the `lazy()` wrappers use, so
+ * a warmed module is shared, not fetched twice.
+ *
+ * Fire-and-forget on purpose: a failed prefetch must not surface an error, it
+ * just means the click pays the original cost. Guarded so it runs once.
+ */
+let prefetched = false;
+function prefetchAdminRoutes() {
+  if (prefetched) return;
+  prefetched = true;
+  const load = () => {
+    void Promise.allSettled([
+      import("@/components/layout/admin-layout"),
+      import("@/pages/dashboard"),
+      import("@/pages/intake"),
+      import("@/pages/students"),
+      import("@/pages/sessions"),
+      import("@/pages/attendance"),
+      import("@/pages/progress"),
+      import("@/pages/tasks"),
+      import("@/pages/payments"),
+      import("@/pages/courses"),
+      import("@/pages/reviews"),
+      import("@/pages/staff"),
+      import("@/pages/settings"),
+    ]);
+  };
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(load, { timeout: 2500 });
+  } else {
+    window.setTimeout(load, 1200);
+  }
+}
+
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function HomeRedirect() {
@@ -62,7 +103,13 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, user, setLocation]);
 
-  if (isLoading || !user) return null;
+  useEffect(() => {
+    if (user?.role === "admin") prefetchAdminRoutes();
+  }, [user]);
+
+  // Was `return null`, which painted a bare white page on every refresh of a
+  // dashboard URL while /api/auth/me was still in flight.
+  if (isLoading || !user) return <RouteFallback label="Checking your sign-in" />;
 
   if (user.role !== "admin") {
     return (
@@ -74,12 +121,14 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
           <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
             This area is only accessible to authorised administrators. You are signed in as <strong>{user.email}</strong>.
           </p>
-          <a
-            href={`${basePath}/parent`}
+          {/* Wouter Link, not a bare anchor — an anchor here threw away the
+              whole SPA and reloaded the app from scratch. */}
+          <Link
+            href="/parent"
             className="inline-block bg-[#1B2B6B] hover:bg-[#243580] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 text-sm"
           >
             Go to Parent Portal
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -121,7 +170,8 @@ function ParentRoute() {
     }
   }, [isLoading, user, setLocation]);
 
-  if (isLoading || !user) return null;
+  // Same reason as AdminRoute: null here was a white page on every refresh.
+  if (isLoading || !user) return <RouteFallback label="Checking your sign-in" />;
   return <ParentPortalPage />;
 }
 
@@ -131,7 +181,10 @@ function AppRoutes() {
       <AuthProvider>
         <TooltipProvider>
           <ScrollToTop />
-          <Suspense fallback={null}>
+          {/* Never `null`: every admin page is its own chunk, so a null
+              fallback blanked the entire app — dark rail included — on the
+              first click into each section. That read as a page reload. */}
+          <Suspense fallback={<RouteFallback />}>
           <Switch>
             {/* Public website pages */}
             <Route path="/" component={HomeRedirect} />

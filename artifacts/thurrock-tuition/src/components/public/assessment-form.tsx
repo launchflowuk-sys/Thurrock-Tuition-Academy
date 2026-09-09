@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "wouter";
 import { useCreateIntakeSubmission } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowIcon } from "./icons";
@@ -485,7 +486,8 @@ export default function AssessmentForm() {
 
           <p className="privacy-note">
             We use these details only to arrange your child&rsquo;s assessment and tuition. We never
-            sell them. See our <a href="/privacy">privacy notice</a> for how long we keep them.
+            sell them. See our <Link href="/privacy">privacy notice</Link> for how long we keep
+            them.
           </p>
           <label className="field-check" htmlFor="marketingOptIn">
             <input

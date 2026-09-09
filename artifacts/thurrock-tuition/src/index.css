@@ -184,3 +184,72 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ---------------------------------------------------------------------------
+ * Route transition placeholder (components/route-fallback.tsx).
+ *
+ * Global rather than scoped under .dash or .tta, because it has to render
+ * before either shell exists — on a cold load the lazy chunk that provides
+ * them has not arrived yet.
+ *
+ * The background is the app's own paper tone, not white: the whole complaint
+ * was that navigation flashed to bare white and looked like a page reload.
+ * ------------------------------------------------------------------------- */
+
+.route-fallback {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: hsl(45 24% 97%);
+}
+.route-fallback img {
+  width: 44px;
+  height: 49px;
+  opacity: 0.9;
+}
+.route-fallback-bar {
+  display: block;
+  width: 132px;
+  height: 3px;
+  border-radius: 3px;
+  background: #dcdfe4;
+  overflow: hidden;
+}
+.route-fallback-bar i {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: 3px;
+  background: #16225a;
+  animation: route-fallback-slide 1.1s ease-in-out infinite;
+}
+@keyframes route-fallback-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* Visible to screen readers only. */
+.sr-only-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Still show progress, just without the travelling bar. */
+  .route-fallback-bar i {
+    animation: none;
+    width: 100%;
+    opacity: 0.55;
+  }
+}
