@@ -944,6 +944,42 @@ paths:
         "204":
           description: Deleted
 
+  /intake/{id}/convert:
+    post:
+      operationId: convertIntakeSubmission
+      tags: [intake]
+      summary: Promote an application into a student record (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntakeConvertInput"
+      responses:
+        "201":
+          description: Student record created from the application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Submission not found
+        "409":
+          description: Already converted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:     { type: string }
+                  studentId: { type: integer }
+
   /intake/{id}/reply:
     post:
       operationId: replyToIntakeSubmission
@@ -1647,49 +1683,97 @@ components:
     # ─── INTAKE SUBMISSION ────────────────────────────────────────────────────────
     IntakeSubmission:
       type: object
-      required: [id, parentName, childName, childAge, email, contactNumber, subject, level, status, createdAt]
+      required: [id, parentName, childName, childAge, email, contactNumber, subject, level, status, marketingOptIn, createdAt]
       properties:
-        id:                 { type: integer }
-        parentName:         { type: string }
-        childName:          { type: string }
-        childAge:           { type: integer }
-        email:              { type: string }
-        contactNumber:      { type: string }
-        subject:            { type: string }
-        level:              { type: string }
-        currentSchool:      { type: ["string", "null"] }
-        currentAttainment:  { type: ["string", "null"] }
-        goals:              { type: ["string", "null"] }
-        previousTutoring:   { type: ["string", "null"] }
-        howDidYouHear:      { type: ["string", "null"] }
-        preferredSlot:      { type: ["string", "null"] }
-        additionalInfo:     { type: ["string", "null"] }
-        status:             { type: string }
-        createdAt:          { type: string }
+        id:                     { type: integer }
+        # The child
+        childName:              { type: string }
+        childAge:               { type: integer }
+        childYearGroup:         { type: ["string", "null"] }
+        currentSchool:          { type: ["string", "null"] }
+        subject:                { type: string }
+        level:                  { type: string }
+        currentAttainment:      { type: ["string", "null"] }
+        senNotes:               { type: ["string", "null"] }
+        # The parent or guardian
+        parentName:             { type: string }
+        relationshipToChild:    { type: ["string", "null"] }
+        email:                  { type: string }
+        contactNumber:          { type: string }
+        altContactNumber:       { type: ["string", "null"] }
+        preferredContactMethod: { type: ["string", "null"] }
+        # Goals, background and admin
+        goals:                  { type: ["string", "null"] }
+        previousTutoring:       { type: ["string", "null"] }
+        howDidYouHear:          { type: ["string", "null"] }
+        preferredSlot:          { type: ["string", "null"] }
+        additionalInfo:         { type: ["string", "null"] }
+        marketingOptIn:         { type: boolean }
+        status:                 { type: string }
+        convertedStudentId:     { type: ["integer", "null"] }
+        createdAt:              { type: string }
 
     IntakeSubmissionInput:
       type: object
       required: [parentName, childName, childAge, email, contactNumber, subject, level]
       properties:
-        parentName:         { type: string, minLength: 1 }
-        childName:          { type: string, minLength: 1 }
-        childAge:           { type: integer }
-        email:              { type: string, minLength: 1 }
-        contactNumber:      { type: string, minLength: 1 }
-        subject:            { type: string }
-        level:              { type: string }
-        currentSchool:      { type: string }
-        currentAttainment:  { type: string }
-        goals:              { type: string }
-        previousTutoring:   { type: string }
-        howDidYouHear:      { type: string }
-        preferredSlot:      { type: string }
-        additionalInfo:     { type: string }
+        # The child
+        childName:              { type: string, minLength: 1 }
+        childAge:               { type: integer }
+        childYearGroup:         { type: string }
+        currentSchool:          { type: string }
+        subject:                { type: string }
+        level:                  { type: string }
+        currentAttainment:      { type: string }
+        senNotes:               { type: string }
+        # The parent or guardian
+        parentName:             { type: string, minLength: 1 }
+        relationshipToChild:    { type: string }
+        email:                  { type: string, minLength: 1 }
+        contactNumber:          { type: string, minLength: 1 }
+        altContactNumber:       { type: string }
+        preferredContactMethod: { type: string }
+        # Goals and background
+        goals:                  { type: string }
+        previousTutoring:       { type: string }
+        howDidYouHear:          { type: string }
+        preferredSlot:          { type: string }
+        additionalInfo:         { type: string }
+        marketingOptIn:         { type: boolean }
 
     IntakeSubmissionUpdate:
       type: object
       properties:
-        status: { type: string }
+        status:                 { type: string }
+        childName:              { type: string }
+        childAge:               { type: integer }
+        childYearGroup:         { type: string }
+        currentSchool:          { type: string }
+        subject:                { type: string }
+        level:                  { type: string }
+        currentAttainment:      { type: string }
+        senNotes:               { type: string }
+        parentName:             { type: string }
+        relationshipToChild:    { type: string }
+        email:                  { type: string }
+        contactNumber:          { type: string }
+        altContactNumber:       { type: string }
+        preferredContactMethod: { type: string }
+        goals:                  { type: string }
+        previousTutoring:       { type: string }
+        howDidYouHear:          { type: string }
+        preferredSlot:          { type: string }
+        additionalInfo:         { type: string }
+
+    IntakeConvertInput:
+      type: object
+      description: >
+        Optional overrides applied when promoting an application. Anything
+        omitted is carried across from the application itself; sessionSlot
+        falls back to the applicant's preferred slot.
+      properties:
+        sessionSlot: { type: string }
+        notes:       { type: string }
 
     IntakeReplyInput:
       type: object

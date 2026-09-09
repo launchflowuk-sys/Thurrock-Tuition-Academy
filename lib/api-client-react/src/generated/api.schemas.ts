@@ -447,17 +447,27 @@ export interface UploadUrlResponse {
 
 export interface IntakeSubmission {
   id: number;
-  parentName: string;
   childName: string;
   childAge: number;
-  email: string;
-  contactNumber: string;
+  /** @nullable */
+  childYearGroup?: string | null;
+  /** @nullable */
+  currentSchool?: string | null;
   subject: string;
   level: string;
   /** @nullable */
-  currentSchool?: string | null;
-  /** @nullable */
   currentAttainment?: string | null;
+  /** @nullable */
+  senNotes?: string | null;
+  parentName: string;
+  /** @nullable */
+  relationshipToChild?: string | null;
+  email: string;
+  contactNumber: string;
+  /** @nullable */
+  altContactNumber?: string | null;
+  /** @nullable */
+  preferredContactMethod?: string | null;
   /** @nullable */
   goals?: string | null;
   /** @nullable */
@@ -468,24 +478,56 @@ export interface IntakeSubmission {
   preferredSlot?: string | null;
   /** @nullable */
   additionalInfo?: string | null;
+  marketingOptIn: boolean;
   status: string;
+  /** @nullable */
+  convertedStudentId?: number | null;
   createdAt: string;
 }
 
 export interface IntakeSubmissionInput {
   /** @minLength 1 */
-  parentName: string;
-  /** @minLength 1 */
   childName: string;
   childAge: number;
+  childYearGroup?: string;
+  currentSchool?: string;
+  subject: string;
+  level: string;
+  currentAttainment?: string;
+  senNotes?: string;
+  /** @minLength 1 */
+  parentName: string;
+  relationshipToChild?: string;
   /** @minLength 1 */
   email: string;
   /** @minLength 1 */
   contactNumber: string;
-  subject: string;
-  level: string;
+  altContactNumber?: string;
+  preferredContactMethod?: string;
+  goals?: string;
+  previousTutoring?: string;
+  howDidYouHear?: string;
+  preferredSlot?: string;
+  additionalInfo?: string;
+  marketingOptIn?: boolean;
+}
+
+export interface IntakeSubmissionUpdate {
+  status?: string;
+  childName?: string;
+  childAge?: number;
+  childYearGroup?: string;
   currentSchool?: string;
+  subject?: string;
+  level?: string;
   currentAttainment?: string;
+  senNotes?: string;
+  parentName?: string;
+  relationshipToChild?: string;
+  email?: string;
+  contactNumber?: string;
+  altContactNumber?: string;
+  preferredContactMethod?: string;
   goals?: string;
   previousTutoring?: string;
   howDidYouHear?: string;
@@ -493,8 +535,13 @@ export interface IntakeSubmissionInput {
   additionalInfo?: string;
 }
 
-export interface IntakeSubmissionUpdate {
-  status?: string;
+/**
+ * Optional overrides applied when promoting an application. Anything omitted is carried across from the application itself; sessionSlot falls back to the applicant's preferred slot.
+
+ */
+export interface IntakeConvertInput {
+  sessionSlot?: string;
+  notes?: string;
 }
 
 export interface IntakeReplyInput {
@@ -739,6 +786,11 @@ export type ListPaymentsParams = {
 
 export type ListMessagesParams = {
   studentId: number;
+};
+
+export type ConvertIntakeSubmission409 = {
+  error?: string;
+  studentId?: number;
 };
 
 export type ReplyToIntakeSubmission200 = {

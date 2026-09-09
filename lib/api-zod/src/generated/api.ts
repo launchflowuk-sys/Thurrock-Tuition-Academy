@@ -781,21 +781,28 @@ export const GetPaymentPublicSettingsResponse = zod.object({
  */
 export const ListIntakeSubmissionsResponseItem = zod.object({
   id: zod.number(),
-  parentName: zod.string(),
   childName: zod.string(),
   childAge: zod.number(),
-  email: zod.string(),
-  contactNumber: zod.string(),
+  childYearGroup: zod.string().nullish(),
+  currentSchool: zod.string().nullish(),
   subject: zod.string(),
   level: zod.string(),
-  currentSchool: zod.string().nullish(),
   currentAttainment: zod.string().nullish(),
+  senNotes: zod.string().nullish(),
+  parentName: zod.string(),
+  relationshipToChild: zod.string().nullish(),
+  email: zod.string(),
+  contactNumber: zod.string(),
+  altContactNumber: zod.string().nullish(),
+  preferredContactMethod: zod.string().nullish(),
   goals: zod.string().nullish(),
   previousTutoring: zod.string().nullish(),
   howDidYouHear: zod.string().nullish(),
   preferredSlot: zod.string().nullish(),
   additionalInfo: zod.string().nullish(),
+  marketingOptIn: zod.boolean(),
   status: zod.string(),
+  convertedStudentId: zod.number().nullish(),
   createdAt: zod.string(),
 });
 export const ListIntakeSubmissionsResponse = zod.array(
@@ -807,20 +814,26 @@ export const ListIntakeSubmissionsResponse = zod.array(
  */
 
 export const CreateIntakeSubmissionBody = zod.object({
-  parentName: zod.string().min(1),
   childName: zod.string().min(1),
   childAge: zod.number(),
-  email: zod.string().min(1),
-  contactNumber: zod.string().min(1),
+  childYearGroup: zod.string().optional(),
+  currentSchool: zod.string().optional(),
   subject: zod.string(),
   level: zod.string(),
-  currentSchool: zod.string().optional(),
   currentAttainment: zod.string().optional(),
+  senNotes: zod.string().optional(),
+  parentName: zod.string().min(1),
+  relationshipToChild: zod.string().optional(),
+  email: zod.string().min(1),
+  contactNumber: zod.string().min(1),
+  altContactNumber: zod.string().optional(),
+  preferredContactMethod: zod.string().optional(),
   goals: zod.string().optional(),
   previousTutoring: zod.string().optional(),
   howDidYouHear: zod.string().optional(),
   preferredSlot: zod.string().optional(),
   additionalInfo: zod.string().optional(),
+  marketingOptIn: zod.boolean().optional(),
 });
 
 /**
@@ -832,25 +845,51 @@ export const UpdateIntakeSubmissionParams = zod.object({
 
 export const UpdateIntakeSubmissionBody = zod.object({
   status: zod.string().optional(),
+  childName: zod.string().optional(),
+  childAge: zod.number().optional(),
+  childYearGroup: zod.string().optional(),
+  currentSchool: zod.string().optional(),
+  subject: zod.string().optional(),
+  level: zod.string().optional(),
+  currentAttainment: zod.string().optional(),
+  senNotes: zod.string().optional(),
+  parentName: zod.string().optional(),
+  relationshipToChild: zod.string().optional(),
+  email: zod.string().optional(),
+  contactNumber: zod.string().optional(),
+  altContactNumber: zod.string().optional(),
+  preferredContactMethod: zod.string().optional(),
+  goals: zod.string().optional(),
+  previousTutoring: zod.string().optional(),
+  howDidYouHear: zod.string().optional(),
+  preferredSlot: zod.string().optional(),
+  additionalInfo: zod.string().optional(),
 });
 
 export const UpdateIntakeSubmissionResponse = zod.object({
   id: zod.number(),
-  parentName: zod.string(),
   childName: zod.string(),
   childAge: zod.number(),
-  email: zod.string(),
-  contactNumber: zod.string(),
+  childYearGroup: zod.string().nullish(),
+  currentSchool: zod.string().nullish(),
   subject: zod.string(),
   level: zod.string(),
-  currentSchool: zod.string().nullish(),
   currentAttainment: zod.string().nullish(),
+  senNotes: zod.string().nullish(),
+  parentName: zod.string(),
+  relationshipToChild: zod.string().nullish(),
+  email: zod.string(),
+  contactNumber: zod.string(),
+  altContactNumber: zod.string().nullish(),
+  preferredContactMethod: zod.string().nullish(),
   goals: zod.string().nullish(),
   previousTutoring: zod.string().nullish(),
   howDidYouHear: zod.string().nullish(),
   preferredSlot: zod.string().nullish(),
   additionalInfo: zod.string().nullish(),
+  marketingOptIn: zod.boolean(),
   status: zod.string(),
+  convertedStudentId: zod.number().nullish(),
   createdAt: zod.string(),
 });
 
@@ -860,6 +899,22 @@ export const UpdateIntakeSubmissionResponse = zod.object({
 export const DeleteIntakeSubmissionParams = zod.object({
   id: zod.coerce.number(),
 });
+
+/**
+ * @summary Promote an application into a student record (admin)
+ */
+export const ConvertIntakeSubmissionParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ConvertIntakeSubmissionBody = zod
+  .object({
+    sessionSlot: zod.string().optional(),
+    notes: zod.string().optional(),
+  })
+  .describe(
+    "Optional overrides applied when promoting an application. Anything omitted is carried across from the application itself; sessionSlot falls back to the applicant's preferred slot.\n",
+  );
 
 /**
  * @summary Send an email reply to an applicant (admin)

@@ -8,7 +8,7 @@ import AssessmentForm from "@/components/public/assessment-form";
 
 export default function ContactPage() {
   return (
-    <PublicShell active="C:/Program Files/Git/contact">
+    <PublicShell active="/contact">
 
       <section className="page-hero">
       <div className="wrap">

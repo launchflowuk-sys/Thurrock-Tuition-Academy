@@ -8,4 +8,23 @@
 
 export interface IntakeSubmissionUpdate {
   status?: string;
+  childName?: string;
+  childAge?: number;
+  childYearGroup?: string;
+  currentSchool?: string;
+  subject?: string;
+  level?: string;
+  currentAttainment?: string;
+  senNotes?: string;
+  parentName?: string;
+  relationshipToChild?: string;
+  email?: string;
+  contactNumber?: string;
+  altContactNumber?: string;
+  preferredContactMethod?: string;
+  goals?: string;
+  previousTutoring?: string;
+  howDidYouHear?: string;
+  preferredSlot?: string;
+  additionalInfo?: string;
 }

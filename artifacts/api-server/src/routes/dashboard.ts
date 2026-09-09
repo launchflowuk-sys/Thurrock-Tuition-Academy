@@ -36,12 +36,18 @@ router.get("/dashboard/summary", requireAdmin, async (_req, res): Promise<void> 
     .from(studentsTable)
     .where(gte(studentsTable.joinedAt, startOfMonth));
 
-  // Applications that were contacted but never resolved — where enrolment
+  // Applications that were answered but never resolved — where enrolment
   // revenue leaks. "new" is counted separately as newIntakeSubmissions.
+  //
+  // This counted status "contacted", which is not one of the four statuses the
+  // app ever writes (new | reviewing | enrolled | declined). The count was
+  // therefore always 0, so the dashboard read "All followed up" while new
+  // applications sat unanswered. "reviewing" is the real answered-not-resolved
+  // state.
   const [awaitingFollowUpResult] = await db
     .select({ count: count() })
     .from(intakeSubmissionsTable)
-    .where(eq(intakeSubmissionsTable.status, "contacted"));
+    .where(eq(intakeSubmissionsTable.status, "reviewing"));
 
   // Safeguarding: an enhanced DBS falling due inside 60 days needs action now,
   // and a tutor with no DBS recorded at all is a separate, worse problem.

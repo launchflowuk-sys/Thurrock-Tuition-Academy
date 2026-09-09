@@ -451,6 +451,32 @@
   .dash-topbar { padding: 12px 18px; }
 }
 
+/* The topbar holds three controls — menu, search, "New application" — and on a
+ * phone one row cannot carry all three. Flex was shrinking the search to about
+ * 100px at 375px: a stub roughly eight characters wide, on the widest and most
+ * prominent control in the app, whose placeholder reads "Search students,
+ * sessions, applications…". Nothing overflowed, which is why a scrollWidth
+ * check called this screen clean; it just looked broken.
+ *
+ * So the row wraps instead. The two buttons keep line one, pushed to opposite
+ * ends, and the search takes the whole of line two at full width. */
+@media (max-width: 720px) {
+  .dash-topbar {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .dash-menu-btn { order: 1; }
+  /* The CTA only — .dash-menu-btn also carries .btn-d.in-row. */
+  .dash-topbar > .btn-d.in-row:not(.dash-menu-btn) {
+    order: 2;
+    margin-left: auto;
+  }
+  .dash-search {
+    order: 3;
+    flex: 1 0 100%;
+  }
+}
+
 @media (max-width: 560px) {
   .kpi-strip { grid-template-columns: minmax(0, 1fr); }
   .dash-page-title { font-size: 26px; }
@@ -700,4 +726,279 @@
 @media (max-width: 760px) {
   .portal-kpis { grid-template-columns: minmax(0, 1fr); }
   .portal-bar { padding: 12px 16px; }
+}
+
+/* ==================== Applications: list beside a real panel ============
+ *
+ * The applications screen used to be a stack of cards with an expand toggle
+ * and a modal for replies. A modal is the wrong shape for this job: it hides
+ * the list behind it, it cannot be read while typing a reply, and it made the
+ * student's name and the parent's name compete for the same line of the same
+ * card.
+ *
+ * The replacement is master/detail. The left column is a compact index of
+ * applications; the right is one persistent panel that leads with the student
+ * name, states the parent name directly underneath it, and carries every
+ * field the parent submitted, grouped by who it is about.
+ *
+ * Below 1080px the two columns collapse: the list is the page until an
+ * application is picked, then the panel is the page and a back button returns.
+ * ---------------------------------------------------------------------- */
+
+.dash .app-split {
+  display: grid;
+  grid-template-columns: 336px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* The index. Its own scroller so a long list never pushes the panel down. */
+.dash .app-index {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-surface);
+  padding: 8px;
+  min-width: 0;
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
+  position: sticky;
+  top: 96px;
+}
+
+.dash .app-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 14px;
+  padding: 12px 13px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+}
+.dash .app-row:hover { background: #f4f5f7; }
+.dash .app-row.current {
+  background: #f4f5f8;
+  border-color: var(--accent);
+}
+.dash .app-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* The student is the headline; the parent is the line under it. Never the
+   same weight, so they can never be misread for each other. */
+.dash .app-row-student {
+  font-size: var(--text-row);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.dash .app-row-parent {
+  font-size: var(--text-meta);
+  color: var(--ink-2);
+  display: block;
+  margin-top: 1px;
+  overflow-wrap: anywhere;
+}
+.dash .app-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 7px;
+  font-size: var(--text-meta);
+  color: var(--ink-3);
+}
+.dash .app-row.unread .app-row-student::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  margin-left: 7px;
+  vertical-align: 2px;
+}
+
+/* The detail panel. */
+.dash .app-panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-surface);
+  min-width: 0;
+  overflow: hidden;
+}
+.dash .app-panel-head {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.dash .app-panel-student {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+/* The parent's name, said out loud rather than left to be inferred. */
+.dash .app-panel-parent {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.dash .app-panel-parent strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.dash .app-panel-tags {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 13px;
+}
+.dash .app-panel-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: #fbfbfc;
+}
+.dash .app-panel-body { padding: 22px 24px 26px; }
+
+/* Field groups: "The student", "Parent or guardian", "Goals". */
+.dash .app-group + .app-group { margin-top: 26px; }
+.dash .app-group-title {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.dash .app-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 22px;
+}
+.dash .app-fields.one { grid-template-columns: minmax(0, 1fr); }
+.dash .app-field { min-width: 0; }
+.dash .app-field dt {
+  font-size: var(--text-label);
+  color: var(--ink-3);
+  font-weight: 600;
+  margin: 0 0 3px;
+}
+.dash .app-field dd {
+  font-size: var(--text-row);
+  color: var(--ink);
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+.dash .app-field dd.empty { color: var(--ink-3); }
+.dash .app-field dd a { color: var(--accent); text-decoration: underline; }
+
+/* The reply composer and the convert form both live inline in the panel. */
+.dash .app-form {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: #fbfbfc;
+}
+.dash .app-form-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.dash .app-form-sub {
+  font-size: var(--text-meta);
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.dash .app-form label {
+  display: block;
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--ink-2);
+  margin: 0 0 5px;
+}
+.dash .app-form .row + .row { margin-top: 13px; }
+.dash .app-form input,
+.dash .app-form select,
+.dash .app-form textarea {
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-field);
+  padding: 11px 14px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--paper);
+}
+.dash .app-form textarea { resize: vertical; min-height: 150px; line-height: 1.6; }
+.dash .app-form input:focus-visible,
+.dash .app-form select:focus-visible,
+.dash .app-form textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.dash .app-form-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.dash .app-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 13px 15px;
+  border-radius: 12px;
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  margin-top: 14px;
+}
+.dash .app-note.warn { background: #fff8ea; border: 1px solid #f0dcb0; color: #6b4a06; }
+.dash .app-note.good { background: #eef7f4; border: 1px solid #cbe4dc; color: #0d5347; }
+.dash .app-note svg { flex-shrink: 0; margin-top: 1px; }
+
+/* Only shown once the two columns collapse. */
+.dash .app-back { display: none; }
+
+@media (max-width: 1080px) {
+  .dash .app-split { grid-template-columns: minmax(0, 1fr); }
+  .dash .app-index {
+    position: static;
+    max-height: none;
+    /* Picking an application swaps the list out for the panel, rather than
+       leaving the visitor to scroll past 30 rows to reach it. */
+  }
+  .dash .app-split.detail-open .app-index { display: none; }
+  .dash .app-split:not(.detail-open) .app-panel { display: none; }
+  .dash .app-back { display: inline-flex; }
+}
+
+@media (max-width: 640px) {
+  .dash .app-fields { grid-template-columns: minmax(0, 1fr); }
+  .dash .app-panel-head { padding: 18px; }
+  .dash .app-panel-actions { padding: 12px 18px; }
+  .dash .app-panel-body { padding: 18px 18px 22px; }
+  .dash .app-panel-student { font-size: 22px; }
+  .dash .app-form { padding: 15px; }
+  /* Every action is full width rather than three half-buttons on two lines. */
+  .dash .app-panel-actions > * { width: 100%; justify-content: center; }
+  .dash .app-form-actions > .btn-d { flex: 1 1 100%; justify-content: center; }
 }

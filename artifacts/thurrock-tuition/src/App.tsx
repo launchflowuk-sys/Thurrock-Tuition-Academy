@@ -13,6 +13,7 @@ import LandingPage from "@/pages/landing";
 import ServicesPage from "@/pages/services";
 import AboutPage from "@/pages/about";
 import ContactPage from "@/pages/contact";
+import PrivacyPage from "@/pages/privacy";
 import { SignInPage, SignUpPage } from "@/pages/auth";
 import NotFound from "@/pages/not-found";
 
@@ -137,6 +138,9 @@ function AppRoutes() {
             <Route path="/services" component={ServicesPage} />
             <Route path="/about" component={AboutPage} />
             <Route path="/contact" component={ContactPage} />
+            {/* The consent banner links here, so it must resolve on the very
+                first visit — eager, not lazy. */}
+            <Route path="/privacy" component={PrivacyPage} />
 
             {/* Auth pages */}
             <Route path="/sign-in" component={SignInPage} />

@@ -9,7 +9,7 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function AboutPage() {
   return (
-    <PublicShell active="C:/Program Files/Git/about">
+    <PublicShell active="/about">
 
       <section className="page-hero">
       <div className="wrap">

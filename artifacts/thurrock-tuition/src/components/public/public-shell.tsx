@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowIcon } from "./icons";
 import SiteNav from "./site-nav";
+import CookieBanner, { CookieSettingsLink } from "./cookie-banner";
 
 // Shared chrome for every public page, ported from the design handover
 // (Thurrock-Tuition-Claude-Code-Handover/reference/dist). Markup, class names
@@ -170,7 +171,10 @@ function Footer() {
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} Thurrock Tuition Academy. All rights reserved.</span>
           <span>
-            Registered in England &amp; Wales &nbsp; · &nbsp; DBS checked tutors &nbsp; · &nbsp;
+            <Link href="/privacy">Privacy &amp; cookies</Link> &nbsp; · &nbsp;
+            {/* A visitor must be able to withdraw consent as easily as they gave
+                it, which means a permanent way back to the banner. */}
+            <CookieSettingsLink /> &nbsp; · &nbsp; DBS checked tutors &nbsp; · &nbsp;
             Website by <a href="https://launchflow.co.uk">LaunchFlow</a>
           </span>
         </div>
@@ -208,6 +212,9 @@ export default function PublicShell({
       </main>
       {regionStrip && <RegionStrip />}
       <Footer />
+      {/* Last in the tree but fixed to the viewport, so it sits over the footer
+          rather than being clipped by any section's stacking context. */}
+      <CookieBanner />
     </div>
   );
 }

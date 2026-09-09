@@ -166,3 +166,122 @@
     display: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+ * Whose details is this step asking for?
+ *
+ * The form always collected the child and the parent separately, but nothing
+ * on screen said so: two steps of near-identical name/contact fields read as
+ * one long list, and parents filled their own name into the child's box. The
+ * banner names the person each step is about before the first field, and the
+ * fieldset legend repeats it for screen readers.
+ * ------------------------------------------------------------------------ */
+
+.tta .who {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 15px 17px;
+  border-radius: 12px;
+  background: var(--grey);
+  border-left: 4px solid var(--yellow);
+  margin-bottom: 20px;
+}
+.tta .who.parent {
+  border-left-color: var(--blue);
+}
+.tta .who-badge {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--navy);
+  color: var(--yellow);
+  font: 700 0.82rem/1 Manrope, Arial, sans-serif;
+  letter-spacing: 0;
+}
+.tta .who.parent .who-badge {
+  background: var(--blue);
+  color: #fff;
+}
+.tta .who strong {
+  display: block;
+  font: 700 0.98rem/1.35 Manrope, Arial, sans-serif;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+}
+.tta .who p {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin-top: 3px;
+}
+
+/* A fieldset must not inherit the browser's default border or padding, or the
+   grouping shows up as a stray box around half the form. */
+.tta .form-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0; /* fieldsets ignore flex/grid shrinking without this */
+}
+.tta .form-group > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Consent and opt-in rows. The label is the hit target, so it is generous. */
+.tta .field-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+.tta .field-check:hover {
+  background: var(--grey);
+}
+.tta .field-check input {
+  width: 19px;
+  height: 19px;
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--navy);
+  cursor: pointer;
+}
+.tta .field-check span {
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.tta .field-check a {
+  color: var(--blue);
+  text-decoration: underline;
+}
+.tta .privacy-note {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  .tta .who {
+    padding: 13px 14px;
+    gap: 11px;
+  }
+  .tta .who strong {
+    font-size: 0.92rem;
+  }
+}

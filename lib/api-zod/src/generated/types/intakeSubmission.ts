@@ -8,17 +8,27 @@
 
 export interface IntakeSubmission {
   id: number;
-  parentName: string;
   childName: string;
   childAge: number;
-  email: string;
-  contactNumber: string;
+  /** @nullable */
+  childYearGroup?: string | null;
+  /** @nullable */
+  currentSchool?: string | null;
   subject: string;
   level: string;
   /** @nullable */
-  currentSchool?: string | null;
-  /** @nullable */
   currentAttainment?: string | null;
+  /** @nullable */
+  senNotes?: string | null;
+  parentName: string;
+  /** @nullable */
+  relationshipToChild?: string | null;
+  email: string;
+  contactNumber: string;
+  /** @nullable */
+  altContactNumber?: string | null;
+  /** @nullable */
+  preferredContactMethod?: string | null;
   /** @nullable */
   goals?: string | null;
   /** @nullable */
@@ -29,6 +39,9 @@ export interface IntakeSubmission {
   preferredSlot?: string | null;
   /** @nullable */
   additionalInfo?: string | null;
+  marketingOptIn: boolean;
   status: string;
+  /** @nullable */
+  convertedStudentId?: number | null;
   createdAt: string;
 }

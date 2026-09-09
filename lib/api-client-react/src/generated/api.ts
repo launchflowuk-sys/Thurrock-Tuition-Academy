@@ -23,6 +23,7 @@ import type {
   AuthUser,
   ChangePasswordInput,
   ChangePasswordResult,
+  ConvertIntakeSubmission409,
   Course,
   CourseInput,
   CourseUpdate,
@@ -30,6 +31,7 @@ import type {
   ErrorEnvelope,
   GoogleReviewSyncResponse,
   HealthStatus,
+  IntakeConvertInput,
   IntakeReplyInput,
   IntakeSubmission,
   IntakeSubmissionInput,
@@ -4185,6 +4187,94 @@ export const useDeleteIntakeSubmission = <
   TContext
 > => {
   return useMutation(getDeleteIntakeSubmissionMutationOptions(options));
+};
+
+/**
+ * @summary Promote an application into a student record (admin)
+ */
+export const getConvertIntakeSubmissionUrl = (id: number) => {
+  return `/api/intake/${id}/convert`;
+};
+
+export const convertIntakeSubmission = async (
+  id: number,
+  intakeConvertInput?: IntakeConvertInput,
+  options?: RequestInit,
+): Promise<Student> => {
+  return customFetch<Student>(getConvertIntakeSubmissionUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(intakeConvertInput),
+  });
+};
+
+export const getConvertIntakeSubmissionMutationOptions = <
+  TError = ErrorType<void | ConvertIntakeSubmission409>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof convertIntakeSubmission>>,
+    TError,
+    { id: number; data: BodyType<IntakeConvertInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof convertIntakeSubmission>>,
+  TError,
+  { id: number; data: BodyType<IntakeConvertInput> },
+  TContext
+> => {
+  const mutationKey = ["convertIntakeSubmission"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof convertIntakeSubmission>>,
+    { id: number; data: BodyType<IntakeConvertInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return convertIntakeSubmission(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ConvertIntakeSubmissionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof convertIntakeSubmission>>
+>;
+export type ConvertIntakeSubmissionMutationBody = BodyType<IntakeConvertInput>;
+export type ConvertIntakeSubmissionMutationError =
+  ErrorType<void | ConvertIntakeSubmission409>;
+
+/**
+ * @summary Promote an application into a student record (admin)
+ */
+export const useConvertIntakeSubmission = <
+  TError = ErrorType<void | ConvertIntakeSubmission409>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof convertIntakeSubmission>>,
+    TError,
+    { id: number; data: BodyType<IntakeConvertInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof convertIntakeSubmission>>,
+  TError,
+  { id: number; data: BodyType<IntakeConvertInput> },
+  TContext
+> => {
+  return useMutation(getConvertIntakeSubmissionMutationOptions(options));
 };
 
 /**

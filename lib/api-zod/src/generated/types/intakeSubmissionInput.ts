@@ -8,21 +8,27 @@
 
 export interface IntakeSubmissionInput {
   /** @minLength 1 */
-  parentName: string;
-  /** @minLength 1 */
   childName: string;
   childAge: number;
+  childYearGroup?: string;
+  currentSchool?: string;
+  subject: string;
+  level: string;
+  currentAttainment?: string;
+  senNotes?: string;
+  /** @minLength 1 */
+  parentName: string;
+  relationshipToChild?: string;
   /** @minLength 1 */
   email: string;
   /** @minLength 1 */
   contactNumber: string;
-  subject: string;
-  level: string;
-  currentSchool?: string;
-  currentAttainment?: string;
+  altContactNumber?: string;
+  preferredContactMethod?: string;
   goals?: string;
   previousTutoring?: string;
   howDidYouHear?: string;
   preferredSlot?: string;
   additionalInfo?: string;
+  marketingOptIn?: boolean;
 }

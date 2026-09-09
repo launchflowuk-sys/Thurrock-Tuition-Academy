@@ -78,7 +78,15 @@ export default function Dashboard() {
           ground="purple"
           label="New applications"
           value={String(newApplications)}
-          note={awaitingFollowUp > 0 ? `${awaitingFollowUp} awaiting follow-up` : "All followed up"}
+          // A count of unanswered applications must never be captioned "All
+          // followed up" — the figure and its note contradicted each other.
+          note={
+            newApplications > 0
+              ? "Not yet answered"
+              : awaitingFollowUp > 0
+                ? `${awaitingFollowUp} awaiting follow-up`
+                : "All followed up"
+          }
           href="/intake"
         />
       </div>

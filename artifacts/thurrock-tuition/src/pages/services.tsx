@@ -7,7 +7,7 @@ import PublicShell from "@/components/public/public-shell";
 
 export default function ServicesPage() {
   return (
-    <PublicShell active="C:/Program Files/Git/services">
+    <PublicShell active="/services">
 
       <section className="page-hero">
       <div className="wrap">

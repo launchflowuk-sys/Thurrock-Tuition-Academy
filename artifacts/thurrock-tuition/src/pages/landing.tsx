@@ -10,7 +10,7 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function LandingPage() {
   return (
-    <PublicShell active="C:/Program Files/Git/">
+    <PublicShell active="/">
 
       <section className="wrap hero">
       <div className="hero-copy reveal">
